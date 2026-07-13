@@ -592,7 +592,12 @@ app.post('/api/admin/upload-product', upload.single('image'), async (req, res) =
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🔒 Hastara Payment Server running on http://localhost:${PORT}`);
-});
+// Start server locally (skip if running in Vercel serverless environment)
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🔒 Hastara Payment Server running on http://localhost:${PORT}`);
+  });
+}
 
+// Export the Express app for Vercel
+export default app;
