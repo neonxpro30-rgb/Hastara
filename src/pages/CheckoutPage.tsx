@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
@@ -221,7 +221,7 @@ export default function CheckoutPage() {
           
           if (!res.ok) {
             console.error('Shiprocket error:', await res.text());
-            showToast('Payment successful, but failed to create shipping order.', 'warning');
+            showToast('Payment successful, but shipping order failed. We will contact you.', 'info');
           } else {
             showToast('Order confirmed and shipping initialized!', 'success');
           }
