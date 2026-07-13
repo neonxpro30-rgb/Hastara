@@ -81,20 +81,60 @@ const AdminPage: React.FC = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!sessionStorage.getItem('admin_token'));
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  const getToken = () => sessionStorage.getItem('admin_token') || '';
+  const authHeaders = () => ({ 'Authorization': `Bearer ${getToken()}` });
 
   useEffect(() => {
-    fetchStats();
-    fetchProducts();
-  }, []);
+    if (isAuthenticated) {
+      fetchStats();
+      fetchProducts();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    if (activeTab === 'orders') fetchOrders();
-    if (activeTab === 'payments') fetchPayments();
-  }, [activeTab]);
+    if (isAuthenticated) {
+      if (activeTab === 'orders') fetchOrders();
+      if (activeTab === 'payments') fetchPayments();
+    }
+  }, [activeTab, isAuthenticated]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError('');
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: loginPassword }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        sessionStorage.setItem('admin_token', data.token);
+        setIsAuthenticated(true);
+      } else {
+        setLoginError('❌ Galat password hai. Dobara try karein.');
+      }
+    } catch {
+      setLoginError('Server se connect nahi ho pa raha. Backend chal raha hai?');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('admin_token');
+    setIsAuthenticated(false);
+  };
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/admin/stats');
+      const res = await fetch('/api/admin/stats', { headers: authHeaders() });
       if (res.ok) setStats(await res.json());
     } catch (e) { console.error('Failed to fetch stats', e); }
   };
@@ -108,14 +148,14 @@ const AdminPage: React.FC = () => {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch('/api/admin/orders');
+      const res = await fetch('/api/admin/orders', { headers: authHeaders() });
       if (res.ok) setOrders(await res.json());
     } catch (e) { console.error('Failed to fetch orders', e); }
   };
 
   const fetchPayments = async () => {
     try {
-      const res = await fetch('/api/admin/payments');
+      const res = await fetch('/api/admin/payments', { headers: authHeaders() });
       if (res.ok) setPayments(await res.json());
     } catch (e) { console.error('Failed to fetch payments', e); }
   };
@@ -173,7 +213,10 @@ const AdminPage: React.FC = () => {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Kya aap sach me "${name}" ko delete karna chahte hain?`)) return;
     try {
-      const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
       if (res.ok) {
         setProducts(products.filter(p => p.id !== id));
         fetchStats();
@@ -205,7 +248,11 @@ const AdminPage: React.FC = () => {
         : '/api/admin/products';
       const method = editingProduct ? 'PUT' : 'POST';
 
-      const res = await fetch(url, { method, body: data });
+      const res = await fetch(url, {
+        method,
+        body: data,
+        headers: authHeaders()
+      });
       const result = await res.json();
 
       if (res.ok) {
@@ -230,6 +277,54 @@ const AdminPage: React.FC = () => {
       day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
     });
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%)'
+      }}>
+        <form onSubmit={handleLogin} style={{
+          background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(196,164,132,0.3)', borderRadius: '20px',
+          padding: '48px', minWidth: '360px', display: 'flex', flexDirection: 'column', gap: '20px'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>✦</div>
+            <h2 style={{ color: '#c4a484', margin: 0, fontSize: '1.8rem', fontWeight: 700 }}>Hastara Admin</h2>
+            <p style={{ color: '#888', margin: '8px 0 0', fontSize: '0.9rem' }}>Secure Access Required</p>
+          </div>
+          <div>
+            <label style={{ color: '#a0a0b0', fontSize: '0.85rem', display: 'block', marginBottom: '8px' }}>Admin Password</label>
+            <input
+              type="password"
+              value={loginPassword}
+              onChange={e => setLoginPassword(e.target.value)}
+              placeholder="Enter admin password..."
+              required
+              style={{
+                width: '100%', padding: '12px 16px', borderRadius: '10px', boxSizing: 'border-box',
+                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(196,164,132,0.3)',
+                color: '#fff', fontSize: '1rem', outline: 'none'
+              }}
+            />
+          </div>
+          {loginError && <p style={{ color: '#ff6b6b', margin: 0, fontSize: '0.88rem', textAlign: 'center' }}>{loginError}</p>}
+          <button
+            type="submit"
+            disabled={loginLoading}
+            style={{
+              background: loginLoading ? '#555' : 'linear-gradient(135deg, #c4a484, #8b6914)',
+              color: '#fff', border: 'none', borderRadius: '10px', padding: '14px',
+              fontSize: '1rem', fontWeight: 700, cursor: loginLoading ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {loginLoading ? 'Verifying...' : '🔒 Login'}
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-page">
@@ -259,6 +354,16 @@ const AdminPage: React.FC = () => {
           ))}
         </nav>
         <a href="/" className="admin-sidebar__back">← Back to Store</a>
+        <button
+          onClick={handleLogout}
+          style={{
+            marginTop: '12px', background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)',
+            color: '#ff6b6b', borderRadius: '10px', padding: '10px 16px', cursor: 'pointer',
+            fontSize: '0.9rem', width: '100%'
+          }}
+        >
+          🚪 Logout
+        </button>
       </aside>
 
       {/* Main Content */}

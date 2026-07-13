@@ -44,9 +44,36 @@ const PAYU_SALT = process.env.PAYU_SALT || 'YOUR_SALT';
 const SHIPROCKET_EMAIL = process.env.SHIPROCKET_EMAIL;
 const SHIPROCKET_PASSWORD = process.env.SHIPROCKET_PASSWORD;
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:3000'] }));
+// Allow all origins in production (Vercel), restrict in dev
+app.use(cors({ origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Admin password (set ADMIN_PASSWORD in .env file)
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'hastara_admin_2024';
+
+/**
+ * Admin authentication middleware
+ * Checks for a valid password in the Authorization header
+ */
+const adminAuth = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || authHeader !== `Bearer ${ADMIN_PASSWORD}`) {
+    return res.status(401).json({ error: 'Unauthorized. Invalid or missing admin credentials.' });
+  }
+  next();
+};
+
+/**
+ * Admin login endpoint — verifies password and returns a token
+ */
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body;
+  if (password === ADMIN_PASSWORD) {
+    return res.json({ success: true, token: ADMIN_PASSWORD });
+  }
+  return res.status(401).json({ success: false, error: 'Invalid password' });
+});
 
 // Shiprocket Token Cache
 let shiprocketToken = null;
@@ -361,7 +388,7 @@ app.get('/api/products/:id', async (req, res) => {
 /**
  * Upload product with image to Cloudinary and save to Firestore
  */
-app.post('/api/admin/products', upload.single('image'), async (req, res) => {
+app.post('/api/admin/products', adminAuth, upload.single('image'), async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: 'Firebase is not initialized.' });
     if (!req.file) return res.status(400).json({ error: 'No image uploaded' });
@@ -420,7 +447,7 @@ app.post('/api/admin/products', upload.single('image'), async (req, res) => {
 /**
  * Update product (with optional new image)
  */
-app.put('/api/admin/products/:id', upload.single('image'), async (req, res) => {
+app.put('/api/admin/products/:id', adminAuth, upload.single('image'), async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: 'Firebase not initialized' });
 
@@ -479,7 +506,7 @@ app.put('/api/admin/products/:id', upload.single('image'), async (req, res) => {
 /**
  * Delete product
  */
-app.delete('/api/admin/products/:id', async (req, res) => {
+app.delete('/api/admin/products/:id', adminAuth, async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: 'Firebase not initialized' });
     await db.collection('products').doc(req.params.id).delete();
@@ -496,7 +523,7 @@ app.delete('/api/admin/products/:id', async (req, res) => {
 /**
  * Get all orders
  */
-app.get('/api/admin/orders', async (req, res) => {
+app.get('/api/admin/orders', adminAuth, async (req, res) => {
   try {
     if (!db) return res.json([]);
     const snapshot = await db.collection('orders').orderBy('created_at', 'desc').get();
@@ -511,7 +538,7 @@ app.get('/api/admin/orders', async (req, res) => {
 /**
  * Get all payments
  */
-app.get('/api/admin/payments', async (req, res) => {
+app.get('/api/admin/payments', adminAuth, async (req, res) => {
   try {
     if (!db) return res.json([]);
     const snapshot = await db.collection('payments').orderBy('created_at', 'desc').get();
@@ -526,7 +553,7 @@ app.get('/api/admin/payments', async (req, res) => {
 /**
  * Dashboard stats
  */
-app.get('/api/admin/stats', async (req, res) => {
+app.get('/api/admin/stats', adminAuth, async (req, res) => {
   try {
     if (!db) return res.json({ totalProducts: 0, totalOrders: 0, totalRevenue: 0, totalPayments: 0 });
 
