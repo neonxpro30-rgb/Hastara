@@ -18,22 +18,30 @@ const app = express();
 const PORT = 5001;
 
 // Initialize Firebase Admin SDK
+// Supports both local file (dev) and environment variable (Vercel production)
 const serviceAccountPath = path.join(__dirname, '..', 'serviceAccountKey.json');
 let db = null;
 
-if (fs.existsSync(serviceAccountPath)) {
-  try {
-    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-    initializeApp({
-      credential: cert(serviceAccount)
-    });
+try {
+  let serviceAccount = null;
+
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    // Running on Vercel — read from environment variable
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+  } else if (fs.existsSync(serviceAccountPath)) {
+    // Running locally — read from file
+    serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+  }
+
+  if (serviceAccount) {
+    initializeApp({ credential: cert(serviceAccount) });
     db = getFirestore();
     console.log('✅ Firebase Admin initialized successfully');
-  } catch (error) {
-    console.error('❌ Failed to initialize Firebase:', error.message);
+  } else {
+    console.log('⚠️ Firebase credentials not found. Firebase features disabled.');
   }
-} else {
-  console.log('⚠️ serviceAccountKey.json not found. Firebase features will be disabled.');
+} catch (error) {
+  console.error('❌ Failed to initialize Firebase:', error.message);
 }
 
 // PayU credentials
