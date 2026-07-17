@@ -162,8 +162,8 @@ export default function CheckoutPage() {
         hash,
       };
 
-      // Function to create Shiprocket Order
-      const createShiprocketOrder = async (transactionId: string) => {
+      // Function to create NimbusPost Order
+      const createNimbusPostOrder = async (transactionId: string) => {
         try {
           showToast('Creating shipping order...', 'info');
           const orderItems = cartState.items.map(item => ({
@@ -220,13 +220,13 @@ export default function CheckoutPage() {
           });
           
           if (!res.ok) {
-            console.error('Shiprocket error:', await res.text());
+            console.error('NimbusPost error:', await res.text());
             showToast('Payment successful, but shipping order failed. We will contact you.', 'info');
           } else {
             showToast('Order confirmed and shipping initialized!', 'success');
           }
         } catch (err) {
-          console.error('Shiprocket creation failed', err);
+          console.error('NimbusPost creation failed', err);
         }
       };
 
@@ -235,7 +235,7 @@ export default function CheckoutPage() {
         (window as any).bolt.launch(payuData, {
           responseHandler: async (response: any) => {
             if (response.response.txnStatus === 'SUCCESS') {
-              await createShiprocketOrder(txnId);
+              await createNimbusPostOrder(txnId);
               clearCart();
               navigate('/order-confirmation', {
                 state: {
@@ -256,7 +256,7 @@ export default function CheckoutPage() {
         // Demo mode — simulate payment for testing
         showToast('PayU SDK not loaded. Processing in demo mode...', 'info');
         setTimeout(async () => {
-          await createShiprocketOrder(txnId);
+          await createNimbusPostOrder(txnId);
           clearCart();
           navigate('/order-confirmation', {
             state: {

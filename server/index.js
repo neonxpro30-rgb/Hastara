@@ -48,9 +48,8 @@ try {
 const PAYU_MERCHANT_KEY = process.env.PAYU_MERCHANT_KEY || 'YOUR_MERCHANT_KEY';
 const PAYU_SALT = process.env.PAYU_SALT || 'YOUR_SALT';
 
-// Shiprocket credentials
-const SHIPROCKET_EMAIL = process.env.SHIPROCKET_EMAIL;
-const SHIPROCKET_PASSWORD = process.env.SHIPROCKET_PASSWORD;
+// NimbusPost API Key
+const NIMBUSPOST_API_KEY = process.env.NIMBUSPOST_API_KEY;
 
 // Allow all origins in production (Vercel), restrict in dev
 app.use(cors({ origin: true }));
@@ -83,41 +82,8 @@ app.post('/api/admin/login', (req, res) => {
   return res.status(401).json({ success: false, error: 'Invalid password' });
 });
 
-// Shiprocket Token Cache
-let shiprocketToken = null;
-let tokenExpiry = null;
-
-/**
- * Authenticate with Shiprocket and return token
- */
-async function getShiprocketToken() {
-  // Return cached token if valid
-  if (shiprocketToken && tokenExpiry && new Date() < tokenExpiry) {
-    return shiprocketToken;
-  }
-  
-  if (!SHIPROCKET_EMAIL || !SHIPROCKET_PASSWORD) {
-    throw new Error('Shiprocket credentials missing in .env');
-  }
-
-  try {
-    const response = await axios.post('https://apiv2.shiprocket.in/v1/external/auth/login', {
-      email: SHIPROCKET_EMAIL,
-      password: SHIPROCKET_PASSWORD
-    });
-    
-    shiprocketToken = response.data.token;
-    // Token is valid for 10 days, cache for 9 days
-    const expiry = new Date();
-    expiry.setDate(expiry.getDate() + 9);
-    tokenExpiry = expiry;
-    
-    return shiprocketToken;
-  } catch (error) {
-    console.error('Shiprocket Auth Error:', error.response?.data || error.message);
-    throw new Error('Failed to authenticate with Shiprocket');
-  }
-}
+// NimbusPost Token is used directly from env variable as an API Key
+// We don't need a dynamic login token cache if we use API Keys.
 
 /**
  * Generate PayU payment hash
@@ -210,7 +176,7 @@ app.post('/api/payment/response', async (req, res) => {
 });
 
 /**
- * Create a new order in Shiprocket
+ * Create a new order in NimbusPost
  */
 app.post('/api/orders/create', async (req, res) => {
   try {
@@ -221,74 +187,95 @@ app.post('/api/orders/create', async (req, res) => {
       order_items, sub_total, length, breadth, height, weight 
     } = req.body;
 
-    const orderData = {
-      order_id: order_id || `HST${Date.now()}`,
-      order_date: date || new Date().toISOString().split('T')[0],
-      pickup_location: "Primary",
-      billing_customer_name,
-      billing_last_name: billing_last_name || "",
-      billing_address,
-      billing_address_2: "",
-      billing_city,
-      billing_pincode,
-      billing_state,
-      billing_country: billing_country || "India",
-      billing_email,
-      billing_phone,
-      shipping_is_billing: true,
-      order_items,
-      payment_method: "Prepaid",
-      shipping_charges: 0,
-      giftwrap_charges: 0,
-      transaction_charges: 0,
-      total_discount: 0,
-      sub_total,
-      length: length || 10,
-      breadth: breadth || 10,
-      height: height || 5,
-      weight: weight || 0.5
-    };
+    const finalOrderId = order_id || `HST${Date.now()}`;
 
     // 1. Save to Firebase First (So Admin Panel always sees the order)
     if (db) {
       try {
-        await db.collection('orders').doc(orderData.order_id).set({
-          ...orderData,
+        await db.collection('orders').doc(finalOrderId).set({
+          order_id: finalOrderId,
+          order_date: date || new Date().toISOString().split('T')[0],
+          billing_customer_name,
+          billing_last_name: billing_last_name || "",
+          billing_address,
+          billing_city,
+          billing_pincode,
+          billing_state,
+          billing_country: billing_country || "India",
+          billing_email,
+          billing_phone,
+          order_items,
+          sub_total,
+          weight: weight || 0.5,
           created_at: FieldValue.serverTimestamp(),
           status: 'New'
         });
-        console.log(`✅ Order ${orderData.order_id} saved to Firestore`);
+        console.log(`✅ Order ${finalOrderId} saved to Firestore`);
       } catch (dbError) {
         console.error('⚠️ Failed to save order to Firestore:', dbError.message);
       }
     }
 
-    // 2. Try pushing to Shiprocket
+    // 2. Try pushing to NimbusPost
     try {
-      const token = await getShiprocketToken();
-      const response = await axios.post('https://apiv2.shiprocket.in/v1/external/orders/create/adhoc', orderData, {
+      if (!NIMBUSPOST_API_KEY) {
+        throw new Error('NIMBUSPOST_API_KEY is not configured');
+      }
+
+      // Convert weight to grams as NimbusPost usually prefers grams (e.g., 0.5 kg = 500 gm)
+      const weightInGrams = Math.max(500, (weight || 0.5) * 1000);
+
+      const nimbusPayload = {
+        "order_number": finalOrderId,
+        "payment_type": "prepaid",
+        "order_amount": sub_total,
+        "package_weight": weightInGrams,
+        "package_length": length || 10,
+        "package_breadth": breadth || 10,
+        "package_height": height || 5,
+        "consignee": {
+          "name": `${billing_customer_name} ${billing_last_name || ""}`.trim(),
+          "address": billing_address,
+          "city": billing_city,
+          "state": billing_state,
+          "pincode": billing_pincode,
+          "phone": billing_phone,
+          "email": billing_email
+        },
+        "pickup": {
+          "warehouse_name": "Primary"
+        },
+        "order_items": order_items.map(item => ({
+          "name": item.name,
+          "qty": item.units || item.quantity || 1,
+          "price": item.selling_price || item.price || 0,
+          "sku": item.sku || `HST-${Date.now()}`
+        }))
+      };
+
+      const response = await axios.post('https://api.nimbuspost.com/v1/shipments', nimbusPayload, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${NIMBUSPOST_API_KEY}`
         }
       });
       
-      // Update Firebase with Shiprocket ID if successful
-      if (db) {
-        await db.collection('orders').doc(orderData.order_id).update({
-          shiprocket_response: response.data,
-          shiprocket_order_id: response.data.order_id
+      // Update Firebase with NimbusPost ID if successful
+      if (db && response.data && response.data.status) {
+        await db.collection('orders').doc(finalOrderId).update({
+          nimbuspost_response: response.data,
+          nimbuspost_order_id: response.data.data?.order_id || 'unknown'
         });
       }
-      return res.json({ success: true, shiprocket_order: response.data });
+      return res.json({ success: true, nimbuspost_order: response.data });
       
-    } catch (srError) {
-      console.error('Shiprocket order creation error:', srError.response?.data || srError.message);
-      // Return success because the order is saved locally, but indicate Shiprocket failed
+    } catch (npError) {
+      console.error('NimbusPost order creation error:', npError.response?.data || npError.message);
+      // Return success because the order is saved locally, but indicate NimbusPost failed
       return res.json({ 
         success: true, 
-        warning: 'Order saved locally, but failed to push to Shiprocket (check credentials).',
-        errorDetails: srError.response?.data || srError.message 
+        warning: 'Order saved locally, but failed to push to NimbusPost (check API Key).',
+        errorDetails: npError.response?.data || npError.message 
       });
     }
   } catch (error) {
@@ -298,7 +285,7 @@ app.post('/api/orders/create', async (req, res) => {
 });
 
 /**
- * Calculate Shipping via Shiprocket Serviceability API
+ * Calculate Shipping via NimbusPost Serviceability API (or Fallback)
  */
 app.get('/api/shipping/calculate', async (req, res) => {
   try {
@@ -307,39 +294,49 @@ app.get('/api/shipping/calculate', async (req, res) => {
       return res.status(400).json({ error: 'Valid 6-digit pincode is required' });
     }
 
-    const token = await getShiprocketToken();
     const pickupPincode = process.env.PICKUP_PINCODE || '110001';
     
     // Fallback if weight is not provided or invalid
-    const actualWeight = parseFloat(weight) > 0 ? parseFloat(weight) : 0.5;
+    const actualWeightInGrams = (parseFloat(weight) > 0 ? parseFloat(weight) : 0.5) * 1000;
 
-    const response = await axios.get(`https://apiv2.shiprocket.in/v1/external/courier/serviceability/`, {
-      params: {
-        pickup_postcode: pickupPincode,
-        delivery_postcode: pincode,
-        weight: actualWeight,
-        cod: 0 // Prepaid
-      },
+    if (!NIMBUSPOST_API_KEY) {
+      // Fallback rate if NimbusPost API key is missing
+      return res.json({
+        available: true,
+        rate: 50,
+        courierName: "Standard Shipping",
+        estimatedDays: "3-5 days",
+        message: `Delivery by standard shipping`
+      });
+    }
+
+    const response = await axios.post(`https://api.nimbuspost.com/v1/courier/serviceability`, {
+      origin: pickupPincode,
+      destination: pincode,
+      payment_type: "prepaid",
+      weight: actualWeightInGrams
+    }, {
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${NIMBUSPOST_API_KEY}`
       }
     });
 
     const data = response.data;
-    if (data.status === 200 && data.data && data.data.available_courier_companies && data.data.available_courier_companies.length > 0) {
+    if (data.status && data.data && data.data.length > 0) {
       // Find the most recommended or cheapest prepaid rate
-      const couriers = data.data.available_courier_companies;
+      const couriers = data.data;
       
       // Sort by rate (cheapest first)
-      couriers.sort((a, b) => parseFloat(a.rate) - parseFloat(b.rate));
+      couriers.sort((a, b) => parseFloat(a.freight_charges) - parseFloat(b.freight_charges));
       
       const bestCourier = couriers[0];
       return res.json({
         available: true,
-        rate: parseFloat(bestCourier.rate),
+        rate: parseFloat(bestCourier.freight_charges),
         courierName: bestCourier.courier_name,
-        estimatedDays: bestCourier.etd,
-        message: `Delivery by ${bestCourier.etd}`
+        estimatedDays: "3-5 days", // NimbusPost etd format varies, safe fallback
+        message: `Delivery by ${bestCourier.courier_name}`
       });
     } else {
       return res.json({ available: false, message: 'Delivery not available for this pincode.' });
