@@ -50,7 +50,7 @@ const PAYU_SALT = process.env.PAYU_SALT || 'YOUR_SALT';
 
 // NimbusPost API Key
 const NIMBUSPOST_API_KEY = process.env.NIMBUSPOST_API_KEY || '';
-const NIMBUSPOST_SECRET = process.env.NIMBUSPOST_SECRET || '';
+const NIMBUSPOST_SECRET = process.env.NIMBUSPOST_SECRET || process.env.NIMBUSPOST_API_SECRET || '';
 const NIMBUS_V2_BASE = 'https://api-v2.nimbuspost.com';
 
 
