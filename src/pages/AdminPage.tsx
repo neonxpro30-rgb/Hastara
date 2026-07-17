@@ -52,6 +52,9 @@ interface Order {
   billing_pincode?: string;
   sub_total: number;
   weight?: number;
+  length?: number;
+  breadth?: number;
+  height?: number;
   order_items?: OrderItem[];
   nimbuspost_order_id?: string;
   status?: string;
