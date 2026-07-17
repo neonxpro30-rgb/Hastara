@@ -49,7 +49,10 @@ const PAYU_MERCHANT_KEY = process.env.PAYU_MERCHANT_KEY || 'YOUR_MERCHANT_KEY';
 const PAYU_SALT = process.env.PAYU_SALT || 'YOUR_SALT';
 
 // NimbusPost API Key
-const NIMBUSPOST_API_KEY = process.env.NIMBUSPOST_API_KEY;
+const NIMBUSPOST_API_KEY = process.env.NIMBUSPOST_API_KEY || '';
+const NIMBUSPOST_SECRET = process.env.NIMBUSPOST_SECRET || '';
+const NIMBUS_V2_BASE = 'https://api-v2.nimbuspost.com';
+
 
 // Allow all origins in production (Vercel), restrict in dev
 app.use(cors({ origin: true }));
@@ -249,65 +252,71 @@ app.post('/api/orders/create', async (req, res) => {
       }
     }
 
-    // 2. Try pushing to NimbusPost
+    // 2. Try pushing to NimbusPost (api-v2 with API Key/Secret)
     try {
-      if (!NIMBUSPOST_API_KEY) {
-        throw new Error('NIMBUSPOST_API_KEY is not configured');
+      if (!NIMBUSPOST_API_KEY || !NIMBUSPOST_SECRET) {
+        throw new Error('NIMBUSPOST_API_KEY or NIMBUSPOST_SECRET is not configured');
       }
 
-      // Convert weight to grams as NimbusPost usually prefers grams (e.g., 0.5 kg = 500 gm)
-      const weightInGrams = Math.max(500, (weight || 0.5) * 1000);
+      const weightInKg = Math.max(0.5, (weight || 0.5));
+      const customerName = `${billing_customer_name} ${billing_last_name || ''}`.trim();
 
       const nimbusPayload = {
-        "order_number": finalOrderId,
-        "payment_type": "prepaid",
-        "order_amount": sub_total,
-        "package_weight": weightInGrams,
-        "package_length": length || 10,
-        "package_breadth": breadth || 10,
-        "package_height": height || 5,
-        "consignee": {
-          "name": `${billing_customer_name} ${billing_last_name || ""}`.trim(),
-          "address": billing_address,
-          "city": billing_city,
-          "state": billing_state,
-          "pincode": billing_pincode,
-          "phone": billing_phone,
-          "email": billing_email
+        order_type: 'b2c',
+        order_number: finalOrderId,
+        payment_mode: 'prepaid',
+        shipping_address: {
+          name: customerName,
+          address: billing_address,
+          city: billing_city,
+          state: billing_state,
+          pincode: parseInt(billing_pincode, 10) || 0,
+          phone: String(billing_phone)
         },
-        "pickup": {
-          "warehouse_name": "Primary"
+        package: {
+          weight: weightInKg,
+          length: length || 10,
+          width: breadth || 10,
+          height: height || 5
         },
-        "order_items": order_items.map(item => ({
-          "name": item.name,
-          "qty": item.units || item.quantity || 1,
-          "price": item.selling_price || item.price || 0,
-          "sku": item.sku || `HST-${Date.now()}`
+        items: (order_items || []).map(item => ({
+          name: item.name,
+          qty: item.units || item.quantity || 1,
+          price: item.selling_price || item.price || 0,
+          sku: item.sku || `HST-${Date.now()}`
         }))
       };
 
-      const response = await axios.post('https://api.nimbuspost.com/v1/shipments', nimbusPayload, {
-        headers: {
+      console.log('📦 Creating NimbusPost order:', JSON.stringify(nimbusPayload));
+
+      const response = await axios.post(
+        `${NIMBUS_V2_BASE}/orders/api/v1/orders`,
+        nimbusPayload,
+        { headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${NIMBUSPOST_API_KEY}`
-        }
-      });
+          'X-Api-Key': NIMBUSPOST_API_KEY,
+          'X-Api-Secret': NIMBUSPOST_SECRET
+        }}
+      );
+
+      console.log('📫 NimbusPost response:', JSON.stringify(response.data));
       
-      // Update Firebase with NimbusPost ID if successful
-      if (db && response.data && response.data.status) {
+      // Update Firebase with NimbusPost order ID if successful
+      if (db && response.data && response.data.success !== false) {
+        const npOrderId = response.data.data?.order_id || response.data.data?.id || 'created';
         await db.collection('orders').doc(finalOrderId).update({
           nimbuspost_response: response.data,
-          nimbuspost_order_id: response.data.data?.order_id || 'unknown'
+          nimbuspost_order_id: npOrderId
         });
       }
       return res.json({ success: true, nimbuspost_order: response.data });
       
     } catch (npError) {
       console.error('NimbusPost order creation error:', npError.response?.data || npError.message);
-      // Return success because the order is saved locally, but indicate NimbusPost failed
+      // Return success because the order is saved locally in Firebase
       return res.json({ 
         success: true, 
-        warning: 'Order saved locally, but failed to push to NimbusPost (check API Key).',
+        warning: 'Order saved locally, but failed to push to NimbusPost.',
         errorDetails: npError.response?.data || npError.message 
       });
     }
