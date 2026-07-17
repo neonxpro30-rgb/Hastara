@@ -162,18 +162,39 @@ export default function CheckoutPage() {
         hash,
       };
 
+      // Function to save payment record to Firestore via backend
+      const savePaymentRecord = async (txnId: string, amount: number, status: string = 'success') => {
+        try {
+          await fetch('/api/payment/save-record', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              txnid: txnId,
+              amount: amount.toFixed(2),
+              productinfo: productInfo,
+              firstname: form.firstName,
+              email: form.email,
+              phone: form.phone,
+              status,
+            }),
+          });
+        } catch (err) {
+          console.error('Failed to save payment record:', err);
+        }
+      };
+
       // Function to create NimbusPost Order
       const createNimbusPostOrder = async (transactionId: string) => {
         try {
           showToast('Creating shipping order...', 'info');
           const orderItems = cartState.items.map(item => ({
             name: item.product.name,
-            sku: `HST-${item.product.id}`,
+            sku: (item.product as any).sku || `HST-${item.product.id}`,
             units: item.quantity,
             selling_price: item.product.price,
             discount: 0,
-            tax: 0,
-            hsn: 7117
+            tax: parseFloat((item.product as any).taxRate || '0'),
+            hsn: (item.product as any).hsnCode || 7117
           }));
 
           // Calculate package dimensions and weight dynamically based on cart items
@@ -235,6 +256,8 @@ export default function CheckoutPage() {
         (window as any).bolt.launch(payuData, {
           responseHandler: async (response: any) => {
             if (response.response.txnStatus === 'SUCCESS') {
+              // Save payment record first
+              await savePaymentRecord(txnId, grandTotal, 'success');
               await createNimbusPostOrder(txnId);
               clearCart();
               navigate('/order-confirmation', {
@@ -245,6 +268,8 @@ export default function CheckoutPage() {
                 },
               });
             } else {
+              // Save failed payment record
+              await savePaymentRecord(txnId, grandTotal, 'failed');
               showToast('Payment failed. Please try again.', 'error');
             }
           },
@@ -256,6 +281,7 @@ export default function CheckoutPage() {
         // Demo mode — simulate payment for testing
         showToast('PayU SDK not loaded. Processing in demo mode...', 'info');
         setTimeout(async () => {
+          await savePaymentRecord(txnId, grandTotal, 'demo');
           await createNimbusPostOrder(txnId);
           clearCart();
           navigate('/order-confirmation', {

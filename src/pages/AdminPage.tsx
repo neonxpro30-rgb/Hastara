@@ -22,17 +22,38 @@ interface Product {
   packageLength?: number;
   packageBreadth?: number;
   packageHeight?: number;
+  sku?: string;
+  hsnCode?: string;
+  taxRate?: string;
+}
+
+interface OrderItem {
+  name: string;
+  sku?: string;
+  units?: number;
+  quantity?: number;
+  selling_price?: number;
+  price?: number;
+  tax?: number;
+  hsn?: string | number;
 }
 
 interface Order {
   id: string;
   order_id: string;
   billing_customer_name: string;
+  billing_last_name?: string;
   billing_email: string;
   billing_phone: string;
+  billing_address?: string;
   billing_city: string;
   billing_state: string;
+  billing_pincode?: string;
   sub_total: number;
+  weight?: number;
+  order_items?: OrderItem[];
+  nimbuspost_order_id?: string;
+  status?: string;
   created_at: { _seconds: number };
 }
 
@@ -76,8 +97,10 @@ const AdminPage: React.FC = () => {
     name: '', price: '', originalPrice: '', description: '', shortDescription: '',
     category: 'chandbali', tags: '', material: '', weight: '', dimensions: '',
     inStock: 'true', featured: 'false', bestSeller: 'false',
-    packageWeight: '0.5', packageLength: '10', packageBreadth: '10', packageHeight: '5'
+    packageWeight: '0.5', packageLength: '10', packageBreadth: '10', packageHeight: '5',
+    sku: '', hsnCode: '', taxRate: '0'
   });
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -177,7 +200,8 @@ const AdminPage: React.FC = () => {
       name: '', price: '', originalPrice: '', description: '', shortDescription: '',
       category: 'chandbali', tags: '', material: '', weight: '', dimensions: '',
       inStock: 'true', featured: 'false', bestSeller: 'false',
-      packageWeight: '0.5', packageLength: '10', packageBreadth: '10', packageHeight: '5'
+      packageWeight: '0.5', packageLength: '10', packageBreadth: '10', packageHeight: '5',
+      sku: '', hsnCode: '', taxRate: '0'
     });
     setImageFile(null);
     setImagePreview('');
@@ -205,6 +229,9 @@ const AdminPage: React.FC = () => {
       packageLength: String(product.packageLength || 10),
       packageBreadth: String(product.packageBreadth || 10),
       packageHeight: String(product.packageHeight || 5),
+      sku: product.sku || '',
+      hsnCode: product.hsnCode || '',
+      taxRate: product.taxRate || '0',
     });
     setImagePreview(product.image);
     setActiveTab('add-product');
@@ -558,7 +585,7 @@ const AdminPage: React.FC = () => {
                       </select>
                     </div>
                   </div>
-                  <h3 style={{ marginTop: '20px', marginBottom: '15px', color: '#fff', fontSize: '1.1rem' }}>Shipping Package Details (Shiprocket)</h3>
+                  <h3 style={{ marginTop: '20px', marginBottom: '15px', color: '#c4a484', fontSize: '1.1rem', borderBottom: '1px solid rgba(196,164,132,0.2)', paddingBottom: '8px' }}>📦 NimbusPost Shipping Details</h3>
                   <div className="admin-form-row">
                     <div className="admin-form-group">
                       <label>Dead Weight (kg) *</label>
@@ -575,6 +602,26 @@ const AdminPage: React.FC = () => {
                     <div className="admin-form-group">
                       <label>Height (cm) *</label>
                       <input type="number" step="0.1" name="packageHeight" value={formData.packageHeight} onChange={handleInputChange} required placeholder="5" />
+                    </div>
+                  </div>
+                  <div className="admin-form-row">
+                    <div className="admin-form-group">
+                      <label>SKU (Product Code)</label>
+                      <input type="text" name="sku" value={formData.sku} onChange={handleInputChange} placeholder="e.g. HST-ERG-001" />
+                    </div>
+                    <div className="admin-form-group">
+                      <label>HSN Code</label>
+                      <input type="text" name="hsnCode" value={formData.hsnCode} onChange={handleInputChange} placeholder="e.g. 7117" />
+                    </div>
+                    <div className="admin-form-group">
+                      <label>Tax Rate (GST %)</label>
+                      <select name="taxRate" value={formData.taxRate} onChange={handleInputChange}>
+                        <option value="0">0%</option>
+                        <option value="5">5%</option>
+                        <option value="12">12%</option>
+                        <option value="18">18%</option>
+                        <option value="28">28%</option>
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -612,40 +659,116 @@ const AdminPage: React.FC = () => {
         {/* ===== ORDERS ===== */}
         {activeTab === 'orders' && (
           <div className="admin-tab">
-            <h1 className="admin-tab__title">Orders ({orders.length})</h1>
+            <div className="admin-tab__header">
+              <h1 className="admin-tab__title">Orders ({orders.length})</h1>
+              <button className="admin-quick-btn" style={{ fontSize: '0.85rem', padding: '8px 16px' }} onClick={fetchOrders}>🔄 Refresh</button>
+            </div>
             {orders.length === 0 ? (
               <div className="admin-empty">
                 <span>📦</span>
                 <p>No orders yet. Once customers start buying, orders will show up here.</p>
               </div>
             ) : (
-              <div className="admin-table-wrapper">
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Order ID</th>
-                      <th>Customer</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>City</th>
-                      <th>Amount</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.map(order => (
-                      <tr key={order.id}>
-                        <td className="admin-table__name">{order.order_id}</td>
-                        <td>{order.billing_customer_name}</td>
-                        <td>{order.billing_email}</td>
-                        <td>{order.billing_phone}</td>
-                        <td>{order.billing_city}, {order.billing_state}</td>
-                        <td className="admin-table__price">₹{order.sub_total}</td>
-                        <td>{formatDate(order.created_at)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {orders.map(order => (
+                  <div key={order.id} style={{
+                    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(196,164,132,0.2)',
+                    borderRadius: '14px', overflow: 'hidden'
+                  }}>
+                    {/* Order Summary Row */}
+                    <div
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '16px 20px', cursor: 'pointer', gap: '12px', flexWrap: 'wrap'
+                      }}
+                      onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '140px' }}>
+                        <span style={{ color: '#c4a484', fontWeight: 700, fontSize: '0.9rem' }}>{order.order_id}</span>
+                        <span style={{ color: '#888', fontSize: '0.78rem' }}>{formatDate(order.created_at)}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span style={{ color: '#fff', fontWeight: 600 }}>{order.billing_customer_name} {order.billing_last_name || ''}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ color: '#a0a0b0', fontSize: '0.85rem' }}>📱 {order.billing_phone}</span>
+                        <span style={{ color: '#a0a0b0', fontSize: '0.85rem' }}>📍 {order.billing_city}, {order.billing_state}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <span style={{ color: '#4ade80', fontWeight: 700, fontSize: '1rem' }}>₹{order.sub_total}</span>
+                        <span style={{
+                          padding: '3px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600,
+                          background: order.status === 'New' ? 'rgba(196,164,132,0.15)' : 'rgba(74,222,128,0.15)',
+                          color: order.status === 'New' ? '#c4a484' : '#4ade80',
+                          border: `1px solid ${order.status === 'New' ? 'rgba(196,164,132,0.4)' : 'rgba(74,222,128,0.4)'}`
+                        }}>{order.status || 'New'}</span>
+                        <span style={{ color: '#888', fontSize: '1rem' }}>{expandedOrder === order.id ? '▲' : '▼'}</span>
+                      </div>
+                    </div>
+
+                    {/* Expanded Details */}
+                    {expandedOrder === order.id && (
+                      <div style={{
+                        borderTop: '1px solid rgba(196,164,132,0.15)', padding: '20px',
+                        display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px'
+                      }}>
+                        {/* Customer Info */}
+                        <div>
+                          <h4 style={{ color: '#c4a484', fontSize: '0.85rem', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>👤 Customer Details</h4>
+                          <p style={{ color: '#ddd', fontSize: '0.88rem', margin: '4px 0' }}>✉️ {order.billing_email}</p>
+                          <p style={{ color: '#ddd', fontSize: '0.88rem', margin: '4px 0' }}>📱 {order.billing_phone}</p>
+                          <p style={{ color: '#ddd', fontSize: '0.88rem', margin: '4px 0', lineHeight: 1.5 }}>📍 {order.billing_address}, {order.billing_city}, {order.billing_state} - {order.billing_pincode}</p>
+                          {order.nimbuspost_order_id && (
+                            <p style={{ color: '#a0a0b0', fontSize: '0.82rem', margin: '8px 0 0', padding: '6px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                              🚚 NimbusPost ID: <strong style={{ color: '#c4a484' }}>{order.nimbuspost_order_id}</strong>
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Package Info */}
+                        <div>
+                          <h4 style={{ color: '#c4a484', fontSize: '0.85rem', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>📦 Package Details</h4>
+                          <p style={{ color: '#ddd', fontSize: '0.88rem', margin: '4px 0' }}>⚖️ Dead Weight: {order.weight ? `${order.weight} kg` : 'N/A'}</p>
+                        </div>
+
+                        {/* Items */}
+                        {order.order_items && order.order_items.length > 0 && (
+                          <div style={{ gridColumn: '1 / -1' }}>
+                            <h4 style={{ color: '#c4a484', fontSize: '0.85rem', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>🛍️ Order Items</h4>
+                            <div style={{ overflowX: 'auto' }}>
+                              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                                <thead>
+                                  <tr style={{ background: 'rgba(196,164,132,0.08)' }}>
+                                    {['Product', 'SKU', 'Qty', 'Unit Price', 'HSN', 'Tax %', 'Subtotal'].map(h => (
+                                      <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: '#c4a484', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {order.order_items.map((item, idx) => {
+                                    const qty = item.units || item.quantity || 1;
+                                    const price = item.selling_price || item.price || 0;
+                                    return (
+                                      <tr key={idx} style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                        <td style={{ padding: '8px 12px', color: '#fff' }}>{item.name}</td>
+                                        <td style={{ padding: '8px 12px', color: '#a0a0b0', fontFamily: 'monospace' }}>{item.sku || '—'}</td>
+                                        <td style={{ padding: '8px 12px', color: '#fff' }}>{qty}</td>
+                                        <td style={{ padding: '8px 12px', color: '#4ade80' }}>₹{price}</td>
+                                        <td style={{ padding: '8px 12px', color: '#a0a0b0' }}>{item.hsn || '—'}</td>
+                                        <td style={{ padding: '8px 12px', color: '#a0a0b0' }}>{item.tax !== undefined ? `${item.tax}%` : '—'}</td>
+                                        <td style={{ padding: '8px 12px', color: '#4ade80', fontWeight: 600 }}>₹{(qty * price).toFixed(2)}</td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -654,7 +777,10 @@ const AdminPage: React.FC = () => {
         {/* ===== PAYMENTS ===== */}
         {activeTab === 'payments' && (
           <div className="admin-tab">
-            <h1 className="admin-tab__title">Payments ({payments.length})</h1>
+            <div className="admin-tab__header">
+              <h1 className="admin-tab__title">Payments ({payments.length})</h1>
+              <button className="admin-quick-btn" style={{ fontSize: '0.85rem', padding: '8px 16px' }} onClick={fetchPayments}>🔄 Refresh</button>
+            </div>
             {payments.length === 0 ? (
               <div className="admin-empty">
                 <span>💳</span>
@@ -668,6 +794,8 @@ const AdminPage: React.FC = () => {
                       <th>Txn ID</th>
                       <th>Customer</th>
                       <th>Email</th>
+                      <th>Phone</th>
+                      <th>Products</th>
                       <th>Amount</th>
                       <th>Status</th>
                       <th>Date</th>
@@ -676,13 +804,15 @@ const AdminPage: React.FC = () => {
                   <tbody>
                     {payments.map(payment => (
                       <tr key={payment.id}>
-                        <td className="admin-table__name">{payment.txnid}</td>
+                        <td className="admin-table__name" style={{ fontFamily: 'monospace', fontSize: '0.78rem' }}>{payment.txnid}</td>
                         <td>{payment.firstname}</td>
                         <td>{payment.email}</td>
+                        <td>{(payment as any).phone || '—'}</td>
+                        <td style={{ maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#a0a0b0', fontSize: '0.82rem' }}>{(payment as any).productinfo || '—'}</td>
                         <td className="admin-table__price">₹{payment.amount}</td>
                         <td>
                           <span className={`admin-table__status admin-table__status--${payment.status}`}>
-                            {payment.status}
+                            {payment.status === 'success' ? '✅ Success' : payment.status === 'demo' ? '🧪 Demo' : payment.status === 'failed' ? '❌ Failed' : payment.status}
                           </span>
                         </td>
                         <td>{formatDate(payment.created_at)}</td>

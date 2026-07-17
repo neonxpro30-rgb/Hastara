@@ -176,7 +176,40 @@ app.post('/api/payment/response', async (req, res) => {
 });
 
 /**
+ * Save payment record from frontend (for PayU Bolt and demo mode)
+ * Since PayU Bolt processes payment in the browser, the webhook may not always fire.
+ * This endpoint allows the frontend to save the payment record directly.
+ */
+app.post('/api/payment/save-record', async (req, res) => {
+  try {
+    const { txnid, amount, productinfo, firstname, email, phone, status } = req.body;
+    if (!txnid || !amount) {
+      return res.status(400).json({ error: 'txnid and amount are required' });
+    }
+    if (db) {
+      await db.collection('payments').doc(txnid).set({
+        txnid,
+        amount,
+        productinfo: productinfo || '',
+        firstname: firstname || '',
+        email: email || '',
+        phone: phone || '',
+        status: status || 'success',
+        source: 'frontend',
+        created_at: FieldValue.serverTimestamp(),
+      });
+      return res.json({ success: true });
+    }
+    return res.json({ success: false, warning: 'Firebase not initialized' });
+  } catch (error) {
+    console.error('Save payment record error:', error);
+    return res.status(500).json({ error: 'Failed to save payment record' });
+  }
+});
+
+/**
  * Create a new order in NimbusPost
+
  */
 app.post('/api/orders/create', async (req, res) => {
   try {
