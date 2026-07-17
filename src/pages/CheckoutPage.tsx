@@ -10,6 +10,7 @@ interface ShippingForm {
   email: string;
   phone: string;
   address: string;
+  landmark: string;
   city: string;
   state: string;
   pincode: string;
@@ -51,7 +52,7 @@ export default function CheckoutPage() {
 
   const [form, setForm] = useState<ShippingForm>({
     firstName: '', lastName: '', email: '', phone: '',
-    address: '', city: '', state: '', pincode: '',
+    address: '', landmark: '', city: '', state: '', pincode: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isProcessing, setIsProcessing] = useState(false);
@@ -226,6 +227,7 @@ export default function CheckoutPage() {
               billing_customer_name: form.firstName,
               billing_last_name: form.lastName,
               billing_address: form.address,
+              billing_landmark: form.landmark,
               billing_city: form.city,
               billing_pincode: form.pincode,
               billing_state: form.state,
@@ -414,6 +416,17 @@ export default function CheckoutPage() {
                     rows={3}
                   />
                   {errors.address && <span className="error-text">{errors.address}</span>}
+                </div>
+                <div className="input-group input-group--full">
+                  <label htmlFor="landmark">Landmark (Optional)</label>
+                  <input
+                    id="landmark"
+                    type="text"
+                    placeholder="Enter any nearby landmark"
+                    value={form.landmark}
+                    onChange={(e) => handleChange('landmark', e.target.value)}
+                    className={errors.landmark ? 'input-error' : ''}
+                  />
                 </div>
                 <div className="input-group">
                   <label htmlFor="city">City *</label>

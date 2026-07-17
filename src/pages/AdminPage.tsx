@@ -46,6 +46,7 @@ interface Order {
   billing_email: string;
   billing_phone: string;
   billing_address?: string;
+  billing_landmark?: string;
   billing_city: string;
   billing_state: string;
   billing_pincode?: string;
@@ -717,7 +718,7 @@ const AdminPage: React.FC = () => {
                           <h4 style={{ color: '#c4a484', fontSize: '0.85rem', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>👤 Customer Details</h4>
                           <p style={{ color: '#ddd', fontSize: '0.88rem', margin: '4px 0' }}>✉️ {order.billing_email}</p>
                           <p style={{ color: '#ddd', fontSize: '0.88rem', margin: '4px 0' }}>📱 {order.billing_phone}</p>
-                          <p style={{ color: '#ddd', fontSize: '0.88rem', margin: '4px 0', lineHeight: 1.5 }}>📍 {order.billing_address}, {order.billing_city}, {order.billing_state} - {order.billing_pincode}</p>
+                          <p style={{ color: '#ddd', fontSize: '0.88rem', margin: '4px 0', lineHeight: 1.5 }}>📍 {order.billing_address}{order.billing_landmark ? `, ${order.billing_landmark}` : ''}, {order.billing_city}, {order.billing_state} - {order.billing_pincode}</p>
                           {order.nimbuspost_order_id && (
                             <p style={{ color: '#a0a0b0', fontSize: '0.82rem', margin: '8px 0 0', padding: '6px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
                               🚚 NimbusPost ID: <strong style={{ color: '#c4a484' }}>{order.nimbuspost_order_id}</strong>
@@ -729,6 +730,7 @@ const AdminPage: React.FC = () => {
                         <div>
                           <h4 style={{ color: '#c4a484', fontSize: '0.85rem', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>📦 Package Details</h4>
                           <p style={{ color: '#ddd', fontSize: '0.88rem', margin: '4px 0' }}>⚖️ Dead Weight: {order.weight ? `${order.weight} kg` : 'N/A'}</p>
+                          <p style={{ color: '#ddd', fontSize: '0.88rem', margin: '4px 0' }}>📏 Dimensions: {order.length ? `${order.length} x ${order.breadth} x ${order.height} cm` : 'N/A'}</p>
                         </div>
 
                         {/* Items */}

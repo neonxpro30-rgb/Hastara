@@ -218,7 +218,7 @@ app.post('/api/orders/create', async (req, res) => {
   try {
     const { 
       order_id, date, billing_customer_name, billing_last_name, 
-      billing_address, billing_city, billing_pincode, billing_state, 
+      billing_address, billing_landmark, billing_city, billing_pincode, billing_state, 
       billing_country, billing_email, billing_phone, 
       order_items, sub_total, length, breadth, height, weight 
     } = req.body;
@@ -268,6 +268,7 @@ app.post('/api/orders/create', async (req, res) => {
         shipping_address: {
           name: customerName,
           address: billing_address,
+          address_opt: billing_landmark || null,
           city: billing_city,
           state: billing_state,
           pincode: parseInt(billing_pincode, 10) || 0,
