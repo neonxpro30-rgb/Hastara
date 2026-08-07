@@ -15,10 +15,12 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
     if (!slug) return;
     setLoading(true);
+    setActiveImageIndex(0);
     fetch('/api/products')
       .then(res => res.json())
       .then((products: Product[]) => {
@@ -98,7 +100,7 @@ export default function ProductDetailPage() {
           <div className="pdp__gallery animate-fade-in">
             <div className="pdp__image-main">
               <img
-                src={product.image}
+                src={(product.images && product.images.length > 0) ? product.images[activeImageIndex] : product.image}
                 alt={product.name}
                 className="pdp__image"
                 fetchPriority="high"
@@ -115,6 +117,30 @@ export default function ProductDetailPage() {
                 ))}
               </div>
             </div>
+            
+            {/* Thumbnails */}
+            {product.images && product.images.length > 1 && (
+              <div className="pdp__thumbnails" style={{ display: 'flex', gap: '10px', marginTop: '16px', overflowX: 'auto' }}>
+                {product.images.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`${product.name} ${index + 1}`}
+                    onClick={() => setActiveImageIndex(index)}
+                    style={{
+                      width: '80px',
+                      height: '80px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      border: activeImageIndex === index ? '2px solid #c4a484' : '2px solid transparent',
+                      opacity: activeImageIndex === index ? 1 : 0.7,
+                      transition: 'all 0.2s ease-in-out'
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info */}

@@ -37,11 +37,21 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         <img
           src={product.image}
           alt={product.name}
-          className="product-card__image"
+          className={`product-card__image ${product.images && product.images.length > 1 ? 'has-hover' : ''}`}
           loading={index < 4 ? 'eager' : 'lazy'}
           width="400"
           height="400"
         />
+        {product.images && product.images.length > 1 && (
+          <img
+            src={product.images[1]}
+            alt={`${product.name} alternate`}
+            className="product-card__image-hover"
+            loading="lazy"
+            width="400"
+            height="400"
+          />
+        )}
         <div className="product-card__overlay">
           <button
             className="product-card__quick-add btn btn-primary btn-sm"

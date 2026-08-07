@@ -25,6 +25,7 @@ interface Product {
   sku?: string;
   hsnCode?: string;
   taxRate?: string;
+  images?: string[];
 }
 
 interface OrderItem {
@@ -105,8 +106,8 @@ const AdminPage: React.FC = () => {
     sku: '', hsnCode: '', taxRate: '0'
   });
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!sessionStorage.getItem('admin_token'));
   const [loginPassword, setLoginPassword] = useState('');
@@ -191,14 +192,6 @@ const AdminPage: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
   const resetForm = () => {
     setFormData({
       name: '', price: '', originalPrice: '', description: '', shortDescription: '',
@@ -207,8 +200,8 @@ const AdminPage: React.FC = () => {
       packageWeight: '0.5', packageLength: '10', packageBreadth: '10', packageHeight: '5',
       sku: '', hsnCode: '', taxRate: '0'
     });
-    setImageFile(null);
-    setImagePreview('');
+    setImageFiles([]);
+    setImagePreviews([]);
     setEditingProduct(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -237,7 +230,7 @@ const AdminPage: React.FC = () => {
       hsnCode: product.hsnCode || '',
       taxRate: product.taxRate || '0',
     });
-    setImagePreview(product.image);
+    setImagePreviews(product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []));
     setActiveTab('add-product');
   };
 
@@ -257,8 +250,8 @@ const AdminPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingProduct && !imageFile) {
-      alert('Please select an image');
+    if (!editingProduct && imageFiles.length === 0) {
+      alert('Please select at least one image');
       return;
     }
 
@@ -271,7 +264,9 @@ const AdminPage: React.FC = () => {
         data.append(key, val);
       }
     });
-    if (imageFile) data.append('image', imageFile);
+    imageFiles.forEach(file => {
+      data.append('images', file);
+    });
 
     try {
       const url = editingProduct
@@ -631,18 +626,42 @@ const AdminPage: React.FC = () => {
                 </div>
                 <div className="admin-form-right">
                   <div className="admin-form-group">
-                    <label>Product Image {editingProduct ? '(leave blank to keep current)' : '*'}</label>
-                    <div className="admin-image-upload" onClick={() => fileInputRef.current?.click()}>
-                      {imagePreview ? (
-                        <img src={imagePreview} alt="Preview" className="admin-image-upload__preview" />
-                      ) : (
-                        <div className="admin-image-upload__placeholder">
-                          <span>📸</span>
-                          <p>Click to upload image</p>
-                        </div>
-                      )}
+                    <label className="admin-form-label">Product Images (Up to 4) {!editingProduct && '*'}</label>
+                    <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '10px' }}>Leave blank when editing to keep current images.</p>
+                    <div className="admin-image-upload">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            const files = Array.from(e.target.files);
+                            if (files.length > 4) {
+                              alert('You can only upload up to 4 images');
+                              return;
+                            }
+                            setImageFiles(files);
+                            setImagePreviews(files.map(f => URL.createObjectURL(f)));
+                          }
+                        }}
+                        className="admin-image-input"
+                        id="image-upload"
+                      />
+                      <label htmlFor="image-upload" className="admin-image-label">
+                        {imagePreviews.length > 0 ? (
+                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            {imagePreviews.map((preview, i) => (
+                              <img key={i} src={preview} alt={`Preview ${i+1}`} style={{ height: '100px', width: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="admin-image-placeholder">
+                            <span className="admin-image-icon">+</span>
+                            <span>Click to upload images</span>
+                          </div>
+                        )}
+                      </label>
                     </div>
-                    <input type="file" ref={fileInputRef} accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
                   </div>
                   <div className="admin-form-actions">
                     <button type="submit" className="admin-form-submit" disabled={loading}>

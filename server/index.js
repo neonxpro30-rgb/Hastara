@@ -436,10 +436,10 @@ app.get('/api/products/:id', async (req, res) => {
 /**
  * Upload product with image to Cloudinary and save to Firestore
  */
-app.post('/api/admin/products', adminAuth, upload.single('image'), async (req, res) => {
+app.post('/api/admin/products', adminAuth, upload.array('images', 4), async (req, res) => {
   try {
     if (!db) return res.status(500).json({ error: 'Firebase is not initialized.' });
-    if (!req.file) return res.status(400).json({ error: 'No image uploaded' });
+    if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No image uploaded' });
 
     const { 
       name, price, originalPrice, description, shortDescription, 
@@ -449,13 +449,19 @@ app.post('/api/admin/products', adminAuth, upload.single('image'), async (req, r
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: 'hastara_products', public_id: slug },
-        (error, result) => error ? reject(error) : resolve(result)
-      );
-      stream.end(req.file.buffer);
+    const uploadPromises = req.files.map((file, index) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: 'hastara_products', public_id: `${slug}-${index}-${Date.now()}` },
+          (error, result) => error ? reject(error) : resolve(result)
+        );
+        stream.end(file.buffer);
+      });
     });
+
+    const uploadResults = await Promise.all(uploadPromises);
+    const imageUrls = uploadResults.map(result => result.secure_url);
+    const primaryImage = imageUrls[0];
 
     const productData = {
       name,
@@ -474,8 +480,8 @@ app.post('/api/admin/products', adminAuth, upload.single('image'), async (req, r
       bestSeller: bestSeller === 'true',
       rating: 4.5,
       reviews: 0,
-      image: uploadResult.secure_url,
-      images: [uploadResult.secure_url],
+      image: primaryImage,
+      images: imageUrls,
       created_at: FieldValue.serverTimestamp(),
       packageWeight: parseFloat(packageWeight) || 0.5,
       packageLength: parseFloat(packageLength) || 10,
@@ -495,9 +501,9 @@ app.post('/api/admin/products', adminAuth, upload.single('image'), async (req, r
 /**
  * Update product (with optional new image)
  */
-app.put('/api/admin/products/:id', adminAuth, upload.single('image'), async (req, res) => {
+app.put('/api/admin/products/:id', adminAuth, upload.array('images', 4), async (req, res) => {
   try {
-    if (!db) return res.status(500).json({ error: 'Firebase not initialized' });
+    if (!db) return res.status(500).json({ error: 'Firebase is not initialized.' });
 
     const { 
       name, price, originalPrice, description, shortDescription, 
@@ -527,18 +533,22 @@ app.put('/api/admin/products/:id', adminAuth, upload.single('image'), async (req
     if (packageBreadth) updateData.packageBreadth = parseFloat(packageBreadth);
     if (packageHeight) updateData.packageHeight = parseFloat(packageHeight);
 
-    // Upload new image if provided
-    if (req.file) {
-      const slug = updateData.slug || req.params.id;
-      const uploadResult = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: 'hastara_products', public_id: slug },
-          (error, result) => error ? reject(error) : resolve(result)
-        );
-        stream.end(req.file.buffer);
+    // Upload new images if provided
+    if (req.files && req.files.length > 0) {
+      const uploadPromises = req.files.map((file, index) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'hastara_products', public_id: `${updateData.slug || req.params.id}-${index}-${Date.now()}` },
+            (error, result) => error ? reject(error) : resolve(result)
+          );
+          stream.end(file.buffer);
+        });
       });
-      updateData.image = uploadResult.secure_url;
-      updateData.images = [uploadResult.secure_url];
+      const uploadResults = await Promise.all(uploadPromises);
+      const imageUrls = uploadResults.map(result => result.secure_url);
+      
+      updateData.image = imageUrls[0];
+      updateData.images = imageUrls;
     }
 
     updateData.updated_at = FieldValue.serverTimestamp();
