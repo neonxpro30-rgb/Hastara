@@ -328,8 +328,8 @@ app.post('/api/orders/create', async (req, res) => {
 });
 
 /**
- * Calculate Shipping via NimbusPost Serviceability API
- * Supports both V2 (API Key/Secret) and V1 (Bearer) auth
+ * Calculate Shipping via NimbusPost V2 API
+ * Falls back to flat rate if API unavailable — never blocks checkout
  */
 app.get('/api/shipping/calculate', async (req, res) => {
   try {
@@ -338,55 +338,67 @@ app.get('/api/shipping/calculate', async (req, res) => {
       return res.status(400).json({ error: 'Valid 6-digit pincode is required' });
     }
 
-    const pickupPincode = process.env.PICKUP_PINCODE || '110001';
+    const pickupPincode = process.env.PICKUP_PINCODE || '226301';
     const weightKg = parseFloat(weight) > 0 ? parseFloat(weight) : 0.5;
     const weightInGrams = weightKg * 1000;
 
-    if (!NIMBUSPOST_API_KEY) {
-      return res.json({
-        available: true,
-        rate: 60,
-        courierName: 'Standard Shipping',
-        estimatedDays: '3-5 days',
-      });
+    // If no API key, return flat rate
+    if (!NIMBUSPOST_API_KEY || !NIMBUSPOST_SECRET) {
+      console.log('⚠️ NimbusPost keys missing — using flat rate');
+      return res.json({ available: true, rate: 60, courierName: 'Standard Shipping', estimatedDays: '3-5 days' });
     }
 
-    // Try NimbusPost V2 serviceability first
-    let response;
+    let apiSuccess = false;
+    let responseData = null;
+
+    // Try NimbusPost V2
     try {
-      response = await axios.post(
+      const resp = await axios.post(
         `${NIMBUS_V2_BASE}/courier/serviceability`,
         { origin: pickupPincode, destination: String(pincode), payment_type: 'prepaid', weight: weightInGrams },
-        { headers: { 'Content-Type': 'application/json', 'X-Api-Key': NIMBUSPOST_API_KEY, 'X-Api-Secret': NIMBUSPOST_SECRET } }
+        { 
+          headers: { 'Content-Type': 'application/json', 'X-Api-Key': NIMBUSPOST_API_KEY, 'X-Api-Secret': NIMBUSPOST_SECRET },
+          timeout: 5000
+        }
       );
+      console.log('📡 NimbusPost V2 serviceability response:', JSON.stringify(resp.data).slice(0, 300));
+      responseData = resp.data;
+      apiSuccess = true;
     } catch (v2err) {
-      console.log('V2 serviceability failed, trying V1:', v2err.response?.data || v2err.message);
-      // Fallback to V1
-      response = await axios.post(
-        'https://api.nimbuspost.com/v1/courier/serviceability',
-        { origin: pickupPincode, destination: String(pincode), payment_type: 'prepaid', weight: weightInGrams },
-        { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${NIMBUSPOST_API_KEY}` } }
-      );
+      console.log('⚠️ V2 serviceability failed:', v2err.response?.status, JSON.stringify(v2err.response?.data || v2err.message).slice(0, 200));
     }
 
-    const data = response.data;
-    const couriers = data.data || data.couriers || [];
-    if (data.status && couriers.length > 0) {
-      couriers.sort((a, b) => parseFloat(a.freight_charges || a.rate || 0) - parseFloat(b.freight_charges || b.rate || 0));
-      const best = couriers[0];
-      const rate = parseFloat(best.freight_charges || best.rate || 60);
-      return res.json({
-        available: true,
-        rate,
-        courierName: best.courier_name || best.name || 'Courier',
-        estimatedDays: best.etd || best.estimated_delivery_days || '3-5 days',
-      });
-    } else {
+    // If V2 worked and returned couriers
+    if (apiSuccess && responseData) {
+      const couriers = responseData.data || responseData.couriers || [];
+      if (responseData.status && couriers.length > 0) {
+        couriers.sort((a, b) => parseFloat(a.freight_charges || a.rate || 0) - parseFloat(b.freight_charges || b.rate || 0));
+        const best = couriers[0];
+        const rate = parseFloat(best.freight_charges || best.rate || 60);
+        console.log(`✅ Courier found: ${best.courier_name || best.name} @ ₹${rate}`);
+        return res.json({
+          available: true,
+          rate,
+          courierName: best.courier_name || best.name || 'NimbusPost',
+          estimatedDays: best.etd || '3-5 days',
+        });
+      }
+      // API responded but no couriers — check if it's an auth error
+      const msg = String(responseData.message || '').toLowerCase();
+      if (msg.includes('auth') || msg.includes('invalid') || msg.includes('unauthorized') || msg.includes('token')) {
+        console.log('⚠️ NimbusPost auth issue — using flat rate fallback');
+        return res.json({ available: true, rate: 60, courierName: 'Standard Shipping', estimatedDays: '3-5 days' });
+      }
+      // Genuinely not serviceable
       return res.json({ available: false, message: 'Delivery not available for this pincode.' });
     }
+
+    // API failed completely — use flat rate, never block checkout
+    console.log('⚠️ NimbusPost API unavailable — using flat rate fallback');
+    return res.json({ available: true, rate: 60, courierName: 'Standard Shipping', estimatedDays: '3-5 days' });
+
   } catch (error) {
-    console.error('Shipping calculation error:', error.response?.data || error.message);
-    // Graceful fallback — never block checkout
+    console.error('Shipping calculation error:', error.message);
     return res.json({ available: true, rate: 60, courierName: 'Standard Shipping', estimatedDays: '3-5 days', fallback: true });
   }
 });
