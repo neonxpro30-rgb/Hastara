@@ -108,6 +108,7 @@ const AdminPage: React.FC = () => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [primaryImageIndex, setPrimaryImageIndex] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!sessionStorage.getItem('admin_token'));
   const [loginPassword, setLoginPassword] = useState('');
@@ -202,6 +203,7 @@ const AdminPage: React.FC = () => {
     });
     setImageFiles([]);
     setImagePreviews([]);
+    setPrimaryImageIndex(0);
     setEditingProduct(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -230,7 +232,12 @@ const AdminPage: React.FC = () => {
       hsnCode: product.hsnCode || '',
       taxRate: product.taxRate || '0',
     });
-    setImagePreviews(product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []));
+    const existingImages = (product.images && product.images.length > 0)
+      ? product.images
+      : (product.image ? [product.image] : []);
+    setImagePreviews(existingImages);
+    setPrimaryImageIndex(0);
+    setImageFiles([]);
     setActiveTab('add-product');
   };
 
@@ -264,9 +271,18 @@ const AdminPage: React.FC = () => {
         data.append(key, val);
       }
     });
-    imageFiles.forEach(file => {
+    // Reorder images so primary comes first
+    const reorderedFiles = [
+      ...imageFiles.slice(primaryImageIndex),
+      ...imageFiles.slice(0, primaryImageIndex)
+    ];
+    reorderedFiles.forEach(file => {
       data.append('images', file);
     });
+    // When editing, also send primaryImageIndex to reorder existing images if no new files
+    if (editingProduct && imageFiles.length === 0) {
+      data.append('primaryImageIndex', String(primaryImageIndex));
+    }
 
     try {
       const url = editingProduct
@@ -626,42 +642,100 @@ const AdminPage: React.FC = () => {
                 </div>
                 <div className="admin-form-right">
                   <div className="admin-form-group">
-                    <label className="admin-form-label">Product Images (Up to 4) {!editingProduct && '*'}</label>
-                    <p style={{ color: '#888', fontSize: '0.85rem', marginBottom: '10px' }}>Leave blank when editing to keep current images.</p>
-                    <div className="admin-image-upload">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={(e) => {
-                          if (e.target.files && e.target.files.length > 0) {
-                            const files = Array.from(e.target.files);
-                            if (files.length > 4) {
-                              alert('You can only upload up to 4 images');
-                              return;
-                            }
-                            setImageFiles(files);
-                            setImagePreviews(files.map(f => URL.createObjectURL(f)));
-                          }
-                        }}
-                        className="admin-image-input"
-                        id="image-upload"
-                      />
-                      <label htmlFor="image-upload" className="admin-image-label">
-                        {imagePreviews.length > 0 ? (
-                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                            {imagePreviews.map((preview, i) => (
-                              <img key={i} src={preview} alt={`Preview ${i+1}`} style={{ height: '100px', width: '100px', objectFit: 'cover', borderRadius: '8px' }} />
-                            ))}
+                    <label className="admin-form-label">Product Images (Max 4) {!editingProduct && <span style={{ color: '#e05c5c' }}>*</span>}</label>
+                    <p className="admin-image-hint">
+                      {editingProduct ? 'Upload new images to replace existing ones. Click ★ to set primary (thumbnail) image.' : 'Upload up to 4 images. Click ★ to set which one shows as the main thumbnail.'}
+                    </p>
+
+                    {/* Image Grid */}
+                    <div className="admin-image-grid">
+                      {imagePreviews.map((preview, i) => (
+                        <div
+                          key={i}
+                          className={`admin-image-slot admin-image-slot--filled ${primaryImageIndex === i ? 'admin-image-slot--primary' : ''}`}
+                        >
+                          <img src={preview} alt={`Preview ${i + 1}`} className="admin-image-slot__img" />
+
+                          {/* Primary Badge */}
+                          {primaryImageIndex === i && (
+                            <div className="admin-image-slot__primary-badge">★ Primary</div>
+                          )}
+
+                          {/* Actions */}
+                          <div className="admin-image-slot__actions">
+                            {primaryImageIndex !== i && (
+                              <button
+                                type="button"
+                                className="admin-image-slot__btn admin-image-slot__btn--star"
+                                onClick={() => {
+                                  const newPreviews = [...imagePreviews];
+                                  const [movedPreview] = newPreviews.splice(i, 1);
+                                  newPreviews.unshift(movedPreview);
+                                  setImagePreviews(newPreviews);
+                                  if (imageFiles.length > 0) {
+                                    const newFiles = [...imageFiles];
+                                    const [movedFile] = newFiles.splice(i, 1);
+                                    newFiles.unshift(movedFile);
+                                    setImageFiles(newFiles);
+                                  }
+                                  setPrimaryImageIndex(0);
+                                }}
+                                title="Set as primary image"
+                              >★</button>
+                            )}
+                            <button
+                              type="button"
+                              className="admin-image-slot__btn admin-image-slot__btn--delete"
+                              onClick={() => {
+                                const newPreviews = imagePreviews.filter((_, idx) => idx !== i);
+                                setImagePreviews(newPreviews);
+                                if (imageFiles.length > 0) {
+                                  setImageFiles(imageFiles.filter((_, idx) => idx !== i));
+                                }
+                                if (primaryImageIndex >= newPreviews.length) {
+                                  setPrimaryImageIndex(Math.max(0, newPreviews.length - 1));
+                                }
+                              }}
+                              title="Remove image"
+                            >✕</button>
                           </div>
-                        ) : (
-                          <div className="admin-image-placeholder">
-                            <span className="admin-image-icon">+</span>
-                            <span>Click to upload images</span>
-                          </div>
-                        )}
-                      </label>
+                        </div>
+                      ))}
+
+                      {/* Add More Slot */}
+                      {imagePreviews.length < 4 && (
+                        <label className="admin-image-slot admin-image-slot--empty" htmlFor="image-upload">
+                          <div className="admin-image-slot__add-icon">+</div>
+                          <span className="admin-image-slot__add-text">
+                            {imagePreviews.length === 0 ? 'Add Images' : 'Add More'}
+                          </span>
+                          <span className="admin-image-slot__add-count">{imagePreviews.length}/4</span>
+                        </label>
+                      )}
                     </div>
+
+                    {/* Hidden File Input */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      id="image-upload"
+                      ref={fileInputRef}
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          const incoming = Array.from(e.target.files);
+                          const totalAllowed = 4 - imagePreviews.length;
+                          const toAdd = incoming.slice(0, totalAllowed);
+                          if (incoming.length > totalAllowed) {
+                            alert(`Only ${totalAllowed} more image(s) can be added (max 4 total).`);
+                          }
+                          setImageFiles(prev => [...prev, ...toAdd]);
+                          setImagePreviews(prev => [...prev, ...toAdd.map(f => URL.createObjectURL(f))]);
+                          e.target.value = '';
+                        }
+                      }}
+                    />
                   </div>
                   <div className="admin-form-actions">
                     <button type="submit" className="admin-form-submit" disabled={loading}>
