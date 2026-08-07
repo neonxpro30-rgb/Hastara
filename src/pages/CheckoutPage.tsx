@@ -74,8 +74,12 @@ export default function CheckoutPage() {
     return sum + ((item.product as any).packageWeight || 0.5) * item.quantity;
   }, 0);
 
-  // Effective shipping cost (free if above threshold)
-  const shippingCost = totalPrice >= FREE_SHIPPING_THRESHOLD ? 0 : (shippingInfo.checked ? shippingInfo.rate : 60);
+  // Effective shipping cost (free if above threshold, 0 if not serviceable)
+  const shippingCost = totalPrice >= FREE_SHIPPING_THRESHOLD
+    ? 0
+    : (shippingInfo.checked && !shippingInfo.available)
+      ? 0
+      : (shippingInfo.checked ? shippingInfo.rate : 60);
   const grandTotal = totalPrice + shippingCost;
 
   // Auto-calculate shipping when pincode becomes 6 digits
@@ -617,11 +621,13 @@ export default function CheckoutPage() {
               <div className="checkout__summary-row">
                 <span>Shipping</span>
                 <span>
-                  {shippingCost === 0
-                    ? <span className="free-shipping">Free 🎉</span>
-                    : shippingInfo.loading
-                      ? <span style={{ color: '#888', fontSize: '0.85rem' }}>Calculating...</span>
-                      : `₹${shippingCost.toFixed(2)}`
+                  {shippingCost === 0 && shippingInfo.checked && !shippingInfo.available
+                    ? <span style={{ color: '#f87171', fontSize: '0.82rem' }}>Not Serviceable</span>
+                    : shippingCost === 0
+                      ? <span className="free-shipping">Free 🎉</span>
+                      : shippingInfo.loading
+                        ? <span style={{ color: '#888', fontSize: '0.85rem' }}>Calculating...</span>
+                        : `₹${shippingCost.toFixed(2)}`
                   }
                 </span>
               </div>
