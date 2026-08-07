@@ -29,8 +29,17 @@ const INDIAN_STATES = [
   'Delhi', 'Jammu & Kashmir', 'Ladakh',
 ];
 
-const SHIPPING_CHARGE = 1;
-const FREE_SHIPPING_THRESHOLD = 499;
+const FREE_SHIPPING_THRESHOLD = 999;
+
+interface ShippingInfo {
+  available: boolean;
+  rate: number;
+  courierName: string;
+  estimatedDays: string;
+  loading: boolean;
+  checked: boolean;
+  message?: string;
+}
 
 export default function CheckoutPage() {
   const { state: cartState, totalPrice, totalSavings, clearCart } = useCart();
@@ -56,9 +65,51 @@ export default function CheckoutPage() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isProcessing, setIsProcessing] = useState(false);
-  
-  const shippingCost = totalPrice >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_CHARGE;
+  const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
+    available: true, rate: 60, courierName: '', estimatedDays: '', loading: false, checked: false
+  });
+
+  // Calculate total cart weight for shipping
+  const totalCartWeight = cartState.items.reduce((sum, item) => {
+    return sum + ((item.product as any).packageWeight || 0.5) * item.quantity;
+  }, 0);
+
+  // Effective shipping cost (free if above threshold)
+  const shippingCost = totalPrice >= FREE_SHIPPING_THRESHOLD ? 0 : (shippingInfo.checked ? shippingInfo.rate : 60);
   const grandTotal = totalPrice + shippingCost;
+
+  // Auto-calculate shipping when pincode becomes 6 digits
+  useEffect(() => {
+    if (form.pincode.length !== 6) return;
+    
+    let cancelled = false;
+    setShippingInfo(prev => ({ ...prev, loading: true, checked: false }));
+    
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/shipping/calculate?pincode=${form.pincode}&weight=${totalCartWeight}`);
+        if (!res.ok) throw new Error('Failed to fetch shipping');
+        const data = await res.json();
+        if (!cancelled) {
+          setShippingInfo({
+            available: data.available !== false,
+            rate: data.rate || 60,
+            courierName: data.courierName || '',
+            estimatedDays: data.estimatedDays || '3-5 days',
+            loading: false,
+            checked: true,
+            message: data.message,
+          });
+        }
+      } catch {
+        if (!cancelled) {
+          setShippingInfo({ available: true, rate: 60, courierName: 'Standard Shipping', estimatedDays: '3-5 days', loading: false, checked: true });
+        }
+      }
+    }, 500); // debounce 500ms
+    
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [form.pincode, totalCartWeight]);
 
   const sanitize = (value: string): string => {
     return value.replace(/<[^>]*>/g, '').replace(/[<>"'&]/g, '');
@@ -470,6 +521,21 @@ export default function CheckoutPage() {
                     maxLength={6}
                   />
                   {errors.pincode && <span className="error-text">{errors.pincode}</span>}
+
+                  {/* Live Shipping Status */}
+                  {form.pincode.length === 6 && !errors.pincode && (
+                    <div className={`checkout__shipping-status ${shippingInfo.loading ? 'checkout__shipping-status--loading' : shippingInfo.checked && !shippingInfo.available ? 'checkout__shipping-status--unavailable' : 'checkout__shipping-status--available'}`}>
+                      {shippingInfo.loading && <><span className="checkout__shipping-spinner" /> Checking delivery...</>}
+                      {!shippingInfo.loading && shippingInfo.checked && shippingInfo.available && (
+                        totalPrice >= FREE_SHIPPING_THRESHOLD
+                          ? '🎉 Free delivery to this pincode!'
+                          : `🚚 ${shippingInfo.courierName || 'Courier'} • ₹${shippingInfo.rate} • ${shippingInfo.estimatedDays}`
+                      )}
+                      {!shippingInfo.loading && shippingInfo.checked && !shippingInfo.available && (
+                        '⚠️ Delivery not available for this pincode. Try a different address.'
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -550,8 +616,20 @@ export default function CheckoutPage() {
               </div>
               <div className="checkout__summary-row">
                 <span>Shipping</span>
-                <span>{shippingCost === 0 ? <span className="free-shipping">Free</span> : `₹${shippingCost.toFixed(2)}`}</span>
+                <span>
+                  {shippingCost === 0
+                    ? <span className="free-shipping">Free 🎉</span>
+                    : shippingInfo.loading
+                      ? <span style={{ color: '#888', fontSize: '0.85rem' }}>Calculating...</span>
+                      : `₹${shippingCost.toFixed(2)}`
+                  }
+                </span>
               </div>
+              {shippingInfo.checked && shippingInfo.available && shippingInfo.courierName && shippingCost > 0 && (
+                <div style={{ fontSize: '0.78rem', color: '#888', marginTop: '-6px', paddingBottom: '4px' }}>
+                  via {shippingInfo.courierName} • {shippingInfo.estimatedDays}
+                </div>
+              )}
               {totalSavings > 0 && (
                 <div className="checkout__summary-row checkout__summary-row--savings">
                   <span>🎉 You save</span>
@@ -563,12 +641,12 @@ export default function CheckoutPage() {
 
               <div className="checkout__summary-row checkout__summary-row--total">
                 <span>Total</span>
-                <span className="price">₹{grandTotal}</span>
+                <span className="price">₹{grandTotal.toFixed(2)}</span>
               </div>
 
-              {shippingCost > 0 && (
+              {totalPrice < FREE_SHIPPING_THRESHOLD && !shippingInfo.loading && (
                 <p className="checkout__free-shipping-note">
-                  Add ₹{FREE_SHIPPING_THRESHOLD - totalPrice} more for free shipping!
+                  Add ₹{(FREE_SHIPPING_THRESHOLD - totalPrice).toFixed(0)} more for free shipping!
                 </p>
               )}
 

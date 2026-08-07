@@ -328,66 +328,66 @@ app.post('/api/orders/create', async (req, res) => {
 });
 
 /**
- * Calculate Shipping via NimbusPost Serviceability API (or Fallback)
+ * Calculate Shipping via NimbusPost Serviceability API
+ * Supports both V2 (API Key/Secret) and V1 (Bearer) auth
  */
 app.get('/api/shipping/calculate', async (req, res) => {
   try {
     const { pincode, weight } = req.query;
-    if (!pincode || pincode.length !== 6) {
+    if (!pincode || String(pincode).length !== 6 || !/^\d{6}$/.test(String(pincode))) {
       return res.status(400).json({ error: 'Valid 6-digit pincode is required' });
     }
 
     const pickupPincode = process.env.PICKUP_PINCODE || '110001';
-    
-    // Fallback if weight is not provided or invalid
-    const actualWeightInGrams = (parseFloat(weight) > 0 ? parseFloat(weight) : 0.5) * 1000;
+    const weightKg = parseFloat(weight) > 0 ? parseFloat(weight) : 0.5;
+    const weightInGrams = weightKg * 1000;
 
     if (!NIMBUSPOST_API_KEY) {
-      // Fallback rate if NimbusPost API key is missing
       return res.json({
         available: true,
-        rate: 50,
-        courierName: "Standard Shipping",
-        estimatedDays: "3-5 days",
-        message: `Delivery by standard shipping`
+        rate: 60,
+        courierName: 'Standard Shipping',
+        estimatedDays: '3-5 days',
       });
     }
 
-    const response = await axios.post(`https://api.nimbuspost.com/v1/courier/serviceability`, {
-      origin: pickupPincode,
-      destination: pincode,
-      payment_type: "prepaid",
-      weight: actualWeightInGrams
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${NIMBUSPOST_API_KEY}`
-      }
-    });
+    // Try NimbusPost V2 serviceability first
+    let response;
+    try {
+      response = await axios.post(
+        `${NIMBUS_V2_BASE}/courier/serviceability`,
+        { origin: pickupPincode, destination: String(pincode), payment_type: 'prepaid', weight: weightInGrams },
+        { headers: { 'Content-Type': 'application/json', 'X-Api-Key': NIMBUSPOST_API_KEY, 'X-Api-Secret': NIMBUSPOST_SECRET } }
+      );
+    } catch (v2err) {
+      console.log('V2 serviceability failed, trying V1:', v2err.response?.data || v2err.message);
+      // Fallback to V1
+      response = await axios.post(
+        'https://api.nimbuspost.com/v1/courier/serviceability',
+        { origin: pickupPincode, destination: String(pincode), payment_type: 'prepaid', weight: weightInGrams },
+        { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${NIMBUSPOST_API_KEY}` } }
+      );
+    }
 
     const data = response.data;
-    if (data.status && data.data && data.data.length > 0) {
-      // Find the most recommended or cheapest prepaid rate
-      const couriers = data.data;
-      
-      // Sort by rate (cheapest first)
-      couriers.sort((a, b) => parseFloat(a.freight_charges) - parseFloat(b.freight_charges));
-      
-      const bestCourier = couriers[0];
+    const couriers = data.data || data.couriers || [];
+    if (data.status && couriers.length > 0) {
+      couriers.sort((a, b) => parseFloat(a.freight_charges || a.rate || 0) - parseFloat(b.freight_charges || b.rate || 0));
+      const best = couriers[0];
+      const rate = parseFloat(best.freight_charges || best.rate || 60);
       return res.json({
         available: true,
-        rate: parseFloat(bestCourier.freight_charges),
-        courierName: bestCourier.courier_name,
-        estimatedDays: "3-5 days", // NimbusPost etd format varies, safe fallback
-        message: `Delivery by ${bestCourier.courier_name}`
+        rate,
+        courierName: best.courier_name || best.name || 'Courier',
+        estimatedDays: best.etd || best.estimated_delivery_days || '3-5 days',
       });
     } else {
       return res.json({ available: false, message: 'Delivery not available for this pincode.' });
     }
   } catch (error) {
     console.error('Shipping calculation error:', error.response?.data || error.message);
-    // Return a graceful fallback rate or error
-    return res.status(500).json({ error: 'Failed to calculate shipping', fallbackRate: 49 });
+    // Graceful fallback — never block checkout
+    return res.json({ available: true, rate: 60, courierName: 'Standard Shipping', estimatedDays: '3-5 days', fallback: true });
   }
 });
 
