@@ -106,9 +106,9 @@ const AdminPage: React.FC = () => {
     sku: '', hsnCode: '', taxRate: '0'
   });
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [primaryImageIndex, setPrimaryImageIndex] = useState<number>(0);
+  // Unified image slot system: each slot is either existing URL or a new File
+  type ImageSlot = { type: 'existing'; url: string } | { type: 'new'; file: File; previewUrl: string };
+  const [imageSlots, setImageSlots] = useState<ImageSlot[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!sessionStorage.getItem('admin_token'));
   const [loginPassword, setLoginPassword] = useState('');
@@ -201,9 +201,7 @@ const AdminPage: React.FC = () => {
       packageWeight: '0.5', packageLength: '10', packageBreadth: '10', packageHeight: '5',
       sku: '', hsnCode: '', taxRate: '0'
     });
-    setImageFiles([]);
-    setImagePreviews([]);
-    setPrimaryImageIndex(0);
+    setImageSlots([]);
     setEditingProduct(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -235,9 +233,7 @@ const AdminPage: React.FC = () => {
     const existingImages = (product.images && product.images.length > 0)
       ? product.images
       : (product.image ? [product.image] : []);
-    setImagePreviews(existingImages);
-    setPrimaryImageIndex(0);
-    setImageFiles([]);
+    setImageSlots(existingImages.map(url => ({ type: 'existing' as const, url })));
     setActiveTab('add-product');
   };
 
@@ -257,7 +253,7 @@ const AdminPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingProduct && imageFiles.length === 0) {
+    if (!editingProduct && imageSlots.length === 0) {
       alert('Please select at least one image');
       return;
     }
@@ -271,18 +267,23 @@ const AdminPage: React.FC = () => {
         data.append(key, val);
       }
     });
-    // Reorder images so primary comes first
-    const reorderedFiles = [
-      ...imageFiles.slice(primaryImageIndex),
-      ...imageFiles.slice(0, primaryImageIndex)
-    ];
-    reorderedFiles.forEach(file => {
-      data.append('images', file);
+
+    // Build slot order descriptor so backend knows final image sequence
+    // slotOrder: array of {type: 'existing', url} or {type: 'new', newIndex}
+    let newFileIndex = 0;
+    const slotOrder = imageSlots.map(slot => {
+      if (slot.type === 'existing') {
+        return { type: 'existing', url: slot.url };
+      } else {
+        return { type: 'new', newIndex: newFileIndex++ };
+      }
     });
-    // When editing, also send primaryImageIndex to reorder existing images if no new files
-    if (editingProduct && imageFiles.length === 0) {
-      data.append('primaryImageIndex', String(primaryImageIndex));
-    }
+    data.append('slotOrder', JSON.stringify(slotOrder));
+
+    // Append new files
+    imageSlots.forEach(slot => {
+      if (slot.type === 'new') data.append('images', slot.file);
+    });
 
     try {
       const url = editingProduct
@@ -649,67 +650,56 @@ const AdminPage: React.FC = () => {
 
                     {/* Image Grid */}
                     <div className="admin-image-grid">
-                      {imagePreviews.map((preview, i) => (
-                        <div
-                          key={i}
-                          className={`admin-image-slot admin-image-slot--filled ${primaryImageIndex === i ? 'admin-image-slot--primary' : ''}`}
-                        >
-                          <img src={preview} alt={`Preview ${i + 1}`} className="admin-image-slot__img" />
+                      {imageSlots.map((slot, i) => {
+                        const previewSrc = slot.type === 'existing' ? slot.url : slot.previewUrl;
+                        const isPrimary = i === 0;
+                        return (
+                          <div
+                            key={i}
+                            className={`admin-image-slot admin-image-slot--filled ${isPrimary ? 'admin-image-slot--primary' : ''}`}
+                          >
+                            <img src={previewSrc} alt={`Image ${i + 1}`} className="admin-image-slot__img" />
 
-                          {/* Primary Badge */}
-                          {primaryImageIndex === i && (
-                            <div className="admin-image-slot__primary-badge">★ Primary</div>
-                          )}
+                            {isPrimary && (
+                              <div className="admin-image-slot__primary-badge">★ Primary</div>
+                            )}
 
-                          {/* Actions */}
-                          <div className="admin-image-slot__actions">
-                            {primaryImageIndex !== i && (
+                            <div className="admin-image-slot__actions">
+                              {!isPrimary && (
+                                <button
+                                  type="button"
+                                  className="admin-image-slot__btn admin-image-slot__btn--star"
+                                  onClick={() => {
+                                    // Move this slot to index 0 (primary)
+                                    const newSlots = [...imageSlots];
+                                    const [moved] = newSlots.splice(i, 1);
+                                    newSlots.unshift(moved);
+                                    setImageSlots(newSlots);
+                                  }}
+                                  title="Set as primary"
+                                >★</button>
+                              )}
                               <button
                                 type="button"
-                                className="admin-image-slot__btn admin-image-slot__btn--star"
+                                className="admin-image-slot__btn admin-image-slot__btn--delete"
                                 onClick={() => {
-                                  const newPreviews = [...imagePreviews];
-                                  const [movedPreview] = newPreviews.splice(i, 1);
-                                  newPreviews.unshift(movedPreview);
-                                  setImagePreviews(newPreviews);
-                                  if (imageFiles.length > 0) {
-                                    const newFiles = [...imageFiles];
-                                    const [movedFile] = newFiles.splice(i, 1);
-                                    newFiles.unshift(movedFile);
-                                    setImageFiles(newFiles);
-                                  }
-                                  setPrimaryImageIndex(0);
+                                  setImageSlots(imageSlots.filter((_, idx) => idx !== i));
                                 }}
-                                title="Set as primary image"
-                              >★</button>
-                            )}
-                            <button
-                              type="button"
-                              className="admin-image-slot__btn admin-image-slot__btn--delete"
-                              onClick={() => {
-                                const newPreviews = imagePreviews.filter((_, idx) => idx !== i);
-                                setImagePreviews(newPreviews);
-                                if (imageFiles.length > 0) {
-                                  setImageFiles(imageFiles.filter((_, idx) => idx !== i));
-                                }
-                                if (primaryImageIndex >= newPreviews.length) {
-                                  setPrimaryImageIndex(Math.max(0, newPreviews.length - 1));
-                                }
-                              }}
-                              title="Remove image"
-                            >✕</button>
+                                title="Remove image"
+                              >✕</button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
 
                       {/* Add More Slot */}
-                      {imagePreviews.length < 4 && (
+                      {imageSlots.length < 4 && (
                         <label className="admin-image-slot admin-image-slot--empty" htmlFor="image-upload">
                           <div className="admin-image-slot__add-icon">+</div>
                           <span className="admin-image-slot__add-text">
-                            {imagePreviews.length === 0 ? 'Add Images' : 'Add More'}
+                            {imageSlots.length === 0 ? 'Add Images' : 'Add More'}
                           </span>
-                          <span className="admin-image-slot__add-count">{imagePreviews.length}/4</span>
+                          <span className="admin-image-slot__add-count">{imageSlots.length}/4</span>
                         </label>
                       )}
                     </div>
@@ -725,13 +715,17 @@ const AdminPage: React.FC = () => {
                       onChange={(e) => {
                         if (e.target.files && e.target.files.length > 0) {
                           const incoming = Array.from(e.target.files);
-                          const totalAllowed = 4 - imagePreviews.length;
+                          const totalAllowed = 4 - imageSlots.length;
                           const toAdd = incoming.slice(0, totalAllowed);
                           if (incoming.length > totalAllowed) {
                             alert(`Only ${totalAllowed} more image(s) can be added (max 4 total).`);
                           }
-                          setImageFiles(prev => [...prev, ...toAdd]);
-                          setImagePreviews(prev => [...prev, ...toAdd.map(f => URL.createObjectURL(f))]);
+                          const newSlots = toAdd.map(file => ({
+                            type: 'new' as const,
+                            file,
+                            previewUrl: URL.createObjectURL(file)
+                          }));
+                          setImageSlots(prev => [...prev, ...newSlots]);
                           e.target.value = '';
                         }
                       }}

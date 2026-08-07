@@ -533,22 +533,39 @@ app.put('/api/admin/products/:id', adminAuth, upload.array('images', 4), async (
     if (packageBreadth) updateData.packageBreadth = parseFloat(packageBreadth);
     if (packageHeight) updateData.packageHeight = parseFloat(packageHeight);
 
-    // Upload new images if provided
+    // Upload any new files
+    let newImageUrls = [];
     if (req.files && req.files.length > 0) {
+      const slug = updateData.slug || req.params.id;
       const uploadPromises = req.files.map((file, index) => {
         return new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
-            { folder: 'hastara_products', public_id: `${updateData.slug || req.params.id}-${index}-${Date.now()}` },
+            { folder: 'hastara_products', public_id: `${slug}-${index}-${Date.now()}` },
             (error, result) => error ? reject(error) : resolve(result)
           );
           stream.end(file.buffer);
         });
       });
       const uploadResults = await Promise.all(uploadPromises);
-      const imageUrls = uploadResults.map(result => result.secure_url);
-      
-      updateData.image = imageUrls[0];
-      updateData.images = imageUrls;
+      newImageUrls = uploadResults.map(result => result.secure_url);
+    }
+
+    // Reconstruct final ordered image list using slotOrder sent from client
+    let finalImages = [];
+    if (req.body.slotOrder) {
+      const slotOrder = JSON.parse(req.body.slotOrder);
+      finalImages = slotOrder.map(slot => {
+        if (slot.type === 'existing') return slot.url;
+        return newImageUrls[slot.newIndex] || null;
+      }).filter(Boolean);
+    } else {
+      // Fallback: just use new images if no slotOrder
+      finalImages = newImageUrls;
+    }
+
+    if (finalImages.length > 0) {
+      updateData.image = finalImages[0];
+      updateData.images = finalImages;
     }
 
     updateData.updated_at = FieldValue.serverTimestamp();
