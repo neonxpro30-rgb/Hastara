@@ -456,7 +456,8 @@ app.post('/api/admin/products', adminAuth, upload.array('images', 4), async (req
     const { 
       name, price, originalPrice, description, shortDescription, 
       category, tags, material, weight, dimensions, inStock, 
-      featured, bestSeller, packageWeight, packageLength, packageBreadth, packageHeight 
+      featured, bestSeller, packageWeight, packageLength, packageBreadth, packageHeight,
+      sku, hsnCode, taxRate
     } = req.body;
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -472,8 +473,22 @@ app.post('/api/admin/products', adminAuth, upload.array('images', 4), async (req
     });
 
     const uploadResults = await Promise.all(uploadPromises);
-    const imageUrls = uploadResults.map(result => result.secure_url);
-    const primaryImage = imageUrls[0];
+    const newImageUrls = uploadResults.map(result => result.secure_url);
+    
+    // Reconstruct final ordered image list using slotOrder sent from client
+    let finalImages = [];
+    if (req.body.slotOrder) {
+      const slotOrder = JSON.parse(req.body.slotOrder);
+      finalImages = slotOrder.map(slot => {
+        // For new product, all slots should logically be 'new', but just in case
+        if (slot.type === 'existing') return slot.url; 
+        return newImageUrls[slot.newIndex] || null;
+      }).filter(Boolean);
+    } else {
+      finalImages = newImageUrls;
+    }
+
+    const primaryImage = finalImages.length > 0 ? finalImages[0] : '';
 
     const productData = {
       name,
@@ -493,12 +508,15 @@ app.post('/api/admin/products', adminAuth, upload.array('images', 4), async (req
       rating: 4.5,
       reviews: 0,
       image: primaryImage,
-      images: imageUrls,
+      images: finalImages,
       created_at: FieldValue.serverTimestamp(),
       packageWeight: parseFloat(packageWeight) || 0.5,
       packageLength: parseFloat(packageLength) || 10,
       packageBreadth: parseFloat(packageBreadth) || 10,
       packageHeight: parseFloat(packageHeight) || 5,
+      sku: sku || '',
+      hsnCode: hsnCode || '',
+      taxRate: taxRate || '0%',
     };
 
     const docRef = await db.collection('products').add(productData);
@@ -520,7 +538,8 @@ app.put('/api/admin/products/:id', adminAuth, upload.array('images', 4), async (
     const { 
       name, price, originalPrice, description, shortDescription, 
       category, tags, material, weight, dimensions, inStock, 
-      featured, bestSeller, packageWeight, packageLength, packageBreadth, packageHeight 
+      featured, bestSeller, packageWeight, packageLength, packageBreadth, packageHeight,
+      sku, hsnCode, taxRate
     } = req.body;
     
     const updateData = {};
@@ -544,6 +563,9 @@ app.put('/api/admin/products/:id', adminAuth, upload.array('images', 4), async (
     if (packageLength) updateData.packageLength = parseFloat(packageLength);
     if (packageBreadth) updateData.packageBreadth = parseFloat(packageBreadth);
     if (packageHeight) updateData.packageHeight = parseFloat(packageHeight);
+    if (sku !== undefined) updateData.sku = sku;
+    if (hsnCode !== undefined) updateData.hsnCode = hsnCode;
+    if (taxRate !== undefined) updateData.taxRate = taxRate;
 
     // Upload any new files
     let newImageUrls = [];

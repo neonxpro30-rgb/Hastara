@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import imageCompression from 'browser-image-compression';
 import './AdminPage.css';
 
 interface Product {
@@ -280,10 +281,24 @@ const AdminPage: React.FC = () => {
     });
     data.append('slotOrder', JSON.stringify(slotOrder));
 
-    // Append new files
-    imageSlots.forEach(slot => {
-      if (slot.type === 'new') data.append('images', slot.file);
-    });
+    // Compress and append new files
+    const options = {
+      maxSizeMB: 0.5, // 500KB limit per image
+      maxWidthOrHeight: 1920,
+      useWebWorker: true
+    };
+    
+    for (const slot of imageSlots) {
+      if (slot.type === 'new' && slot.file) {
+        try {
+          const compressedFile = await imageCompression(slot.file, options);
+          data.append('images', compressedFile, slot.file.name);
+        } catch (error) {
+          console.error("Image compression error:", error);
+          data.append('images', slot.file); // fallback to original if compression fails
+        }
+      }
+    }
 
     try {
       const url = editingProduct

@@ -35,7 +35,7 @@ export default function HomePage() {
         </div>
         <div className="hero__content container">
           <div className="hero__text animate-fade-in-up">
-            <span className="hero__badge">✦ Handcrafted in India</span>
+            <span className="hero__badge">✦ It-Girl Essentials</span>
             <h1 className="hero__title display-text">
               Adorn Your <br />
               <span className="text-gradient">Elegance</span>
