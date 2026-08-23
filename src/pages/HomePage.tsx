@@ -25,14 +25,26 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="hero" id="hero-section">
         <div className="hero__bg">
-          <img
-            src="/images/hero-banner.png"
-            alt="Hastara — Handcrafted Earrings Collection"
-            className="hero__bg-image"
-            fetchPriority="high"
-            width="1440"
-            height="800"
-          />
+          <video
+            className="hero__bg-video"
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster="/images/hero-banner.png"
+          >
+            <source src="/videos/hero.mp4" type="video/mp4" />
+            <source src="/videos/hero.webm" type="video/webm" />
+            {/* Fallback image if video not supported or not present */}
+            <img
+              src="/images/hero-banner.png"
+              alt="Hastara — Handcrafted Earrings Collection"
+              className="hero__bg-image"
+              fetchPriority="high"
+              width="1440"
+              height="800"
+            />
+          </video>
           <div className="hero__bg-overlay" />
         </div>
         <div className="hero__content container">

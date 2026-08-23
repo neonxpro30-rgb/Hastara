@@ -260,6 +260,32 @@ export default function ProductDetailPage() {
           </section>
         )}
       </div>
+
+      {/* Sticky Mobile Bottom Bar */}
+      <div className="pdp-mobile-bar">
+        <div className="pdp-mobile-bar__price-box">
+          <span className="pdp-mobile-bar__price price">₹{product.price}</span>
+          {discount > 0 && (
+            <span className="pdp-mobile-bar__orig price-original">₹{product.originalPrice}</span>
+          )}
+        </div>
+        <div className="pdp-mobile-bar__actions">
+          <button
+            className="btn btn-secondary btn-sm pdp-mobile-bar__btn"
+            onClick={handleAddToCart}
+            disabled={!product.inStock}
+          >
+            Add to Cart
+          </button>
+          <button
+            className="btn btn-primary btn-sm pdp-mobile-bar__btn"
+            onClick={handleBuyNow}
+            disabled={!product.inStock}
+          >
+            Buy Now
+          </button>
+        </div>
+      </div>
     </main>
   );
 }

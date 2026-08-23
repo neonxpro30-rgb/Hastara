@@ -287,7 +287,7 @@ const AdminPage: React.FC = () => {
       maxWidthOrHeight: 1920,
       useWebWorker: true
     };
-    
+
     for (const slot of imageSlots) {
       if (slot.type === 'new' && slot.file) {
         try {

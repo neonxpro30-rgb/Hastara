@@ -185,29 +185,96 @@
   font-size: 0.9rem;
 }
 
-/* Mobile touch-friendly */
+/* Mobile Add Button (hidden by default on desktop) */
+.product-card__mobile-add {
+  display: none;
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(193, 96, 42, 0.35);
+  z-index: 3;
+  transition: transform var(--duration-fast), background var(--duration-fast);
+}
+
+.product-card__mobile-add:active {
+  transform: scale(0.92);
+  background: #a8481e;
+}
+
+/* Mobile touch-friendly responsive */
 @media (max-width: 768px) {
-  .product-card__overlay {
-    opacity: 1;
-    background: linear-gradient(to top, rgba(44, 35, 24, 0.68) 0%, transparent 40%);
+  .product-card {
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
   }
 
-  .product-card__quick-add {
-    transform: translateY(0);
-    max-width: 100%;
-    font-size: 0.8rem;
-    padding: 0.6rem 1rem;
+  .product-card__overlay {
+    display: none; /* Keep image clean & unobscured on mobile */
+  }
+
+  .product-card__mobile-add {
+    display: flex; /* Show intuitive floating + button */
   }
 
   .product-card__info {
-    padding: var(--space-sm) var(--space-md) var(--space-md);
+    padding: 0.65rem 0.75rem 0.75rem;
+    gap: 2px;
+  }
+
+  .product-card__category {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
   }
 
   .product-card__name {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
+    line-height: 1.25;
+    font-weight: 600;
   }
 
   .product-card__desc {
     display: none;
+  }
+
+  .product-card__badges {
+    top: 6px;
+    left: 6px;
+    gap: 3px;
+  }
+
+  .product-card__badge {
+    padding: 0.15rem 0.45rem;
+    font-size: 0.62rem;
+    border-radius: 4px;
+  }
+
+  .product-card__bottom {
+    padding-top: 4px;
+  }
+
+  .product-card__price {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .product-card__original-price {
+    font-size: 0.75rem;
+  }
+
+  .product-card__rating {
+    font-size: 0.72rem;
+    gap: 2px;
+  }
+
+  .product-card__star {
+    font-size: 0.78rem;
   }
 }

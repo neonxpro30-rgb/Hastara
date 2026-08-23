@@ -112,6 +112,32 @@ export default function Navbar() {
             </li>
           ))}
         </ul>
+
+        {/* Quick Category Jump on Mobile */}
+        <div className="mobile-menu__categories">
+          <p className="mobile-menu__section-title">Categories</p>
+          <div className="mobile-menu__cat-grid">
+            {[
+              { id: 'chandbali', icon: '🌙', label: 'Chandbali' },
+              { id: 'jhumka', icon: '🔔', label: 'Jhumka' },
+              { id: 'danglers', icon: '💎', label: 'Danglers' },
+              { id: 'studs', icon: '⭐', label: 'Studs' },
+              { id: 'hoops', icon: '⭕', label: 'Hoops' },
+              { id: 'drops', icon: '💧', label: 'Drops' },
+            ].map(cat => (
+              <Link
+                key={cat.id}
+                to={`/products?category=${cat.id}`}
+                className="mobile-menu__cat-chip"
+                onClick={() => setMenuOpen(false)}
+              >
+                <span>{cat.icon}</span>
+                <span>{cat.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
         <div className="mobile-menu__footer">
           <p>Handcrafted with ♥ in India</p>
         </div>
