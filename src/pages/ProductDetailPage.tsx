@@ -133,9 +133,10 @@ export default function ProductDetailPage() {
                       objectFit: 'cover',
                       borderRadius: '8px',
                       cursor: 'pointer',
-                      border: activeImageIndex === index ? '2px solid #c4a484' : '2px solid transparent',
-                      opacity: activeImageIndex === index ? 1 : 0.7,
-                      transition: 'all 0.2s ease-in-out'
+                      border: activeImageIndex === index ? '2.5px solid #7a9e7e' : '2px solid transparent',
+                      opacity: activeImageIndex === index ? 1 : 0.65,
+                      transition: 'all 0.2s ease-in-out',
+                      boxShadow: activeImageIndex === index ? '0 2px 10px rgba(122,158,126,0.3)' : 'none'
                     }}
                   />
                 ))}

@@ -60,7 +60,7 @@
 .product-card__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(13, 11, 14, 0.8) 0%, transparent 50%);
+  background: linear-gradient(to top, rgba(44, 35, 24, 0.78) 0%, transparent 55%);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -109,8 +109,8 @@
 }
 
 .product-card__badge--tag {
-  background: rgba(196, 149, 106, 0.9);
-  color: var(--color-text-inverse);
+  background: rgba(122, 158, 126, 0.92);
+  color: #fff;
 }
 
 /* Info */
@@ -189,7 +189,7 @@
 @media (max-width: 768px) {
   .product-card__overlay {
     opacity: 1;
-    background: linear-gradient(to top, rgba(13, 11, 14, 0.7) 0%, transparent 40%);
+    background: linear-gradient(to top, rgba(44, 35, 24, 0.68) 0%, transparent 40%);
   }
 
   .product-card__quick-add {

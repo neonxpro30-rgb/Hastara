@@ -10,11 +10,11 @@
 }
 
 .navbar--scrolled {
-  background: rgba(13, 11, 14, 0.85);
+  background: rgba(245, 240, 232, 0.88);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--color-border);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(44, 35, 24, 0.08);
 }
 
 .navbar__inner {
@@ -184,6 +184,7 @@
   bottom: 0;
   width: 280px;
   background: var(--color-bg-elevated);
+  border-right: 1px solid var(--color-border);
   z-index: 95;
   transform: translateX(-100%);
   transition: transform var(--duration-normal) var(--ease-out);

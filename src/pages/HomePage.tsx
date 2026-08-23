@@ -12,8 +12,10 @@ export default function HomePage() {
     fetch('/api/products')
       .then(res => res.json())
       .then((products: Product[]) => {
-        setFeatured(products.filter(p => p.featured));
-        setBestSellers(products.filter(p => p.bestSeller));
+        const feat = products.filter(p => p.featured);
+        const best = products.filter(p => p.bestSeller);
+        setFeatured(feat.length > 0 ? feat : products.slice(0, 4));
+        setBestSellers(best.length > 0 ? best : products.slice(0, 4));
       })
       .catch(err => console.error('Failed to fetch products:', err));
   }, []);

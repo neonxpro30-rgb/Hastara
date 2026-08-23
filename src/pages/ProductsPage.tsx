@@ -66,44 +66,50 @@ export default function ProductsPage() {
             {allProducts.length} handcrafted earrings waiting to adorn you
           </p>
         </div>
+      </div>
 
-        {/* Filters Bar */}
-        <div className="products-page__filters animate-fade-in-up">
-          {/* Category Tabs */}
-          <div className="category-tabs" id="category-tabs" role="tablist">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                className={`category-tab ${activeCategory === cat.id ? 'category-tab--active' : ''}`}
-                onClick={() => handleCategoryChange(cat.id)}
-                role="tab"
-                aria-selected={activeCategory === cat.id}
-                id={`category-tab-${cat.id}`}
+      {/* Sticky Filters Bar — full width */}
+      <div className="products-page__filters-wrap">
+        <div className="container">
+          <div className="products-page__filters animate-fade-in-up">
+            {/* Category Tabs */}
+            <div className="category-tabs" id="category-tabs" role="tablist">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  className={`category-tab ${activeCategory === cat.id ? 'category-tab--active' : ''}`}
+                  onClick={() => handleCategoryChange(cat.id)}
+                  role="tab"
+                  aria-selected={activeCategory === cat.id}
+                  id={`category-tab-${cat.id}`}
+                >
+                  <span className="category-tab__icon">{cat.icon}</span>
+                  <span className="category-tab__label">{cat.name}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Sort */}
+            <div className="products-page__sort">
+              <label htmlFor="sort-select" className="products-page__sort-label">Sort by:</label>
+              <select
+                id="sort-select"
+                className="products-page__sort-select"
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortOption)}
               >
-                <span className="category-tab__icon">{cat.icon}</span>
-                <span className="category-tab__label">{cat.name}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Sort */}
-          <div className="products-page__sort">
-            <label htmlFor="sort-select" className="products-page__sort-label">Sort by:</label>
-            <select
-              id="sort-select"
-              className="products-page__sort-select"
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortOption)}
-            >
-              <option value="featured">Featured</option>
-              <option value="price-low">Price: Low → High</option>
-              <option value="price-high">Price: High → Low</option>
-              <option value="rating">Top Rated</option>
-              <option value="newest">Newest</option>
-            </select>
+                <option value="featured">Featured</option>
+                <option value="price-low">Price: Low → High</option>
+                <option value="price-high">Price: High → Low</option>
+                <option value="rating">Top Rated</option>
+                <option value="newest">Newest</option>
+              </select>
+            </div>
           </div>
         </div>
+      </div>
 
+      <div className="container">
         {/* Results Count */}
         <p className="products-page__count">
           Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'earring' : 'earrings'}
