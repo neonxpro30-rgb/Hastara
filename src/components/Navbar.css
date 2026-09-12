@@ -1,4 +1,3 @@
-/* ========== Navbar ========== */
 .navbar {
   position: fixed;
   top: 0;
@@ -9,12 +8,65 @@
   transition: all var(--duration-normal) var(--ease-out);
 }
 
-.navbar--scrolled {
-  background: rgba(245, 240, 232, 0.88);
+/* Scrolled / Non-home solid state */
+.navbar--solid {
+  background: rgba(245, 240, 232, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--color-border);
   box-shadow: 0 4px 20px rgba(44, 35, 24, 0.08);
+}
+
+.navbar--solid .navbar__link {
+  color: var(--color-text-secondary);
+}
+
+.navbar--solid .navbar__link:hover,
+.navbar--solid .navbar__link--active {
+  color: var(--color-primary);
+}
+
+.navbar--solid .navbar__cart-btn {
+  color: var(--color-text);
+}
+
+.navbar--solid .navbar__hamburger span {
+  background: var(--color-text);
+}
+
+/* Home hero transparent state (dark background) */
+.navbar--transparent {
+  background: transparent;
+}
+
+.navbar--transparent .navbar__link {
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+.navbar--transparent .navbar__link:hover,
+.navbar--transparent .navbar__link--active {
+  color: #f5d7b5;
+}
+
+.navbar--transparent .navbar__link::after {
+  background: #f5d7b5;
+}
+
+.navbar--transparent .navbar__cart-btn {
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+}
+
+.navbar--transparent .navbar__cart-btn:hover {
+  color: #f5d7b5;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.navbar--transparent .navbar__hamburger span {
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 .navbar__inner {
@@ -29,9 +81,29 @@
 .navbar__logo {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
   text-decoration: none;
   z-index: 10;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.navbar__logo:hover {
+  transform: scale(1.08);
+}
+
+.navbar__logo-img {
+  height: 40px;
+  width: auto;
+  max-width: 55px;
+  object-fit: contain;
+  display: block;
+}
+
+.mobile-menu__logo-img {
+  height: 64px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  display: block;
 }
 
 .navbar__logo-icon {
@@ -290,6 +362,11 @@
 @media (max-width: 768px) {
   .navbar {
     height: 62px;
+  }
+
+  .navbar__logo-img {
+    height: 32px;
+    max-width: 45px;
   }
 
   .navbar__links {

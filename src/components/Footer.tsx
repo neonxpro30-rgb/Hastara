@@ -10,9 +10,8 @@ export default function Footer() {
         <div className="footer__grid">
           {/* Brand */}
           <div className="footer__brand">
-            <Link to="/" className="footer__logo">
-              <span className="footer__logo-icon">✦</span>
-              <span className="footer__logo-text">Hastara</span>
+            <Link to="/" className="footer__logo" aria-label="Hastara Home">
+              <img src="/images/logo.png" alt="Hastara" className="footer__logo-img" />
             </Link>
             <p className="footer__tagline">
               Handcrafted earrings that celebrate the artistry of Indian

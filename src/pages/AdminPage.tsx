@@ -348,9 +348,13 @@ const AdminPage: React.FC = () => {
           padding: '48px', minWidth: '360px', display: 'flex', flexDirection: 'column', gap: '20px'
         }}>
           <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>✦</div>
-            <h2 style={{ color: '#c4a484', margin: 0, fontSize: '1.8rem', fontWeight: 700 }}>Hastara Admin</h2>
-            <p style={{ color: '#888', margin: '8px 0 0', fontSize: '0.9rem' }}>Secure Access Required</p>
+            <img
+              src="/images/logo-white.png"
+              alt="Hastara Logo"
+              style={{ height: '60px', width: 'auto', margin: '0 auto 12px', display: 'block', objectFit: 'contain' }}
+            />
+            <h2 style={{ color: '#c4a484', margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>Admin Portal</h2>
+            <p style={{ color: '#888', margin: '6px 0 0', fontSize: '0.85rem' }}>Secure Access Required</p>
           </div>
           <div>
             <label style={{ color: '#a0a0b0', fontSize: '0.85rem', display: 'block', marginBottom: '8px' }}>Admin Password</label>
@@ -389,7 +393,7 @@ const AdminPage: React.FC = () => {
       {/* Sidebar */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar__logo">
-          <span className="admin-sidebar__logo-icon">✦</span>
+          <img src="/images/logo-emblem-white.png" alt="Hastara" style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
           <h2>Hastara</h2>
           <span className="admin-sidebar__badge">Admin</span>
         </div>

@@ -9,6 +9,9 @@ export default function Navbar() {
   const { toggleCart, totalItems } = useCart();
   const location = useLocation();
 
+  const isHomePage = location.pathname === '/';
+  const isDarkHero = isHomePage && !scrolled;
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -32,7 +35,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`} id="main-nav">
+      <nav className={`navbar ${isDarkHero ? 'navbar--transparent' : 'navbar--solid'}`} id="main-nav">
         <div className="navbar__inner container">
           {/* Hamburger */}
           <button
@@ -48,9 +51,12 @@ export default function Navbar() {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="navbar__logo" id="nav-logo">
-            <span className="navbar__logo-icon">✦</span>
-            <span className="navbar__logo-text">Hastara</span>
+          <Link to="/" className="navbar__logo" id="nav-logo" aria-label="Hastara Home">
+            <img
+              src={isDarkHero ? "/images/h-logo-white.png" : "/images/h-logo-black.png"}
+              alt="Hastara"
+              className="navbar__logo-img"
+            />
           </Link>
 
           {/* Desktop Nav Links */}
@@ -96,8 +102,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       <div className={`mobile-menu ${menuOpen ? 'mobile-menu--open' : ''}`} id="mobile-menu">
         <div className="mobile-menu__header">
-          <span className="navbar__logo-icon">✦</span>
-          <span className="navbar__logo-text">Hastara</span>
+          <img src="/images/logo.png" alt="Hastara" className="mobile-menu__logo-img" />
         </div>
         <ul className="mobile-menu__links">
           {navLinks.map((link) => (
