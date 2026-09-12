@@ -211,13 +211,13 @@
 @media (max-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-md);
+    gap: 12px;
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 360px) {
   .product-grid {
-    grid-template-columns: 1fr;
+    gap: 8px;
   }
 }
 
@@ -377,52 +377,36 @@
     display: none;
   }
 
-  .trust-strip__inner {
-    gap: 0;
-    padding: var(--space-md) 0;
+  /* Section Headers on Mobile */
+  .section-header {
+    margin-bottom: var(--space-xl);
   }
 
-  .trust-strip__item {
-    padding: var(--space-sm) var(--space-md);
-    min-width: 140px;
+  .section-header__label {
+    font-size: 0.72rem;
+    margin-bottom: var(--space-xs);
   }
 
-  .trust-strip__text {
-    font-size: 0.75rem;
+  .section-header__title {
+    font-size: clamp(1.5rem, 5vw, 1.9rem);
+    margin-bottom: var(--space-xs);
   }
 
-  .trust-strip__divider {
-    height: 24px;
+  .section-header__desc {
+    font-size: 0.85rem;
+    line-height: 1.5;
   }
 
-  .why-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-md);
+  .section-cta {
+    margin-top: var(--space-xl);
   }
 
-  .why-card {
-    padding: var(--space-lg);
-  }
-
-  .why-card__icon {
-    font-size: 2rem;
-    margin-bottom: var(--space-md);
-  }
-
-  .why-card__title {
-    font-size: 0.95rem;
-  }
-
-  .why-card__desc {
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 540px) {
+  /* Trust Strip 2x2 on Mobile */
   .trust-strip__inner {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0;
+    padding: 0;
   }
 
   .trust-strip__divider {
@@ -430,15 +414,85 @@
   }
 
   .trust-strip__item {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 0.7rem var(--space-md);
-    justify-content: flex-start;
+    padding: 0.85rem 0.65rem;
+    justify-content: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .trust-strip__item:nth-child(odd) {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .trust-strip__item:nth-last-child(-n+2) {
+    border-bottom: none;
+  }
+
+  .trust-strip__icon {
+    font-size: 1.1rem;
+  }
+
+  .trust-strip__text {
+    font-size: 0.72rem;
+    white-space: normal;
+    line-height: 1.25;
+  }
+
+  /* Why Hastara — 2x2 Grid on Mobile */
+  .why-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .why-card {
+    padding: 1.15rem 0.75rem;
+    border-radius: var(--radius-md);
+  }
+
+  .why-card__icon {
+    font-size: 1.6rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .why-card__title {
+    font-size: 0.88rem;
+    margin-bottom: 3px;
+  }
+
+  .why-card__desc {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  /* CTA Section on Mobile */
+  .cta-section {
+    padding: var(--space-2xl) 0;
+  }
+
+  .cta-card {
+    padding: 2rem 1.25rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .cta-card__icon {
+    font-size: 1.6rem;
+    margin-bottom: var(--space-md);
+  }
+
+  .cta-card__title {
+    font-size: 1.4rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .cta-card__desc {
+    font-size: 0.85rem;
+    margin-bottom: var(--space-xl);
+    line-height: 1.5;
   }
 }
 
 @media (max-width: 480px) {
   .hero {
-    min-height: 54dvh;
+    min-height: 52dvh;
   }
 
   .hero__content {
@@ -447,22 +501,18 @@
   }
 
   .hero__title {
-    font-size: 2.1rem;
+    font-size: 2rem;
   }
 
   .hero__subtitle {
-    font-size: 0.84rem;
+    font-size: 0.82rem;
     line-height: 1.45;
     margin-bottom: var(--space-lg);
-    max-width: 300px;
+    max-width: 290px;
   }
 
   .btn-hero {
     padding: 0.7rem 1.4rem;
     font-size: 0.85rem;
-  }
-
-  .why-grid {
-    grid-template-columns: 1fr;
   }
 }

@@ -132,6 +132,16 @@ export default function Navbar() {
       <div className={`mobile-menu ${menuOpen ? 'mobile-menu--open' : ''}`} id="mobile-menu">
         <div className="mobile-menu__header">
           <img src="/images/logo.png" alt="Hastara" className="mobile-menu__logo-img" />
+          <button
+            className="mobile-menu__close"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
         <ul className="mobile-menu__links">
           {navLinks.map((link) => (

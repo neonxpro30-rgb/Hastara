@@ -533,7 +533,31 @@ h1, h2, h3, h4, h5, h6 {
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   :root {
-    --nav-height: 64px;
+    --nav-height: 62px;
+    --content-padding: clamp(0.75rem, 3.5vw, 1.25rem);
+    --space-4xl: 2.75rem;
+    --space-3xl: 2rem;
+    --space-2xl: 1.5rem;
+    --space-xl: 1.25rem;
+  }
+
+  .section {
+    padding: 2.25rem 0;
+  }
+
+  /* Prevent iOS Safari auto-zooming on input focus */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Remove unsightly mobile tap highlight box */
+  button,
+  a,
+  input,
+  select {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
