@@ -94,7 +94,7 @@ export const products: Product[] = [
     slug: 'royal-kundan-studs',
     price: 199,
     originalPrice: 349,
-    description: 'Petite and elegant oxidized silver kundan stud earrings featuring a brilliant pink stone center surrounded by a circle of tiny seed pearls. These versatile studs are perfect for everyday wear while maintaining that premium, handcrafted appeal. Lightweight and comfortable, they complement both western and ethnic outfits beautifully.',
+    description: 'Petite and elegant oxidized silver kundan stud earrings featuring a brilliant pink stone center surrounded by a circle of tiny seed pearls. These versatile studs are perfect for everyday wear while maintaining that premium, artisan appeal. Lightweight and comfortable, they complement both western and ethnic outfits beautifully.',
     shortDescription: 'Pink kundan studs with pearl border — everyday elegance',
     image: '/images/product-kundan-studs.png',
     images: ['/images/product-kundan-studs.png'],

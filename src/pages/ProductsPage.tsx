@@ -63,7 +63,7 @@ export default function ProductsPage() {
             Our <span className="text-gradient">Collection</span>
           </h1>
           <p className="products-page__subtitle">
-            {allProducts.length} handcrafted earrings waiting to adorn you
+            {allProducts.length} premium earrings waiting to adorn you
           </p>
         </div>
       </div>

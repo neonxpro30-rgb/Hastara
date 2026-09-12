@@ -144,7 +144,7 @@ export default function Navbar() {
         </div>
 
         <div className="mobile-menu__footer">
-          <p>Handcrafted with ♥ in India</p>
+          <p>Made with ♥ in India</p>
         </div>
       </div>
     </>

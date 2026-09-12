@@ -14,7 +14,7 @@ export default function Footer() {
               <img src="/images/logo.png" alt="Hastara" className="footer__logo-img" />
             </Link>
             <p className="footer__tagline">
-              Handcrafted earrings that celebrate the artistry of Indian
+              Premium earrings that celebrate the artistry of Indian
               craftsmanship. Each piece tells a story of elegance and tradition.
             </p>
             <div className="footer__social">

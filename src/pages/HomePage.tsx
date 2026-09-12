@@ -38,7 +38,7 @@ export default function HomePage() {
             {/* Fallback image if video not supported or not present */}
             <img
               src="/images/hero-banner.png"
-              alt="Hastara — Handcrafted Earrings Collection"
+              alt="Hastara — Premium Indian Earrings Collection"
               className="hero__bg-image"
               fetchPriority="high"
               width="1440"
@@ -55,7 +55,7 @@ export default function HomePage() {
               <span className="text-gradient">Elegance</span>
             </h1>
             <p className="hero__subtitle">
-              Discover handcrafted earrings that blend traditional Indian artistry
+              Discover premium Indian earrings that blend traditional artistry
               with modern elegance. Each piece is a story of timeless beauty.
             </p>
             <div className="hero__actions">
@@ -105,7 +105,7 @@ export default function HomePage() {
               <span className="trust-band__dot">✦</span>
               <span>🔒 100% Secure Payments</span>
               <span className="trust-band__dot">✦</span>
-              <span>💎 Handcrafted Quality</span>
+              <span>💎 Premium Quality</span>
               <span className="trust-band__dot">✦</span>
               <span>📦 Quick Dispatch</span>
               <span className="trust-band__dot">✦</span>
@@ -151,9 +151,9 @@ export default function HomePage() {
           <div className="why-grid stagger">
             <div className="why-card glass">
               <span className="why-card__icon">✋</span>
-              <h3 className="why-card__title">Handcrafted</h3>
+              <h3 className="why-card__title">Artisan Crafted</h3>
               <p className="why-card__desc">
-                Each piece is handcrafted by skilled artisans with decades of experience in traditional Indian jewelry making.
+                Each piece is crafted by skilled artisans with decades of experience in traditional Indian jewelry making.
               </p>
             </div>
             <div className="why-card glass">
@@ -211,7 +211,7 @@ export default function HomePage() {
                 Ready to find your <span className="text-gradient">perfect pair</span>?
               </h2>
               <p className="cta-card__desc">
-                Browse our complete collection of handcrafted earrings and find the one that speaks to your soul.
+                Browse our complete collection of premium earrings and find the one that speaks to your soul.
               </p>
               <Link to="/products" className="btn btn-primary btn-lg" id="cta-shop-btn">
                 Shop All Earrings
