@@ -153,9 +153,11 @@ export default function ProductDetailPage() {
                   {'★'.repeat(Math.round(product.rating))}
                   {'☆'.repeat(5 - Math.round(product.rating))}
                 </span>
-                <span className="pdp__rating-text">
-                  {product.rating} ({product.reviews} reviews)
-                </span>
+                {product.reviews > 0 && (
+                  <span className="pdp__rating-text">
+                    {product.rating} ({product.reviews} {product.reviews === 1 ? 'review' : 'reviews'})
+                  </span>
+                )}
               </div>
             </div>
 

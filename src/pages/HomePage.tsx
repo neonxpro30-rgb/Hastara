@@ -25,66 +25,36 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="hero" id="hero-section">
         <div className="hero__bg">
-          <video
-            className="hero__bg-video"
-            autoPlay
-            loop
-            muted
-            playsInline
-            poster="/images/hero-banner.png"
-          >
-            <source src="/videos/hero.mp4" type="video/mp4" />
-            <source src="/videos/hero.webm" type="video/webm" />
-            {/* Fallback image if video not supported or not present */}
-            <img
-              src="/images/hero-banner.png"
-              alt="Hastara — Premium Indian Earrings Collection"
-              className="hero__bg-image"
-              fetchPriority="high"
-              width="1440"
-              height="800"
-            />
-          </video>
+          <img
+            src="/images/hero-bg-new.jpg"
+            alt="Hastara — Premium Indian Earrings Collection"
+            className="hero__bg-image"
+            fetchPriority="high"
+            width="1920"
+            height="1080"
+          />
           <div className="hero__bg-overlay" />
         </div>
         <div className="hero__content container">
           <div className="hero__text animate-fade-in-up">
-            <span className="hero__badge">✦ It-Girl Essentials</span>
+            <span className="hero__badge">✦ The Festive &amp; Statement Edit</span>
             <h1 className="hero__title display-text">
               Adorn Your <br />
               <span className="text-gradient">Elegance</span>
             </h1>
             <p className="hero__subtitle">
-              Discover premium Indian earrings that blend traditional artistry
-              with modern elegance. Each piece is a story of timeless beauty.
+              Discover curated Indian earrings designed to blend timeless grace
+              with contemporary style. Lightweight, skin-friendly, and crafted
+              to shine on every occasion.
             </p>
             <div className="hero__actions">
-              <Link to="/products" className="btn btn-primary btn-lg" id="hero-shop-btn">
+              <Link to="/products" className="btn btn-hero btn-lg" id="hero-shop-btn">
                 Shop Collection
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"/>
                   <polyline points="12 5 19 12 12 19"/>
                 </svg>
               </Link>
-              <a href="#featured" className="btn btn-secondary btn-lg">
-                Explore ↓
-              </a>
-            </div>
-            <div className="hero__stats">
-              <div className="hero__stat">
-                <span className="hero__stat-number">500+</span>
-                <span className="hero__stat-label">Happy Customers</span>
-              </div>
-              <div className="hero__stat-divider" />
-              <div className="hero__stat">
-                <span className="hero__stat-number">4.8★</span>
-                <span className="hero__stat-label">Average Rating</span>
-              </div>
-              <div className="hero__stat-divider" />
-              <div className="hero__stat">
-                <span className="hero__stat-number">50+</span>
-                <span className="hero__stat-label">Unique Designs</span>
-              </div>
             </div>
           </div>
         </div>
@@ -94,23 +64,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Marquee Trust Band */}
-      <section className="trust-band" id="trust-band">
-        <div className="trust-band__track">
-          {[...Array(2)].map((_, i) => (
-            <div className="trust-band__content" key={i}>
-              <span>🚚 Free Shipping Above ₹499</span>
-              <span className="trust-band__dot">✦</span>
-              <span>🔄 7-Day Easy Returns</span>
-              <span className="trust-band__dot">✦</span>
-              <span>🔒 100% Secure Payments</span>
-              <span className="trust-band__dot">✦</span>
-              <span>💎 Premium Quality</span>
-              <span className="trust-band__dot">✦</span>
-              <span>📦 Quick Dispatch</span>
-              <span className="trust-band__dot">✦</span>
-            </div>
-          ))}
+      {/* Trust Strip */}
+      <section className="trust-strip" id="trust-strip">
+        <div className="trust-strip__inner container">
+          <div className="trust-strip__item">
+            <span className="trust-strip__icon">🌿</span>
+            <span className="trust-strip__text">Skin-Friendly Alloys</span>
+          </div>
+          <div className="trust-strip__divider" />
+          <div className="trust-strip__item">
+            <span className="trust-strip__icon">🚚</span>
+            <span className="trust-strip__text">Free Shipping Above ₹499</span>
+          </div>
+          <div className="trust-strip__divider" />
+          <div className="trust-strip__item">
+            <span className="trust-strip__icon">🔄</span>
+            <span className="trust-strip__text">7-Day Easy Returns</span>
+          </div>
+          <div className="trust-strip__divider" />
+          <div className="trust-strip__item">
+            <span className="trust-strip__icon">⚡</span>
+            <span className="trust-strip__text">Fast Pan-India Dispatch</span>
+          </div>
         </div>
       </section>
 
@@ -123,7 +98,7 @@ export default function HomePage() {
               Featured <span className="text-gradient">Collection</span>
             </h2>
             <p className="section-header__desc">
-              Our most loved pieces, handpicked for their exceptional beauty and craftsmanship
+              Our most loved pieces, handpicked for their exceptional beauty and style
             </p>
           </div>
           <div className="product-grid stagger">
@@ -150,31 +125,31 @@ export default function HomePage() {
           </div>
           <div className="why-grid stagger">
             <div className="why-card glass">
-              <span className="why-card__icon">✋</span>
-              <h3 className="why-card__title">Artisan Crafted</h3>
-              <p className="why-card__desc">
-                Each piece is crafted by skilled artisans with decades of experience in traditional Indian jewelry making.
-              </p>
-            </div>
-            <div className="why-card glass">
               <span className="why-card__icon">💎</span>
               <h3 className="why-card__title">Premium Quality</h3>
               <p className="why-card__desc">
-                We use only high-grade alloys and stones, ensuring each earring maintains its beauty wear after wear.
+                High-grade skin-friendly alloys and durable plating ensuring lasting shine, wear after wear.
+              </p>
+            </div>
+            <div className="why-card glass">
+              <span className="why-card__icon">✨</span>
+              <h3 className="why-card__title">Curated Aesthetic</h3>
+              <p className="why-card__desc">
+                Handpicked contemporary and heritage designs for daily wear and every celebration.
               </p>
             </div>
             <div className="why-card glass">
               <span className="why-card__icon">🔒</span>
-              <h3 className="why-card__title">Secure Shopping</h3>
+              <h3 className="why-card__title">100% Secure Checkout</h3>
               <p className="why-card__desc">
-                Shop with confidence using our encrypted payment gateway. Your data is always safe with us.
+                Encrypted payments via UPI, Cards, and Net Banking. Your data is always safe.
               </p>
             </div>
             <div className="why-card glass">
               <span className="why-card__icon">🔄</span>
-              <h3 className="why-card__title">Easy Returns</h3>
+              <h3 className="why-card__title">7-Day Hassle-Free Returns</h3>
               <p className="why-card__desc">
-                Not satisfied? Return within 7 days for a full refund. No questions asked, hassle-free process.
+                Easy exchanges and returns if you're not completely in love with your purchase.
               </p>
             </div>
           </div>

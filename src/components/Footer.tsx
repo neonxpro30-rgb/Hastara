@@ -14,8 +14,8 @@ export default function Footer() {
               <img src="/images/logo.png" alt="Hastara" className="footer__logo-img" />
             </Link>
             <p className="footer__tagline">
-              Premium earrings that celebrate the artistry of Indian
-              craftsmanship. Each piece tells a story of elegance and tradition.
+              Curated Indian earrings for the modern woman — lightweight,
+              skin-friendly, and designed to shine on every occasion.
             </p>
             <div className="footer__social">
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="footer__social-link">
@@ -55,9 +55,9 @@ export default function Footer() {
             <h4 className="footer__heading">Policies</h4>
             <ul className="footer__list">
               <li><Link to="/policies#shipping">Shipping Policy</Link></li>
-              <li><Link to="/policies#returns">Returns & Refund</Link></li>
+              <li><Link to="/policies#returns">Returns &amp; Refund</Link></li>
               <li><Link to="/policies#privacy">Privacy Policy</Link></li>
-              <li><Link to="/policies#terms">Terms & Conditions</Link></li>
+              <li><Link to="/policies#terms">Terms &amp; Conditions</Link></li>
             </ul>
           </div>
 
@@ -70,7 +70,7 @@ export default function Footer() {
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                   <polyline points="22,6 12,13 2,6"/>
                 </svg>
-                support@hastara.in
+                <a href="mailto:support@hastara.shop">support@hastara.shop</a>
               </li>
               <li>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -88,10 +88,43 @@ export default function Footer() {
           <p>© {currentYear} Hastara. All rights reserved.</p>
           <div className="footer__payment-icons">
             <span className="footer__payment-label">We accept:</span>
-            <span className="footer__payment-badge">UPI</span>
-            <span className="footer__payment-badge">Cards</span>
-            <span className="footer__payment-badge">Net Banking</span>
-            <span className="footer__payment-badge">Wallets</span>
+            {/* UPI */}
+            <span className="footer__payment-badge footer__payment-badge--upi" title="UPI">
+              <svg viewBox="0 0 48 20" height="18" aria-label="UPI">
+                <rect width="48" height="20" rx="3" fill="#2F2C7B"/>
+                <text x="50%" y="14" textAnchor="middle" fill="white" fontSize="10" fontWeight="700" fontFamily="Arial">UPI</text>
+              </svg>
+            </span>
+            {/* GPay */}
+            <span className="footer__payment-badge" title="Google Pay">
+              <svg viewBox="0 0 48 20" height="18" aria-label="GPay">
+                <rect width="48" height="20" rx="3" fill="#fff" stroke="#e8e8e8" strokeWidth="1"/>
+                <text x="50%" y="14" textAnchor="middle" fill="#333" fontSize="9" fontWeight="700" fontFamily="Arial">G Pay</text>
+              </svg>
+            </span>
+            {/* Visa */}
+            <span className="footer__payment-badge footer__payment-badge--visa" title="Visa">
+              <svg viewBox="0 0 48 20" height="18" aria-label="Visa">
+                <rect width="48" height="20" rx="3" fill="#1A1F71"/>
+                <text x="50%" y="14" textAnchor="middle" fill="white" fontSize="12" fontWeight="700" fontFamily="Arial" fontStyle="italic">VISA</text>
+              </svg>
+            </span>
+            {/* Mastercard */}
+            <span className="footer__payment-badge" title="Mastercard">
+              <svg viewBox="0 0 48 20" height="18" aria-label="Mastercard">
+                <rect width="48" height="20" rx="3" fill="#fff" stroke="#e8e8e8" strokeWidth="1"/>
+                <circle cx="17" cy="10" r="7" fill="#EB001B" opacity="0.9"/>
+                <circle cx="31" cy="10" r="7" fill="#F79E1B" opacity="0.9"/>
+                <ellipse cx="24" cy="10" rx="3.5" ry="7" fill="#FF5F00" opacity="0.85"/>
+              </svg>
+            </span>
+            {/* RuPay */}
+            <span className="footer__payment-badge footer__payment-badge--rupay" title="RuPay">
+              <svg viewBox="0 0 48 20" height="18" aria-label="RuPay">
+                <rect width="48" height="20" rx="3" fill="#006EB3"/>
+                <text x="50%" y="14" textAnchor="middle" fill="white" fontSize="8.5" fontWeight="700" fontFamily="Arial">RuPay</text>
+              </svg>
+            </span>
           </div>
         </div>
       </div>
