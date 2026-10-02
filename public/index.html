@@ -139,6 +139,7 @@
   --r:18px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;overflow-x:clip} /* clip: no phantom horizontal gap, keeps sticky nav working */
 html{scroll-behavior:smooth}
 body{background:var(--cream);color:var(--ink);font-family:'Outfit',system-ui,sans-serif;
   -webkit-tap-highlight-color:transparent;overflow-x:hidden}
@@ -196,7 +197,7 @@ section{padding:56px 0}
 .btn-ghost{border:2px solid rgba(255,255,255,.4);color:#fff}
 .sticker{display:inline-block;background:var(--gold-soft);color:var(--maroon-deep);
   font-family:'Caveat',cursive;font-size:22px;font-weight:700;padding:8px 20px;border-radius:6px;
-  transform:rotate(-4deg);box-shadow:0 6px 18px rgba(0,0,0,.25);margin-top:26px}
+  transform:rotate(-4deg);box-shadow:0 6px 18px rgba(0,0,0,.25);margin-top:26px;max-width:100%}
 .hero-earrings{display:flex;justify-content:center;gap:14px;margin-top:34px}
 .hero-frame{margin:36px auto 0;width:min(300px,72vw);border-radius:200px 200px 24px 24px;overflow:hidden;
   border:3px solid var(--gold-soft);box-shadow:0 24px 60px rgba(0,0,0,.35)}
@@ -337,9 +338,9 @@ footer a.f-link{display:block;color:#e9cfc0;text-decoration:none;font-size:14px;
 .scrim{position:fixed;inset:0;background:rgba(28,10,16,.55);opacity:0;pointer-events:none;
   transition:opacity .3s;z-index:90;backdrop-filter:blur(2px)}
 .scrim.show{opacity:1;pointer-events:auto}
-.drawer{position:fixed;top:0;right:-105%;width:min(420px,94vw);height:100dvh;background:var(--cream);z-index:95;
-  transition:right .32s cubic-bezier(.2,.8,.25,1);display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.25)}
-.drawer.show{right:0}
+.drawer{position:fixed;top:0;right:0;width:min(420px,94vw);height:100dvh;background:var(--cream);z-index:95;
+  transform:translateX(105%);transition:transform .32s cubic-bezier(.2,.8,.25,1);display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.25)}
+.drawer.show{transform:none}
 .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;
   border-bottom:1px solid var(--line);background:#fff}
 .drawer-head h3{font-size:20px}
