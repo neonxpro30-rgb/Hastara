@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Hastara Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#1c1216;color:#f5e9df;min-height:100vh}
+.wrap{max-width:1060px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:24px;margin:10px 0 4px;color:#e8c766}
+.sub{color:#a98f83;font-size:13px;margin-bottom:18px}
+.card{background:#2a1a20;border:1px solid #4a2c38;border-radius:14px;padding:18px;margin-bottom:16px}
+input,select,textarea{width:100%;background:#1c1216;border:1px solid #4a2c38;color:#f5e9df;border-radius:10px;padding:11px 13px;font-size:14px;margin:6px 0;font-family:inherit}
+textarea{min-height:70px;resize:vertical}
+label{font-size:12px;color:#c9a227;font-weight:700;letter-spacing:.5px;display:block;margin-top:10px}
+button{background:#c9a227;color:#1c1216;border:none;border-radius:10px;padding:12px 20px;font-weight:800;font-size:14px;cursor:pointer}
+button.ghost{background:transparent;border:1px solid #4a2c38;color:#e8c766}
+button:disabled{opacity:.5}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1;min-width:140px}
+.tabs{display:flex;gap:8px;margin:18px 0}
+.tabs button{flex:1}
+.tabs button.on{background:#e8c766}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #3a222b;vertical-align:top}
+th{color:#c9a227;font-size:11px;letter-spacing:1px}
+select.st{width:auto;min-width:130px;padding:8px}
+.pill{display:inline-block;background:#4a2c38;border-radius:999px;padding:3px 10px;font-size:11px;margin:2px 4px 2px 0}
+.prod{display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #3a222b}
+.prod img{width:64px;height:76px;object-fit:cover;border-radius:10px;background:#3a222b}
+.prod .nm{font-weight:700}
+.prod .pr{color:#e8c766;font-weight:700}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.thumbs img{width:72px;height:86px;object-fit:cover;border-radius:8px}
+.thumbwrap{position:relative}
+.thumbwrap button{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;padding:0;font-size:12px;line-height:1}
+.err{background:#7a2440;border-radius:10px;padding:12px;margin:10px 0;font-size:14px;display:none}
+.okmsg{background:#1e4d33;border-radius:10px;padding:12px;margin:10px 0;font-size:14px;display:none}
+#loginBox{max-width:380px;margin:80px auto}
+.hidden{display:none!important}
+.hint{font-size:12px;color:#a98f83;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="loginBox">
+<h1>Hastara &#10022; Admin</h1>
+<p class="sub">Staff only. This page is hidden from Google.</p>
+<div class="card">
+<label>Password</label>
+<input type="password" id="pw" placeholder="Admin password" autocomplete="current-password">
+<div style="height:10px"></div>
+<button id="loginBtn" style="width:100%">Log in</button>
+<div class="err" id="loginErr">Wrong password.</div>
+</div>
+</div>
+<div id="dash" class="hidden">
+<div class="row" style="align-items:center">
+<div><h1>Hastara &#10022; Admin</h1><p class="sub" id="dashSub"></p></div>
+<div style="flex:0"><button class="ghost" id="seedBtn">&#8635; Seed products from site</button></div>
+</div>
+<div class="err" id="err"></div>
+<div class="okmsg" id="okmsg"></div>
+<div class="tabs">
+<button id="tabOrders" class="on">Orders</button>
+<button id="tabProducts">Products</button>
+</div>
+<div id="paneOrders">
+<div class="card"><div id="ordersList">Loading...</div></div>
+</div>
+<div id="paneProducts" class="hidden">
+<div class="card">
+<div class="row" style="align-items:center">
+<div><h3 style="color:#e8c766">Products</h3><p class="hint">Edits go live on the site within a minute.</p></div>
+<div style="flex:0"><button id="addBtn">+ Add product</button></div>
+</div>
+<div id="prodList" style="margin-top:10px">Loading...</div>
+</div>
+<div class="card hidden" id="editCard">
+<h3 style="color:#e8c766" id="editTitle">Edit product</h3>
+<div class="row">
+<div><label>ID (a-z, 0-9, dashes)</label><input id="f_id" placeholder="moon-petal"></div>
+<div><label>Name</label><input id="f_name" placeholder="Moon Petal Drops"></div>
+</div>
+<div class="row">
+<div><label>Price &#8377;</label><input id="f_price" type="number" placeholder="365"></div>
+<div><label>MRP &#8377; (compare at)</label><input id="f_compare" type="number" placeholder="499"></div>
+<div><label>Rating</label><input id="f_rating" type="number" step="0.1" placeholder="4.6"></div>
+</div>
+<div class="row">
+<div><label>Category</label><input id="f_cat" placeholder="earrings"></div>
+<div><label>SKU</label><input id="f_sku" placeholder="HSR-001"></div>
+<div><label>Active</label><select id="f_active"><option value="1">Yes</option><option value="0">No</option></select></div>
+</div>
+<label>Description</label><textarea id="f_desc"></textarea>
+<div class="row">
+<div><label>Material</label><input id="f_mat"></div>
+<div><label>Dimensions</label><input id="f_dim"></div>
+<div><label>Weight</label><input id="f_wt"></div>
+</div>
+<label>Badges (comma separated)</label><input id="f_badges" placeholder="Bestseller, Festive">
+<label>Images</label>
+<div class="thumbs" id="thumbs"></div>
+<input type="file" id="imgFile" accept="image/*">
+<button class="ghost" id="upBtn">&#11006; Upload image</button>
+<p class="hint">Uploads go to Cloudinary (hastara_products). First image = main photo.</p>
+<div style="height:12px"></div>
+<div class="row">
+<button id="saveBtn">Save product</button>
+<button class="ghost" id="cancelBtn">Cancel</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let PRODUCTS=[], STATUSES=['confirmed','packed','shipped','delivered','cancelled'];
+let editImages=[], editingId=null;
+async function api(path,method,body){
+const r=await fetch(path,{method:method||'GET',credentials:'include',headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+const j=await r.json().catch(()=>({ok:false}));
+if(r.status===401){showLogin();throw new Error('login');}
+return j;
+}
+function showLogin(){$('loginBox').classList.remove('hidden');$('dash').classList.add('hidden');}
+function showDash(){$('loginBox').classList.add('hidden');$('dash').classList.remove('hidden');}
+function err(m){const e=$('err');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',4000);}
+function okm(m){const e=$('okmsg');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',3000);}
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$('loginBtn').onclick=doLogin;
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+async function doLogin(){
+$('loginBtn').disabled=true;
+try{
+const j=await api('/api/admin/login','POST',{password:$('pw').value});
+if(j.ok){$('pw').value='';$('loginErr').style.display='none';showDash();await boot();}
+else $('loginErr').style.display='block';
+}catch(e){if(e.message!=='login')$('loginErr').style.display='block';}
+$('loginBtn').disabled=false;
+}
+$('tabOrders').onclick=()=>{setTab('Orders');loadOrders();};
+$('tabProducts').onclick=()=>{setTab('Products');loadProducts();};
+function setTab(t){
+const o=t==='Orders';
+$('tabOrders').classList.toggle('on',o);$('tabProducts').classList.toggle('on',!o);
+$('paneOrders').classList.toggle('hidden',!o);$('paneProducts').classList.toggle('hidden',o);
+}
+async function loadOrders(){
+$('ordersList').textContent='Loading...';
+try{
+const j=await api('/api/admin/orders');
+if(!j.ok){err('Could not load orders');return;}
+STATUSES=j.statuses||STATUSES;
+const os=j.orders||[];
+$('dashSub').textContent=os.length+' orders';
+if(!os.length){$('ordersList').textContent='No orders yet.';return;}
+$('ordersList').innerHTML='<table><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr>'+
+os.map(o=>{
+const items=(o.lines||[]).map(l=>esc(l.name||l.id)+' x'+l.qty).join('<br>');
+const c=o.customer||{};
+return '<tr><td><b>'+esc(o.orderId)+'</b><br><span style="color:#a98f83">'+esc((o.createdAt||'').slice(0,10))+'</span><br><span class="pill">'+esc(o.payment||'')+'</span></td>'+
+'<td>'+esc(c.firstname||'')+'<br>'+esc(c.phone||'')+'<br><span style="color:#a98f83">'+esc(c.city||'')+' '+esc(c.pincode||'')+'</span></td>'+
+'<td>'+items+'</td><td><b>&#8377;'+esc(o.total)+'</b></td>'+
+'<td><select class="st" data-oid="'+esc(o.orderId)+'">'+STATUSES.map(s=>'<option value="'+s+'"'+(s===o.status?' selected':'')+'>'+s+'</option>').join('')+'</select></td></tr>';
+}).join('')+'</table>';
+document.querySelectorAll('select.st').forEach(s=>s.onchange=async()=>{
+const j2=await api('/api/admin/orders','PATCH',{orderId:s.dataset.oid,status:s.value});
+j2.ok?okm('Status updated'):err('Update failed');
+});
+}catch(e){if(e.message!=='login')err('Could not load orders');}
+}
+async function loadProducts(){
+$('prodList').textContent='Loading...';
+try{
+const j=await api('/api/admin/products');
+if(!j.ok){err('Could not load products');return;}
+PRODUCTS=j.products||[];
+if(!PRODUCTS.length){$('prodList').innerHTML='No products in Firestore yet. Hit the seed button above.';return;}
+$('prodList').innerHTML=PRODUCTS.map(p=>
+'<div class="prod"><img src="'+esc(p.image||'')+'" loading="lazy"><div style="flex:1"><div class="nm">'+esc(p.name)+'</div><div class="pr">&#8377;'+esc(p.price)+'</div><div style="font-size:12px;color:#a98f83">'+esc(p.id)+(p.active?'':' - HIDDEN')+'</div></div><button class="ghost" data-edit="'+esc(p.id)+'">Edit</button></div>'
+).join('');
+document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
+}catch(e){if(e.message!=='login')err('Could not load products');}
+}
+function openEdit(id){
+const p=PRODUCTS.find(x=>x.id===id)||{};
+editingId=id||null;
+$('editTitle').textContent=id?'Edit product':'Add product';
+$('f_id').value=p.id||'';$('f_id').disabled=!!id;
+$('f_name').value=p.name||'';$('f_price').value=p.price||'';
+$('f_compare').value=p.compare_at||'';$('f_rating').value=p.rating||'';
+$('f_cat').value=p.category||'earrings';$('f_sku').value=p.sku||'';
+$('f_active').value=p.active===false?'0':'1';
+$('f_desc').value=p.description||'';$('f_mat').value=p.material||'';
+$('f_dim').value=p.dimensions||'';$('f_wt').value=p.weight||'';
+$('f_badges').value=(p.badges||[]).join(', ');
+editImages=[...(p.images||[])];
+renderThumbs();
+$('editCard').classList.remove('hidden');
+$('editCard').scrollIntoView({behavior:'smooth'});
+}
+$('addBtn').onclick=()=>openEdit(null);
+$('cancelBtn').onclick=()=>$('editCard').classList.add('hidden');
+function renderThumbs(){
+$('thumbs').innerHTML=editImages.map((u,i)=>'<div class="thumbwrap"><img src="'+esc(u)+'"><button data-rm="'+i+'">x</button></div>').join('');
+document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{editImages.splice(+b.dataset.rm,1);renderThumbs();});
+}
+$('upBtn').onclick=async()=>{
+const f=$('imgFile').files[0];
+if(!f){err('Choose an image first');return;}
+$('upBtn').disabled=true;$('upBtn').textContent='Uploading...';
+try{
+const s=await api('/api/admin/sign-upload','POST',{folder:'hastara_products'});
+if(!s.ok)throw new Error(s.error||'sign failed');
+const fd=new FormData();
+fd.append('file',f);fd.append('api_key',s.api_key);fd.append('timestamp',s.timestamp);
+fd.append('signature',s.signature);fd.append('folder',s.folder);
+const r=await fetch('https://api.cloudinary.com/v1_1/'+s.cloud_name+'/image/upload',{method:'POST',body:fd});
+const j=await r.json();
+if(!j.secure_url)throw new Error('upload failed');
+editImages.push(j.secure_url);renderThumbs();okm('Image uploaded');
+$('imgFile').value='';
+}catch(e){err('Upload failed: '+e.message);}
+$('upBtn').disabled=false;$('upBtn').textContent='Upload image';
+};
+$('saveBtn').onclick=async()=>{
+const p={
+id:$('f_id').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'-'),
+name:$('f_name').value.trim(),price:+$('f_price').value||0,
+compare_at:+$('f_compare').value||0,rating:+$('f_rating').value||0,
+category:$('f_cat').value.trim()||'earrings',sku:$('f_sku').value.trim(),
+active:$('f_active').value==='1',description:$('f_desc').value.trim(),
+material:$('f_mat').value.trim(),dimensions:$('f_dim').value.trim(),
+weight:$('f_wt').value.trim(),
+badges:$('f_badges').value.split(',').map(s=>s.trim()).filter(Boolean),
+images:editImages,
+};
+if(!p.id||!p.name||!p.price){err('ID, name and price are required');return;}
+if(!p.images.length){err('Upload at least 1 image');return;}
+$('saveBtn').disabled=true;
+try{
+const j=await api('/api/admin/products','POST',{product:p});
+if(j.ok){okm('Saved');$('editCard').classList.add('hidden');await loadProducts();}
+else err(j.error||'Save failed');
+}catch(e){if(e.message!=='login')err('Save failed');}
+$('saveBtn').disabled=false;
+};
+$('seedBtn').onclick=async()=>{
+if(!confirm('Copy all products from products.json into Firestore?'))return;
+try{
+const j=await api('/api/admin/seed','POST',{});
+if(j.ok){okm('Seeded '+j.seeded+' products');await loadProducts();}
+else err(j.error||'Seed failed');
+}catch(e){if(e.message!=='login')err('Seed failed');}
+};
+async function boot(){setTab('Orders');await loadOrders();}
+(async()=>{try{const j=await api('/api/admin/orders');if(j.ok){showDash();await boot();}}catch(e){}})();
+</script>
+</body>
+</html>
