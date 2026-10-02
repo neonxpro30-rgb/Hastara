@@ -660,6 +660,26 @@ function shipFor(sub, pin) {
     ? { cost: 49, eta: '3–5 days' }
     : { cost: 69, eta: '5–7 days' };
 }
+// Live NimbusPost rate (null = fall back to shipFor above).
+let liveRate = null; // { pin, cost, etaDays, courier, live }
+let rateTimer = null;
+async function fetchLiveRate(pin, method) {
+  liveRate = null;
+  if (!/^\d{6}$/.test(pin || '')) return;
+  try {
+    const r = await fetch('/api/shipping-rate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pincode: pin, paymentMode: method, subtotal: cartSubtotal() })
+    });
+    const j = await r.json();
+    if (j && j.ok) liveRate = { pin, cost: j.cost, etaDays: j.etaDays, courier: j.courier, live: !!j.live };
+  } catch (e) { liveRate = null; }
+}
+function liveEta(e) {
+  if (e == null || e === '') return '';
+  return /^\d+$/.test(String(e).trim()) ? e + ' days' : String(e);
+}
 
 let PRODUCTS = [];
 let cart = JSON.parse(localStorage.getItem('hsr_cart') || '{}');
@@ -1020,7 +1040,13 @@ function coTotals(method) {
   const sub = cartSubtotal();
   const pinEl = $('#f_pin');
   const pin = pinEl ? pinEl.value.trim() : '';
-  const { cost: ship, eta } = shipFor(sub, pin);
+  let ship, eta;
+  if (liveRate && liveRate.pin === pin && /^\d{6}$/.test(pin)) {
+    ship = liveRate.cost;
+    eta = (liveEta(liveRate.etaDays) + (liveRate.courier ? ' · ' + liveRate.courier : '')).trim();
+  } else {
+    const f = shipFor(sub, pin); ship = f.cost; eta = f.eta;
+  }
   const disc = offerFor(cartCount());
   const perk = method === 'prepaid' ? PREPAID_PERK : 0;
   return { sub, ship, eta, pin, disc, perk, total: Math.max(0, sub + ship - disc - perk) };
@@ -1063,11 +1089,18 @@ function openCheckout() {
     $('#coTot').innerHTML = '<div class="tot-row grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
     $('#placeBtn').textContent = method === 'cod' ? 'Place COD Order →' : 'Pay ' + money(t.total) + ' →';
   };
+  liveRate = null;
   paint();
-  $('#f_pin').addEventListener('input', paint);
+  const queueRate = (delay) => {
+    clearTimeout(rateTimer);
+    const pin = $('#f_pin').value.trim();
+    if (!/^\d{6}$/.test(pin)) { liveRate = null; return; }
+    rateTimer = setTimeout(async () => { await fetchLiveRate(pin, method); paint(); }, delay);
+  };
+  $('#f_pin').addEventListener('input', () => { paint(); queueRate(600); });
   $$('#coBody .pay-opt').forEach((o) => o.addEventListener('click', () => {
     $$('#coBody .pay-opt').forEach((x) => x.classList.remove('sel'));
-    o.classList.add('sel'); o.querySelector('input').checked = true; method = o.dataset.m; paint();
+    o.classList.add('sel'); o.querySelector('input').checked = true; method = o.dataset.m; paint(); queueRate(300);
   }));
   $('#placeBtn').addEventListener('click', () => placeOrder(method));
 }
