@@ -1,6 +1,6 @@
 // Shared order helpers for Hastara (duplicated per serverless function).
-// Orders are appended to orders.json in the GitHub repo when GITHUB_TOKEN +
-// GITHUB_REPO are set; otherwise the order is still confirmed (testing phase).
+// Orders are saved to Firestore (`orders` collection) via FIREBASE_SERVICE_ACCOUNT_JSON;
+// without it the order is still confirmed but not persisted (testing phase).
 
 function loadCatalog() {
   const fs = require('fs');
@@ -72,33 +72,68 @@ function orderId(prefix) {
   return prefix + Date.now().toString(36).toUpperCase() + Math.floor(100 + Math.random() * 900);
 }
 
+const crypto = require('crypto');
+
+// --- Firestore order saving (REST API, no extra dependencies) ---
+// Uses FIREBASE_SERVICE_ACCOUNT_JSON env var (already configured in Vercel).
+// Writes each order as a document in the `orders` collection, id = orderId.
+let _fsToken = null, _fsTokenExp = 0;
+function _b64url(s) {
+  return Buffer.from(s).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+async function _fsAccessToken(sa) {
+  const now = Math.floor(Date.now() / 1000);
+  if (_fsToken && _fsTokenExp > now + 60) return _fsToken;
+  const header = _b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const claims = _b64url(JSON.stringify({
+    iss: sa.client_email,
+    scope: 'https://www.googleapis.com/auth/datastore',
+    aud: 'https://oauth2.googleapis.com/token',
+    iat: now, exp: now + 3600,
+  }));
+  const signer = crypto.createSign('RSA-SHA256');
+  signer.update(header + '.' + claims);
+  const sig = signer.sign({ key: String(sa.private_key).replace(/\\n/g, '\n') }, 'base64')
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const r = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=' + header + '.' + claims + '.' + sig,
+  });
+  const j = await r.json();
+  if (!j.access_token) throw new Error('firestore auth failed');
+  _fsToken = j.access_token; _fsTokenExp = now + 3500;
+  return _fsToken;
+}
+// Plain JS value -> Firestore REST typed value.
+function _fv(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(_fv) } };
+  if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  if (typeof v === 'boolean') return { booleanValue: v };
+  if (typeof v === 'object') {
+    const fields = {};
+    for (const k of Object.keys(v)) fields[k] = _fv(v[k]);
+    return { mapValue: { fields } };
+  }
+  return { stringValue: String(v) };
+}
+
 async function saveOrder(order) {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO; // e.g. "user/hastara-store"
-  if (!token || !repo) return false;
   try {
-    const api = 'https://api.github.com/repos/' + repo + '/contents/orders.json';
-    const headers = {
-      Authorization: 'Bearer ' + token,
-      Accept: 'application/vnd.github+json',
-      'User-Agent': 'hastara-store',
-    };
-    let list = [];
-    let sha = null;
-    const cur = await fetch(api + '?ref=main', { headers });
-    if (cur.ok) {
-      const j = await cur.json();
-      sha = j.sha;
-      list = JSON.parse(Buffer.from(j.content, 'base64').toString('utf8'));
-    }
-    list.push(order);
-    const body = {
-      message: 'order ' + order.orderId,
-      content: Buffer.from(JSON.stringify(list, null, 2)).toString('base64'),
-      sha: sha || undefined,
-    };
-    const put = await fetch(api, { method: 'PUT', headers, body: JSON.stringify(body) });
-    return put.ok;
+    const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+    if (!raw) return false;
+    const sa = JSON.parse(raw);
+    if (!sa.client_email || !sa.private_key || !sa.project_id) return false;
+    const token = await _fsAccessToken(sa);
+    const url = 'https://firestore.googleapis.com/v1/projects/' + sa.project_id +
+      '/databases/(default)/documents/orders?documentId=' + encodeURIComponent(order.orderId);
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: _fv(order).mapValue.fields }),
+    });
+    return r.ok;
   } catch (e) { return false; }
 }
 
