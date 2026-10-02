@@ -3,7 +3,7 @@
 const crypto = require('crypto');
 const lib = require('./_lib');
 
-const PAYU_KEY = process.env.PAYU_KEY;
+const PAYU_KEY = process.env.PAYU_KEY || process.env.PAYU_MERCHANT_KEY;
 const PAYU_SALT = process.env.PAYU_SALT;
 const PAYU_URL = 'https://secure.payu.in/_payment';
 
