@@ -24,6 +24,8 @@ button:disabled{opacity:.5}
 .tabs button{flex:1}
 .tabs button.on{background:#e8c766}
 table{width:100%;border-collapse:collapse;font-size:13px}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;padding:0 4px}
+.tblwrap table{min-width:640px}
 th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #3a222b;vertical-align:top}
 th{color:#c9a227;font-size:11px;letter-spacing:1px}
 select.st{width:auto;min-width:130px;padding:8px}
@@ -157,15 +159,25 @@ STATUSES=j.statuses||STATUSES;
 const os=j.orders||[];
 $('dashSub').textContent=os.length+' orders';
 if(!os.length){$('ordersList').textContent='No orders yet.';return;}
-$('ordersList').innerHTML='<table><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr>'+
+$('ordersList').innerHTML='<div class="tblwrap"><table><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr>'+
 os.map(o=>{
-const items=(o.lines||[]).map(l=>esc(l.name||l.id)+' x'+l.qty).join('<br>');
-const c=o.customer||{};
-return '<tr><td><b>'+esc(o.orderId)+'</b><br><span style="color:#a98f83">'+esc((o.createdAt||'').slice(0,10))+'</span><br><span class="pill">'+esc(o.payment||'')+'</span></td>'+
-'<td>'+esc(c.firstname||'')+'<br>'+esc(c.phone||'')+'<br><span style="color:#a98f83">'+esc(c.city||'')+' '+esc(c.pincode||'')+'</span></td>'+
-'<td>'+items+'</td><td><b>&#8377;'+esc(o.total)+'</b></td>'+
-'<td><select class="st" data-oid="'+esc(o.orderId)+'">'+STATUSES.map(s=>'<option value="'+s+'"'+(s===o.status?' selected':'')+'>'+s+'</option>').join('')+'</select></td></tr>';
-}).join('')+'</table>';
+const did=o._id||o.orderId||o.id||'';
+const oid=o.orderId||o.id||o._id||'-';
+const dt=String(o.createdAt||o.created_at||o.date||'').slice(0,10);
+const paym=o.payment||o.paymentMethod||o.mode||'';
+const lns=o.lines||o.items||o.products||[];
+const items=lns.map(l=>esc(l.name||l.title||l.id||'item')+' x'+(l.qty||l.quantity||1)).join('<br>')||'-';
+const c=o.customer||o.shippingAddress||{};
+const cn=c.firstname||c.name||o.customerName||'-';
+const cp=c.phone||c.mobile||o.phone||'';
+const ct=((c.city||'')+' '+(c.pincode||c.zip||'')).trim();
+const tot=o.total||o.amount||o.grandTotal||'-';
+const st=o.status||'confirmed';
+return '<tr><td><b>'+esc(oid)+'</b><br><span style="color:#a98f83">'+esc(dt)+'</span><br><span class="pill">'+esc(paym)+'</span></td>'+
+'<td>'+esc(cn)+'<br>'+esc(cp)+'<br><span style="color:#a98f83">'+esc(ct)+'</span></td>'+
+'<td>'+items+'</td><td><b>&#8377;'+esc(tot)+'</b></td>'+
+'<td><select class="st" data-oid="'+esc(did)+'">'+STATUSES.map(s=>'<option value="'+s+'"'+(s===st?' selected':'')+'>'+s+'</option>').join('')+'</select></td></tr>';
+}).join('')+'</table></div>';
 document.querySelectorAll('select.st').forEach(s=>s.onchange=async()=>{
 const j2=await api('/api/admin/orders','PATCH',{orderId:s.dataset.oid,status:s.value});
 j2.ok?okm('Status updated'):err('Update failed');
