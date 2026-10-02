@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hastara ✦ Earrings that do the talking</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<meta name="description" content="Hastara — bold, festive, skin-friendly earrings for Gen-Z. COD available, free shipping over ₹499, 7-day easy returns.">
+<meta name="theme-color" content="#5C1A2E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Outfit:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --maroon:#5C1A2E; --maroon-deep:#421222; --gold:#C9A227; --gold-soft:#E8C766;
+  --cream:#FFF8EF; --blush:#F6D9C3; --ink:#1C1216; --muted:#8a6f68;
+  --rose:#C24D6D; --line:#f0ddd0; --ok:#2e9e6b;
+  --shadow:0 14px 40px rgba(92,26,46,.14);
+  --r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--ink);font-family:'Outfit',system-ui,sans-serif;
+  -webkit-tap-highlight-color:transparent;overflow-x:hidden}
+img{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit;font-size:16px}
+h1,h2,h3,.serif{font-family:'Fraunces',serif}
+.caveat{font-family:'Caveat',cursive}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+section{padding:56px 0}
+.sec-kicker{display:inline-block;background:var(--maroon);color:var(--gold-soft);font-size:11px;
+  letter-spacing:3px;font-weight:700;padding:7px 14px;border-radius:999px;margin-bottom:14px}
+.sec-title{font-size:clamp(1.9rem,6vw,3rem);font-weight:700;line-height:1.05;margin-bottom:8px}
+.sec-sub{color:var(--muted);font-size:15px;margin-bottom:26px;max-width:520px}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* announcement marquee */
+.marquee{background:var(--maroon);color:var(--gold-soft);overflow:hidden;white-space:nowrap;
+  font-size:12.5px;font-weight:600;letter-spacing:1.5px;padding:10px 0;position:relative;z-index:60}
+.marquee .track{display:inline-block;animation:scroll 22s linear infinite}
+.marquee span{margin:0 18px}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,248,239,.88);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:62px}
+.logo{font-family:'Fraunces',serif;font-weight:900;font-size:22px;letter-spacing:4px;color:var(--maroon);text-decoration:none}
+.logo b{color:var(--gold)}
+.nav-links{display:none;gap:26px}
+.nav-links a{color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
+.nav-icons{display:flex;align-items:center;gap:6px}
+.icon-btn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;border-radius:50%;position:relative;color:var(--maroon)}
+.bag-count{position:absolute;top:2px;right:2px;background:var(--rose);color:#fff;font-size:10px;
+  font-weight:700;min-width:18px;height:18px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+@media(min-width:860px){.nav-links{display:flex}}
+
+/* hero */
+.hero{background:radial-gradient(120% 90% at 50% 0%,#7a2440 0%,var(--maroon) 55%,var(--maroon-deep) 100%);
+  color:#fff;min-height:100svh;display:flex;align-items:center;position:relative;overflow:hidden;padding:70px 0 60px}
+.hero::before{content:"✦ ✦ ✦";position:absolute;top:24px;left:0;right:0;text-align:center;
+  color:var(--gold);opacity:.5;letter-spacing:30px;font-size:18px}
+.hero-inner{text-align:center;position:relative;z-index:2}
+.hero h1{font-size:clamp(3rem,11vw,6.5rem);font-weight:900;line-height:.95;letter-spacing:-1px}
+.hero h1 .gold{color:var(--gold-soft)}
+.hero p{color:#f3d9c8;margin:18px auto 28px;max-width:440px;font-size:16px;line-height:1.6}
+.cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;
+  padding:15px 30px;border-radius:999px;text-decoration:none;transition:transform .15s;min-height:52px}
+.btn:active{transform:scale(.96)}
+.btn-gold{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:var(--maroon-deep)}
+.btn-ghost{border:2px solid rgba(255,255,255,.4);color:#fff}
+.sticker{display:inline-block;background:var(--gold-soft);color:var(--maroon-deep);
+  font-family:'Caveat',cursive;font-size:22px;font-weight:700;padding:8px 20px;border-radius:6px;
+  transform:rotate(-4deg);box-shadow:0 6px 18px rgba(0,0,0,.25);margin-top:26px}
+.hero-earrings{display:flex;justify-content:center;gap:14px;margin-top:34px}
+.hero-frame{margin:36px auto 0;width:min(300px,72vw);border-radius:200px 200px 24px 24px;overflow:hidden;
+  border:3px solid var(--gold-soft);box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.hero-frame img{width:100%;aspect-ratio:3/3.8;object-fit:cover}
+.hero-cap{font-family:'Caveat',cursive;font-size:21px;color:var(--gold-soft);margin-top:12px;transform:rotate(-2deg)}
+
+/* trust strip */
+.trust{background:#fff;border-bottom:1px solid var(--line);padding:0}
+.trust-row{display:flex;gap:10px;overflow-x:auto;padding:16px;scrollbar-width:none}
+.trust-row::-webkit-scrollbar{display:none}
+.trust-chip{flex:0 0 auto;display:flex;align-items:center;gap:9px;background:var(--cream);
+  border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-size:13px;font-weight:600;white-space:nowrap}
+.trust-chip i{font-style:normal;font-size:17px}
+
+/* category bento */
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cat-tile{position:relative;border-radius:var(--r);overflow:hidden;min-height:150px;display:flex;
+  align-items:flex-end;text-decoration:none;box-shadow:var(--shadow)}
+.cat-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.cat-tile:active img{transform:scale(1.06)}
+.cat-tile .lbl{position:relative;z-index:2;width:100%;padding:34px 14px 14px;color:#fff;font-weight:700;
+  font-size:17px;background:linear-gradient(transparent,rgba(28,10,16,.75));font-family:'Fraunces',serif}
+.cat-tile .lbl small{display:block;font-family:'Outfit';font-weight:500;font-size:11px;opacity:.85;letter-spacing:1px}
+@media(min-width:700px){.cats{grid-template-columns:repeat(3,1fr)}.cat-tile{min-height:190px}}
+
+/* product cards */
+.shop-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;gap:10px}
+.filter-pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.filter-pills::-webkit-scrollbar{display:none}
+.pill{flex:0 0 auto;border:1.5px solid var(--line);background:#fff;border-radius:999px;
+  padding:9px 18px;font-size:13px;font-weight:600;color:var(--ink)}
+.pill.on{background:var(--maroon);border-color:var(--maroon);color:#fff}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(min-width:700px){.cards{grid-template-columns:repeat(4,1fr);gap:20px}}
+.card{background:#fff;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);
+  position:relative;box-shadow:0 6px 20px rgba(92,26,46,.07);display:flex;flex-direction:column}
+.card-img{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--blush)}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .35s}
+.card:active .card-img img{transform:scale(1.05)}
+.badges{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:6px;z-index:3}
+.bdg{font-size:10.5px;font-weight:800;letter-spacing:1px;padding:5px 10px;border-radius:999px;color:#fff}
+.bdg.off{background:var(--rose)}
+.bdg.tag{background:var(--maroon);transform:rotate(-3deg);box-shadow:0 3px 8px rgba(0,0,0,.2)}
+.heart{position:absolute;top:8px;right:8px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);
+  font-size:17px;z-index:3;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.heart.loved{color:var(--rose)}
+.card-body{padding:12px 13px 14px;display:flex;flex-direction:column;gap:5px;flex:1}
+.card-name{font-weight:600;font-size:14.5px;line-height:1.3}
+.card-stars{font-size:12px;color:var(--gold);font-weight:700}
+.card-stars span{color:var(--muted);font-weight:500}
+.price-row{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.price{font-family:'Fraunces',serif;font-weight:700;font-size:19px}
+.mrp{color:var(--muted);text-decoration:line-through;font-size:13px}
+.off-t{color:var(--rose);font-size:12px;font-weight:700}
+.quick-add{margin-top:8px;background:var(--maroon);color:#fff;font-weight:700;font-size:14px;
+  padding:12px;border-radius:12px;letter-spacing:.5px;min-height:46px}
+.quick-add:active{transform:scale(.97)}
+.quick-add.added{background:var(--ok)}
+
+/* horizontal snap carousel */
+.snap{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 16px 18px;scrollbar-width:none}
+.snap::-webkit-scrollbar{display:none}
+.snap .card{flex:0 0 240px;scroll-snap-align:start}
+@media(min-width:700px){.snap .card{flex-basis:270px}}
+.snap-wrap{margin:0 -16px}
+
+/* lookbook */
+.lookbook{background:var(--maroon);color:#fff;border-radius:26px;padding:40px 22px;margin:0 12px;position:relative;overflow:hidden}
+.lookbook::before{content:"✦";position:absolute;font-size:220px;color:rgba(201,162,39,.12);top:-40px;right:-30px}
+.look-grid{display:grid;gap:14px;margin-top:24px}
+@media(min-width:700px){.look-grid{grid-template-columns:repeat(3,1fr)}}
+.look-card{background:rgba(255,255,255,.07);border:1px solid rgba(232,199,102,.3);border-radius:16px;
+  padding:20px;backdrop-filter:blur(4px)}
+.look-card h3{font-size:20px;margin-bottom:8px;color:var(--gold-soft)}
+.look-card p{font-size:14px;color:#f0d9c6;line-height:1.6}
+.look-card .tag{display:inline-block;font-family:'Caveat';font-size:19px;color:var(--gold-soft);margin-bottom:8px;transform:rotate(-2deg)}
+
+/* offer banner */
+.offer{background:linear-gradient(135deg,#fff,#fdf0dd);border:2px dashed var(--gold);border-radius:22px;
+  padding:34px 22px;text-align:center;margin:0 12px;box-shadow:var(--shadow)}
+.offer h2{font-size:clamp(1.7rem,6vw,2.6rem);margin:8px 0}
+.offer .code{display:inline-block;background:var(--maroon);color:var(--gold-soft);font-weight:800;
+  letter-spacing:3px;padding:12px 26px;border-radius:12px;font-size:18px;margin:12px 0;border:2px dashed var(--gold-soft)}
+.countdown{display:flex;gap:10px;justify-content:center;margin-top:14px}
+.cd{background:var(--ink);color:#fff;border-radius:12px;padding:10px 0;width:64px;text-align:center}
+.cd b{display:block;font-size:22px;font-family:'Fraunces'}
+.cd small{font-size:10px;letter-spacing:1px;opacity:.7}
+
+/* UGC + reviews */
+.ugc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ugc{aspect-ratio:1;border-radius:14px;overflow:hidden;position:relative;background:var(--blush)}
+.ugc img{width:100%;height:100%;object-fit:cover}
+.ugc .h{position:absolute;bottom:0;left:0;right:0;padding:20px 10px 8px;font-size:11px;font-weight:600;color:#fff;
+  background:linear-gradient(transparent,rgba(0,0,0,.6))}
+.rev-snap{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 16px 10px;scrollbar-width:none}
+.rev-snap::-webkit-scrollbar{display:none}
+.rev{flex:0 0 280px;scroll-snap-align:start;background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:20px;box-shadow:0 6px 18px rgba(92,26,46,.06)}
+.rev .stars{color:var(--gold);font-size:15px;margin-bottom:8px}
+.rev p{font-size:14px;line-height:1.6;margin-bottom:12px}
+.rev .who{font-size:12.5px;color:var(--muted);font-weight:600}
+.rev .who b{color:var(--maroon)}
+
+/* faq */
+.faq-item{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:16px 18px;
+  font-weight:600;font-size:15px;text-align:left;color:var(--ink)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.faq-a p{padding:0 18px 16px;font-size:14px;color:var(--muted);line-height:1.65}
+.faq-item.open .faq-a{max-height:220px}
+.faq-item .pl{font-size:20px;color:var(--gold);font-weight:700}
+
+/* newsletter */
+.news{background:var(--blush);border-radius:26px;padding:40px 22px;text-align:center;margin:0 12px}
+.news h2{font-size:clamp(1.6rem,5.5vw,2.4rem);margin-bottom:8px}
+.news p{color:var(--muted);font-size:14.5px;margin-bottom:20px}
+.news-form{display:flex;gap:8px;max-width:440px;margin:0 auto}
+.news-form input{flex:1;border:2px solid var(--line);border-radius:999px;padding:14px 20px;background:#fff;min-width:0}
+.news-form input:focus{outline:none;border-color:var(--gold)}
+.news-form button{background:var(--maroon);color:#fff;font-weight:700;border-radius:999px;padding:14px 26px;white-space:nowrap}
+
+/* footer */
+footer{background:var(--maroon-deep);color:#e9cfc0;padding:50px 0 26px;margin-top:60px}
+.f-grid{display:grid;gap:30px;margin-bottom:34px}
+@media(min-width:700px){.f-grid{grid-template-columns:1.4fr 1fr 1fr 1fr}}
+.f-logo{font-family:'Fraunces';font-weight:900;font-size:26px;letter-spacing:4px;color:#fff;margin-bottom:10px}
+.f-logo b{color:var(--gold)}
+footer p{font-size:14px;line-height:1.7;color:#c9a894}
+footer h4{color:var(--gold-soft);font-size:13px;letter-spacing:2px;margin-bottom:14px;font-family:'Outfit'}
+footer a.f-link{display:block;color:#e9cfc0;text-decoration:none;font-size:14px;margin-bottom:10px}
+.pay-icons{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pay-icons span{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);font-size:11px;
+  font-weight:700;padding:6px 12px;border-radius:8px;letter-spacing:.5px}
+.f-bottom{border-top:1px solid rgba(255,255,255,.12);padding-top:20px;display:flex;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;font-size:12.5px;color:#a97f6d}
+
+/* drawers & modals */
+.scrim{position:fixed;inset:0;background:rgba(28,10,16,.55);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:90;backdrop-filter:blur(2px)}
+.scrim.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:-105%;width:min(420px,94vw);height:100dvh;background:var(--cream);z-index:95;
+  transition:right .32s cubic-bezier(.2,.8,.25,1);display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.25)}
+.drawer.show{right:0}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;
+  border-bottom:1px solid var(--line);background:#fff}
+.drawer-head h3{font-size:20px}
+.x-btn{width:40px;height:40px;border-radius:50%;background:var(--blush);font-size:18px;color:var(--maroon)}
+.drawer-body{flex:1;overflow-y:auto;padding:16px 20px}
+.ship-bar{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.ship-bar .t{font-size:13px;font-weight:600;margin-bottom:8px}
+.ship-bar .t b{color:var(--rose)}
+.ship-track{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.ship-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--rose));border-radius:99px;transition:width .4s}
+.cart-item{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:12px;margin-bottom:10px}
+.cart-item img{width:70px;height:84px;object-fit:cover;border-radius:10px}
+.ci-info{flex:1;min-width:0}
+.ci-info .n{font-weight:600;font-size:14px}
+.ci-info .p{font-family:'Fraunces';font-weight:700;margin:4px 0}
+.qty{display:inline-flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:999px;padding:4px 10px}
+.qty button{width:28px;height:28px;font-size:16px;font-weight:700;color:var(--maroon)}
+.qty span{font-weight:700;min-width:18px;text-align:center}
+.ci-rm{font-size:12px;color:var(--muted);text-decoration:underline;margin-top:6px}
+.drawer-foot{background:#fff;border-top:1px solid var(--line);padding:16px 20px calc(20px + env(safe-area-inset-bottom))}
+.tot-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;color:var(--muted)}
+.tot-row.grand{font-size:18px;color:var(--ink);font-weight:700;font-family:'Fraunces';margin:10px 0 14px}
+.checkout-btn{width:100%;background:var(--maroon);color:#fff;font-weight:800;font-size:16px;
+  padding:16px;border-radius:14px;letter-spacing:.5px}
+.checkout-btn:active{transform:scale(.98)}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .big{font-size:54px;margin-bottom:12px}
+
+/* product modal (PDP) */
+.pdp{position:fixed;inset:0;z-index:96;display:none;flex-direction:column;background:var(--cream)}
+.pdp.show{display:flex}
+.pdp-scroll{flex:1;overflow-y:auto;padding-bottom:110px}
+.pdp-hero{position:relative;background:var(--blush)}
+.pdp-hero img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.pdp-thumbs{display:flex;gap:8px;padding:12px 20px 4px;overflow-x:auto;scrollbar-width:none}
+.pdp-thumbs::-webkit-scrollbar{display:none}
+.pdp-thumbs img{width:62px;height:74px;object-fit:cover;border-radius:10px;border:2px solid transparent;
+  flex:0 0 auto;cursor:pointer}
+.pdp-thumbs img.on{border-color:var(--gold)}
+.pdp-close{position:absolute;top:14px;left:14px;width:42px;height:42px;border-radius:50%;
+  background:rgba(255,255,255,.92);font-size:18px;color:var(--maroon);box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:2}
+.pdp-heart{position:absolute;top:14px;right:14px;width:42px;height:42px;border-radius:50%;
+  background:rgba(255,255,255,.92);font-size:18px;z-index:2;display:flex;align-items:center;justify-content:center}
+.pdp-heart.loved{color:var(--rose)}
+.pdp-badges{position:absolute;bottom:14px;left:14px;display:flex;gap:8px}
+.pdp-info{padding:22px 20px 0}
+.pdp-info h2{font-size:26px;line-height:1.15;margin-bottom:6px}
+.pdp-stars{color:var(--gold);font-weight:700;font-size:14px;margin-bottom:12px}
+.pdp-stars span{color:var(--muted);font-weight:500}
+.pdp-price{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.pdp-price .price{font-size:30px}
+.tax-note{font-size:12px;color:var(--muted);margin-bottom:14px}
+.hl{list-style:none;margin:0 0 16px;display:grid;gap:8px}
+.hl li{display:flex;gap:10px;font-size:14px;align-items:flex-start}
+.hl li i{font-style:normal;color:var(--ok);font-weight:700}
+.pin-row{display:flex;gap:8px;margin:6px 0 4px}
+.pin-row input{flex:1;border:2px solid var(--line);border-radius:12px;padding:13px 16px;background:#fff;min-width:0}
+.pin-row input:focus{outline:none;border-color:var(--gold)}
+.pin-row button{background:var(--ink);color:#fff;font-weight:700;border-radius:12px;padding:13px 22px}
+.pin-msg{font-size:13.5px;font-weight:600;margin:8px 0 4px;min-height:20px}
+.pin-msg.ok{color:var(--ok)}
+.trust-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
+.trust-row2 div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:12.5px;
+  font-weight:600;display:flex;gap:8px;align-items:center}
+.acc{border-top:1px solid var(--line)}
+.acc .faq-q{padding:16px 4px}
+.acc .faq-a p{padding:0 4px 16px}
+.xsell{margin-top:22px}
+.xsell h3{font-size:19px;margin-bottom:12px}
+.sticky-atc{position:fixed;bottom:0;left:0;right:0;z-index:97;background:rgba(255,255,255,.96);
+  backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  display:none;align-items:center;gap:12px;transform:translateY(110%);transition:transform .3s}
+.sticky-atc.show{display:flex;transform:none}
+.sticky-atc img{width:52px;height:62px;object-fit:cover;border-radius:10px}
+.sticky-atc .sp{flex:1}
+.sticky-atc .sp .n{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38vw}
+.sticky-atc .sp .p{font-family:'Fraunces';font-weight:700;font-size:17px}
+.sticky-atc button{background:var(--maroon);color:#fff;font-weight:800;padding:14px 26px;border-radius:12px;font-size:15px}
+
+/* checkout modal */
+.co{position:fixed;inset:0;z-index:98;display:none;align-items:flex-end;justify-content:center}
+.co.show{display:flex}
+.co-card{background:var(--cream);width:100%;max-width:560px;max-height:94dvh;border-radius:24px 24px 0 0;
+  display:flex;flex-direction:column;overflow:hidden;animation:up .3s ease}
+@keyframes up{from{transform:translateY(60px);opacity:0}}
+.co-head{padding:20px 22px 14px;border-bottom:1px solid var(--line);background:#fff;
+  display:flex;justify-content:space-between;align-items:center}
+.co-head h3{font-size:21px}
+.co-body{flex:1;overflow-y:auto;padding:18px 22px}
+.co-sec{font-size:12px;letter-spacing:2px;font-weight:700;color:var(--gold);margin:18px 0 10px}
+.co-sec:first-child{margin-top:0}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f-row .full{grid-column:1/-1}
+.field{margin-bottom:10px}
+.field input{width:100%;border:2px solid var(--line);border-radius:12px;padding:13px 15px;background:#fff}
+.field input:focus{outline:none;border-color:var(--gold)}
+.field input.bad{border-color:var(--rose)}
+.pay-opt{display:flex;gap:12px;border:2px solid var(--line);border-radius:14px;padding:15px;margin-bottom:10px;
+  background:#fff;align-items:flex-start;cursor:pointer}
+.pay-opt.sel{border-color:var(--maroon);background:#fff8f4}
+.pay-opt input{margin-top:3px;accent-color:var(--maroon);width:18px;height:18px}
+.pay-opt .pt{font-weight:700;font-size:15px}
+.pay-opt .pd{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.5}
+.pay-opt .perk{display:inline-block;background:#e5f6ec;color:var(--ok);font-size:11.5px;font-weight:700;
+  padding:3px 10px;border-radius:999px;margin-top:6px}
+.co-err{background:#fde7ec;color:#a02040;font-size:13.5px;font-weight:600;padding:12px 16px;border-radius:12px;
+  margin-bottom:12px;display:none}
+.co-err.show{display:block}
+.order-line{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.co-foot{background:#fff;border-top:1px solid var(--line);padding:16px 22px calc(18px + env(safe-area-inset-bottom))}
+
+/* search overlay */
+.search-ov{position:fixed;inset:0;z-index:99;background:var(--cream);display:none;flex-direction:column}
+.search-ov.show{display:flex}
+.search-bar{display:flex;gap:8px;padding:16px;background:#fff;border-bottom:1px solid var(--line)}
+.search-bar input{flex:1;border:2px solid var(--line);border-radius:999px;padding:13px 20px;min-width:0}
+.search-bar input:focus{outline:none;border-color:var(--gold)}
+.search-res{flex:1;overflow-y:auto;padding:16px}
+
+/* whatsapp float */
+.wa{position:fixed;bottom:20px;left:16px;z-index:80;width:56px;height:56px;border-radius:50%;
+  background:#25d366;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 24px rgba(37,211,102,.45)}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);
+  color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:999px;z-index:120;opacity:0;
+  pointer-events:none;transition:all .3s;white-space:nowrap;max-width:92vw}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.confetti{position:fixed;pointer-events:none;z-index:130;font-size:18px;animation:pop .8s ease forwards}
+@keyframes pop{to{transform:translateY(-70px) rotate(40deg);opacity:0}}
+
+/* order success */
+.success{text-align:center;padding:40px 20px}
+.success .tick{width:76px;height:76px;border-radius:50%;background:var(--ok);color:#fff;font-size:38px;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.success h2{font-size:28px;margin-bottom:8px}
+.success .oid{display:inline-block;background:var(--blush);border:2px dashed var(--gold);color:var(--maroon);
+  font-weight:800;letter-spacing:1px;padding:12px 24px;border-radius:14px;margin:14px 0;font-size:18px}
+</style>
+</head>
+<body>
+
+<div class="marquee"><div class="track" id="marqueeTrack"></div></div>
+
+<nav class="nav"><div class="wrap nav-inner">
+  <a class="logo" href="#top" style="display:flex;align-items:center;gap:10px"><img src="assets/logo.png" alt="Hastara" style="height:42px;width:auto"></a>
+  <div class="nav-links">
+    <a href="#shop">Shop</a><a href="#bestsellers">Bestsellers</a><a href="#lookbook">Style Guide</a>
+    <a href="#reviews">Reviews</a><a href="#faq">FAQ</a>
+  </div>
+  <div class="nav-icons">
+    <button class="icon-btn" id="searchBtn" aria-label="Search">⌕</button>
+    <button class="icon-btn" id="wishBtn" aria-label="Wishlist">♡</button>
+    <button class="icon-btn" id="bagBtn" aria-label="Bag">👜<span class="bag-count" id="bagCount" style="display:none">0</span></button>
+  </div>
+</div></nav>
+
+<header class="hero" id="top"><div class="wrap hero-inner reveal in">
+  <h1>STACK IT.<br><span class="gold">OWN IT.</span></h1>
+  <p>Earrings that do the talking. Anti-tarnish, skin-friendly, and priced for your everyday maximalist era.</p>
+  <div class="cta-row">
+    <a class="btn btn-gold" href="#bestsellers">Shop Bestsellers ✦</a>
+    <a class="btn btn-ghost" href="#shop" id="under399Btn">Under ₹399</a>
+  </div>
+  <div><span class="sticker">anti-tarnish promise ✦ skin-friendly ✦</span></div>
+  <div class="hero-frame reveal in"><img src="assets/hero.jpg" alt="Hastara muse wearing festive earrings"></div>
+  <div class="hero-cap">worn by our muses, made for you ✦</div>
+</div></header>
+
+<div class="trust"><div class="trust-row" id="trustRow"></div></div>
+
+<section id="shop"><div class="wrap">
+  <div class="reveal"><span class="sec-kicker">THE COLLECTION</span>
+  <h2 class="sec-title">Pick your <span style="color:var(--rose)">poison</span> ✦</h2>
+  <p class="sec-sub">Six moods, one you. Every pair is nickel-free and made to survive your longest days.</p></div>
+  <div class="reveal"><div class="cats" id="catGrid"></div></div>
+  <div style="height:26px"></div>
+  <div class="reveal shop-head">
+    <h3 class="serif" style="font-size:22px" id="gridTitle">All earrings</h3>
+  </div>
+  <div class="reveal"><div class="filter-pills" id="filterPills"></div></div>
+  <div style="height:14px"></div>
+  <div class="reveal"><div class="cards" id="productGrid"></div></div>
+</div></section>
+
+<section id="bestsellers" style="padding-top:10px"><div class="wrap">
+  <div class="reveal"><span class="sec-kicker">MOST LOVED</span>
+  <h2 class="sec-title">Bestsellers <span class="caveat" style="color:var(--rose)">everyone's obsessed!!</span></h2>
+  <p class="sec-sub">The pairs that sell out first. If your size of drama is "extra", start here.</p></div>
+</div>
+<div class="reveal snap-wrap"><div class="snap" id="bestSnap"></div></div></section>
+
+<section id="lookbook" style="padding-top:10px"><div class="lookbook reveal">
+  <div class="wrap">
+    <span class="sec-kicker" style="background:var(--gold);color:var(--maroon-deep)">JEWELLERY MAXXING</span>
+    <h2 class="sec-title" style="color:#fff">The 2026 style bible</h2>
+    <p style="color:#f0d9c6;max-width:520px;font-size:15px">Minimalism is out. Layer it, stack it, mix metals like you mean it.</p>
+    <div class="look-grid">
+      <div class="look-card"><div class="tag">look 01 — the ear stack</div><h3>Studs + drops, zero effort</h3><p>Butterfly Studs as your base, Luna Star Earrings on the second piercing. Three seconds, full main-character.</p></div>
+      <div class="look-card"><div class="tag">look 02 — festive maximalist</div><h3>Diwali is a personality</h3><p>Moon Petal Drops with a silk saree, Pearl Leaf Earrings when you want gold. Add the Rose Halo for sangeet-night glow.</p></div>
+      <div class="look-card"><div class="tag">look 03 — daily chrome</div><h3>Silver everything</h3><p>Ebony Trapeze for the bold days, Butterfly Studs for the soft ones. Tarnish? Never heard of her.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="offer" style="padding-top:34px"><div class="offer reveal">
+  <div class="wrap">
+    <span class="sec-kicker">FESTIVE DROP</span>
+    <h2>Buy 2, get <span style="color:var(--rose)">₹100 OFF</span><br>Buy 3+, get <span style="color:var(--rose)">₹200 OFF</span></h2>
+    <p style="color:var(--muted);font-size:14.5px">Auto-applied at checkout. Dhanteras to Diwali — stack them all.</p>
+    <div class="code">FESTIVE100</div>
+    <p style="font-size:13px;color:var(--muted)">Offer ends in</p>
+    <div class="countdown" id="countdown">
+      <div class="cd"><b id="cdD">00</b><small>DAYS</small></div>
+      <div class="cd"><b id="cdH">00</b><small>HRS</small></div>
+      <div class="cd"><b id="cdM">00</b><small>MIN</small></div>
+      <div class="cd"><b id="cdS">00</b><small>SEC</small></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="ugc"><div class="wrap">
+  <div class="reveal"><span class="sec-kicker">COMMUNITY</span>
+  <h2 class="sec-title">Worn by <span style="color:var(--gold)">you</span> ✦</h2>
+  <p class="sec-sub">Tag <b>@hastara.shop</b> to get featured. Real ears, real fits.</p></div>
+  <!-- REPLACE WITH REAL UGC PHOTOS + HANDLES WHEN AVAILABLE -->
+  <div class="reveal"><div class="ugc-grid" id="ugcGrid"></div></div>
+</div></section>
+
+<section id="reviews" style="padding-top:10px"><div class="wrap">
+  <div class="reveal"><span class="sec-kicker">LOVE NOTES</span>
+  <h2 class="sec-title">Love notes <span class="caveat" style="color:var(--rose)">from our early muses!!</span></h2>
+  <p class="sec-sub">Unfiltered words from the group chat.</p></div>
+</div>
+<div class="reveal"><div class="rev-snap" id="revSnap"></div></div></section>
+
+<section id="faq" style="padding-top:10px"><div class="wrap" style="max-width:720px">
+  <div class="reveal"><span class="sec-kicker">GOOD TO KNOW</span>
+  <h2 class="sec-title">FAQ</h2></div>
+  <div class="reveal" id="faqList"></div>
+</div></section>
+
+<section style="padding-top:10px"><div class="news reveal">
+  <div class="wrap">
+    <h2>Get <span style="color:var(--rose)">₹50 OFF</span> your first order</h2>
+    <p>Join the inner circle — early drops, secret sales, zero spam.</p>
+    <form class="news-form" id="newsForm">
+      <input type="email" id="newsEmail" placeholder="your@email.com" required aria-label="Email">
+      <button type="submit">Claim →</button>
+    </form>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="f-grid">
+    <div><div class="f-logo">HASTARA<b>✦</b></div>
+      <p>Bold, festive, skin-friendly earrings for the maximalist era. Designed in India, made to be stacked.</p>
+      <p style="margin-top:12px">✉️ support@hastara.shop<br>📍 India</p></div>
+    <div><h4>SHOP</h4><div id="footCats"></div></div>
+    <div><h4>HELP</h4>
+      <a class="f-link" href="#faq">FAQ</a><a class="f-link" href="#" data-policy="shipping">Shipping Policy</a>
+      <a class="f-link" href="#" data-policy="returns">Returns &amp; Refunds</a>
+      <a class="f-link" href="#" data-policy="privacy">Privacy Policy</a>
+      <a class="f-link" href="#" data-policy="terms">Terms of Service</a>
+      <a class="f-link" href="#" data-policy="about">About Us</a></div>
+    <div><h4>FOLLOW</h4>
+      <a class="f-link" href="https://instagram.com/" target="_blank" rel="noopener">Instagram ↗</a>
+      <div class="pay-icons"><span>UPI</span><span>GPay</span><span>PhonePe</span><span>Visa</span><span>Mastercard</span><span>RuPay</span><span>COD</span></div>
+      <p style="margin-top:12px;font-size:12px">100% secure payments via PayU</p></div>
+  </div>
+  <div class="f-bottom"><span>© 2026 Hastara. Made with ♥ in India.</span><span>Prices include all taxes.</span></div>
+</div></footer>
+
+<button class="wa" id="waBtn" aria-label="Chat on WhatsApp">✆</button>
+
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="cartDrawer" aria-label="Shopping bag">
+  <div class="drawer-head"><h3>Your Bag 👜</h3><button class="x-btn" data-close>✕</button></div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot" id="cartFoot" style="display:none">
+    <div id="totRows"></div>
+    <button class="checkout-btn" id="checkoutBtn">Checkout →</button>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">COD available · Secure via PayU</p>
+  </div>
+</aside>
+
+<div class="pdp" id="pdp"><div class="pdp-scroll" id="pdpScroll"></div></div>
+<div class="sticky-atc" id="stickyAtc"></div>
+
+<div class="co" id="coModal"><div class="co-card">
+  <div class="co-head"><h3>Checkout</h3><button class="x-btn" data-close-co>✕</button></div>
+  <div class="co-body" id="coBody"></div>
+  <div class="co-foot" id="coFoot"></div>
+</div></div>
+
+<div class="search-ov" id="searchOv">
+  <div class="search-bar">
+    <input id="searchInput" placeholder="Search jhumkas, studs, hoops…" aria-label="Search products">
+    <button class="x-btn" data-close-search>✕</button>
+  </div>
+  <div class="search-res"><div class="cards" id="searchGrid"></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+/* ============ HASTARA v2 storefront ============ */
+const WHATSAPP_NUMBER = ''; // <-- Naksh: apna WhatsApp number yahan daalo, e.g. '919876543210'
+const FREE_SHIP = 499, SHIP_COST = 49, PREPAID_PERK = 40;
+// Pincode delivery zones (mirrored server-side in api/_lib.js).
+// Metros: Delhi 11, Mumbai 40, Pune 41, Ahmedabad 38, Bangalore 56, Chennai 60, Kolkata 70, Hyderabad 50.
+const METRO_PIN = ['11', '40', '41', '38', '56', '60', '70', '50'];
+const isMetroPin = (pin) => /^\d{6}$/.test(pin || '') && METRO_PIN.includes(String(pin).slice(0, 2));
+function shipFor(sub, pin) {
+  if (sub >= FREE_SHIP) return { cost: 0, eta: isMetroPin(pin) ? '2–4 days' : '4–6 days' };
+  if (!/^\d{6}$/.test(pin || '')) return { cost: SHIP_COST, eta: '' };
+  return isMetroPin(pin)
+    ? { cost: 49, eta: '3–5 days' }
+    : { cost: 69, eta: '5–7 days' };
+}
+
+let PRODUCTS = [];
+let cart = JSON.parse(localStorage.getItem('hsr_cart') || '{}');
+let wishlist = JSON.parse(localStorage.getItem('hsr_wish') || '[]');
+let activeFilter = 'all';
+
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+const money = (n) => '₹' + Number(n).toLocaleString('en-IN');
+const offPct = (p) => p.compare_at ? Math.round((1 - p.price / p.compare_at) * 100) : 0;
+// Tiered festive offer (mirrored server-side in api/_lib.js): 2 pairs -> ₹100 off, 3+ -> ₹200 off
+const offerFor = (n) => n >= 3 ? 200 : n >= 2 ? 100 : 0;
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function confettiBurst(x, y) {
+  const bits = ['✦', '💛', '✨', '🌸'];
+  for (let i = 0; i < 8; i++) {
+    const s = document.createElement('span'); s.className = 'confetti';
+    s.textContent = bits[i % bits.length];
+    s.style.left = (x + (Math.random() * 60 - 30)) + 'px';
+    s.style.top = (y + (Math.random() * 20 - 10)) + 'px';
+    document.body.appendChild(s); setTimeout(() => s.remove(), 850);
+  }
+}
+
+/* ---------- static content ---------- */
+function initStatic() {
+  const items = ['✦ FESTIVE SALE', '✦ BUY 2 GET ₹100 OFF · 3+ GET ₹200 OFF', '✦ COD AVAILABLE', '✦ FREE SHIPPING OVER ₹499', '✦ 7-DAY EASY RETURNS', '✦ 12-MONTH ANTI-TARNISH WARRANTY'];
+  const half = items.map((t) => '<span>' + t + '</span>').join('');
+  $('#marqueeTrack').innerHTML = half + half;
+
+  $('#trustRow').innerHTML = [
+    ['💵', 'COD Available'], ['🚚', 'Free Shipping ₹499+'], ['↩️', '7-Day Easy Returns'], ['✨', 'Skin-Friendly & Anti-Tarnish'], ['🛡️', '12-Month Warranty'],
+  ].map((t) => '<div class="trust-chip"><i>' + t[0] + '</i>' + t[1] + '</div>').join('');
+
+  const ugcTiles = [
+    ['assets/ugc-1.jpg', 'festive fit'],
+    ['assets/ugc-2.jpg', 'golden hour'],
+    ['assets/ugc-3.jpg', 'date night'],
+    ['assets/ugc-4.jpg', 'diwali ready'],
+    ['assets/ugc-5.jpg', 'main character'],
+    ['assets/ugc-6.jpg', 'stacked & styled'],
+  ];
+  $('#ugcGrid').innerHTML = ugcTiles.map((t, i) =>
+    '<div class="ugc"><img src="' + t[0] + '" alt="Hastara muse wearing ' + t[1] + '" loading="lazy">' +
+    '<div class="h">@hastara · ' + t[1] + '</div></div>').join('');
+
+  // REPLACE WITH REAL CUSTOMER REVIEWS
+  const revs = [
+    ['★★★★★', 'Wore the Moon Petal Drops to a sangeet and THREE aunties asked where they were from. THREE.', 'Ananya S.', 'Mumbai · Verified buyer'],
+    ['★★★★★', 'I have super sensitive ears and these didn\'t itch even after 10 hours. Witchcraft? Probably just nickel-free lol.', 'Riya K.', 'Delhi · Verified buyer'],
+    ['★★★★★', 'Ordered COD on Monday, wearing them by Friday. The packaging felt like a gift to myself.', 'Sneha P.', 'Bengaluru · Verified buyer'],
+    ['★★★★☆', 'Crystal danglers are even prettier in person. Docked half a star because now I want every colour.', 'Ishita M.', 'Pune · Verified buyer'],
+  ];
+  $('#revSnap').innerHTML = revs.map((r) =>
+    '<div class="rev"><div class="stars">' + r[0] + '</div><p>"' + r[1] + '"</p><div class="who"><b>' + r[2] + '</b><br>' + r[3] + '</div></div>').join('');
+
+  const faqs = [
+    ['Do the earrings come with a warranty?', 'Yes — every pair carries a 12-month anti-tarnish warranty. If your pair ever loses its shine with normal wear, write to support@hastara.shop and we\'ll make it right.'],
+    ['How long does delivery take?', 'We dispatch in 24–48 hours. Delivery takes 3–7 working days depending on your pincode. You can check the estimate on any product page with the pincode checker.'],
+    ['Is Cash on Delivery (COD) available?', 'Yes! COD is available on all orders across India. Pay cash or UPI when your jewels arrive.'],
+    ['What if I don\'t like the product?', 'No stress — we offer 7-day easy returns. Unworn pieces in original packaging get a full refund to your source account (prepaid) — COD refunds come as bank transfer.'],
+    ['Will these tarnish or irritate my skin?', 'Every Hastara piece is nickel-free and anti-tarnish coated. If you have extremely sensitive skin, our silver and pearl lines are the gentlest.'],
+    ['How do I care for my earrings?', 'Keep them dry, store in the pouch we send, and put them on after perfume. That\'s it — they\'ll stay shiny for ages.'],
+  ];
+  $('#faqList').innerHTML = faqs.map((f) =>
+    '<div class="faq-item"><button class="faq-q">' + f[0] + '<span class="pl">+</span></button>' +
+    '<div class="faq-a"><p>' + f[1] + '</p></div></div>').join('');
+  $$('#faqList .faq-q').forEach((b) => b.addEventListener('click', () => {
+    const it = b.parentElement, was = it.classList.contains('open');
+    $$('#faqList .faq-item').forEach((x) => x.classList.remove('open'));
+    if (!was) it.classList.add('open');
+  }));
+
+  // countdown to Diwali 2026 (Nov 8)
+  const target = new Date('2026-11-08T00:00:00+05:30').getTime();
+  const tick = () => {
+    let d = Math.max(0, target - Date.now()) / 1000;
+    const days = Math.floor(d / 86400); d %= 86400;
+    const h = Math.floor(d / 3600), m = Math.floor(d % 3600 / 60), s = Math.floor(d % 60);
+    $('#cdD').textContent = String(days).padStart(2, '0'); $('#cdH').textContent = String(h).padStart(2, '0');
+    $('#cdM').textContent = String(m).padStart(2, '0'); $('#cdS').textContent = String(s).padStart(2, '0');
+  };
+  tick(); setInterval(tick, 1000);
+
+  const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && e.target.classList.add('in')), { threshold: .12 });
+  $$('.reveal').forEach((el) => io.observe(el));
+
+  $('#newsForm').addEventListener('submit', (e) => {
+    e.preventDefault(); toast('You\'re on the list! Watch your inbox ✦'); $('#newsEmail').value = '';
+  });
+  $('#waBtn').addEventListener('click', () => {
+    if (WHATSAPP_NUMBER) window.open('https://wa.me/' + WHATSAPP_NUMBER, '_blank');
+    else toast('WhatsApp support launching soon!');
+  });
+  $$('[data-policy]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); openPolicy(a.dataset.policy); }));
+}
+
+/* ---------- catalog ---------- */
+async function loadProducts() {
+  try {
+    const r = await fetch('/api/products');
+    const j = await r.json();
+    PRODUCTS = j.products || [];
+  } catch (e) { PRODUCTS = []; }
+  if (!PRODUCTS.length) { // local fallback for file:// preview
+    try { const r2 = await fetch('products.json'); PRODUCTS = (await r2.json()).products || []; }
+    catch (e2) { /* ignore */ }
+  }
+  renderAll();
+}
+
+const COLLECTIONS = [
+  { key: 'drops', name: 'Drops', img: 'assets/moon-petal-1.jpg', sub: 'drama that dangles' },
+  { key: 'studs', name: 'Studs', img: 'assets/butterfly-2.jpg', sub: 'everyday cuties' },
+  { key: 'best', name: 'Bestsellers', img: 'assets/luna-3.jpg', sub: 'everyone is obsessed' },
+  { key: 'new', name: 'New In', img: 'assets/rose-halo-1.jpg', sub: 'fresh off the sketchbook' },
+  { key: 'under399', name: 'Under ₹399', img: 'assets/moon-petal-2.jpg', sub: 'pocket-friendly picks' },
+  { key: 'festive', name: 'Festive Picks', img: 'assets/pearl-leaf-2.jpg', sub: 'diwali-ready shine' },
+];
+const COLLECTION_TITLES = { all: 'All earrings', drops: 'Drops', studs: 'Studs', best: 'Bestsellers', new: 'New In', under399: 'Under ₹399', festive: 'Festive Picks', 'gift sets': 'Gift Sets' };
+
+function renderAll() {
+  $('#catGrid').innerHTML = COLLECTIONS.map((c) =>
+    '<a class="cat-tile" href="#shop" data-col="' + c.key + '"><img src="' + c.img + '" alt="' + c.name + '" loading="lazy">' +
+    '<div class="lbl">' + c.name + '<small>' + c.sub.toUpperCase() + '</small></div></a>').join('');
+  $$('#catGrid .cat-tile').forEach((t) => t.addEventListener('click', () => setFilter(t.dataset.col)));
+
+  const cats = ['all'].concat(Array.from(new Set(PRODUCTS.map((p) => p.category.toLowerCase()))));
+  $('#filterPills').innerHTML = cats.map((c) =>
+    '<button class="pill' + (c === activeFilter ? ' on' : '') + '" data-f="' + c + '">' + (COLLECTION_TITLES[c] || c) + '</button>').join('');
+  $$('#filterPills .pill').forEach((b) => b.addEventListener('click', () => setFilter(b.dataset.f)));
+
+  $('#footCats').innerHTML = COLLECTIONS.map((c) =>
+    '<a class="f-link" href="#shop" data-fcol="' + c.key + '">' + c.name + '</a>').join('');
+  $$('#footCats [data-fcol]').forEach((a) => a.addEventListener('click', () => setFilter(a.dataset.fcol)));
+
+  renderGrid();
+  renderBestsellers();
+}
+
+function setFilter(c) {
+  activeFilter = c;
+  $('#gridTitle').textContent = COLLECTION_TITLES[c] || c;
+  $$('#filterPills .pill').forEach((b) => b.classList.toggle('on', b.dataset.f === c));
+  renderGrid();
+}
+
+function filteredProducts() {
+  const badgeHit = (p, re) => (p.badges || []).some((b) => re.test(b));
+  switch (activeFilter) {
+    case 'drops': return PRODUCTS.filter((p) => p.category === 'Drops');
+    case 'studs': return PRODUCTS.filter((p) => p.category === 'Studs');
+    case 'best': return PRODUCTS.filter((p) => badgeHit(p, /bestseller|trending/i));
+    case 'new': return PRODUCTS.filter((p) => badgeHit(p, /new/i));
+    case 'under399': return PRODUCTS.filter((p) => p.price < 399);
+    case 'festive': return PRODUCTS.filter((p) => badgeHit(p, /festive|statement/i));
+    case 'gift sets': return PRODUCTS.filter((p) => p.category === 'Gift Sets');
+    default: return PRODUCTS;
+  }
+}
+
+function cardHTML(p) {
+  const off = offPct(p);
+  const loved = wishlist.includes(p.id) ? ' loved' : '';
+  const heart = wishlist.includes(p.id) ? '♥' : '♡';
+  const badges = (p.badges || []).map((b) => '<span class="bdg tag">' + b + '</span>').join('');
+  return '<div class="card" data-id="' + p.id + '">' +
+    '<div class="card-img" data-open="' + p.id + '"><img src="' + p.image + '" alt="' + p.name + '" loading="lazy">' +
+    '<div class="badges">' + (off ? '<span class="bdg off">' + off + '% OFF</span>' : '') + badges + '</div>' +
+    '<button class="heart' + loved + '" data-wish="' + p.id + '">' + heart + '</button></div>' +
+    '<div class="card-body"><div class="card-name" data-open="' + p.id + '">' + p.name + '</div>' +
+    '<div class="card-stars">★ ' + p.rating + ' <span>rated</span></div>' +
+    '<div class="price-row"><span class="price">' + money(p.price) + '</span>' +
+    (p.compare_at ? '<span class="mrp">' + money(p.compare_at) + '</span><span class="off-t">' + off + '% off</span>' : '') + '</div>' +
+    '<button class="quick-add" data-add="' + p.id + '">ADD TO BAG +</button></div></div>';
+}
+
+function bindCards(root) {
+  root.querySelectorAll('[data-open]').forEach((el) => el.addEventListener('click', (e) => {
+    if (e.target.closest('[data-wish]') || e.target.closest('[data-add]')) return;
+    openPDP(el.dataset.open);
+  }));
+  root.querySelectorAll('[data-add]').forEach((b) => b.addEventListener('click', (e) => {
+    e.stopPropagation(); addToBag(b.dataset.add, 1, b);
+  }));
+  root.querySelectorAll('[data-wish]').forEach((b) => b.addEventListener('click', (e) => {
+    e.stopPropagation(); toggleWish(b.dataset.wish);
+  }));
+}
+
+function renderGrid() {
+  const list = filteredProducts();
+  const g = $('#productGrid');
+  g.innerHTML = list.length ? list.map(cardHTML).join('') : '<p style="color:var(--muted)">Nothing here yet — check back soon ✦</p>';
+  bindCards(g);
+}
+
+function renderBestsellers() {
+  const best = PRODUCTS.filter((p) => (p.badges || []).some((b) => /bestseller|trending/i.test(b)));
+  const list = best.length ? best : PRODUCTS.slice(0, 4);
+  const s = $('#bestSnap');
+  s.innerHTML = list.map(cardHTML).join('');
+  bindCards(s);
+}
+</script>
+<script>
+/* ---------- cart ---------- */
+function saveCart() { localStorage.setItem('hsr_cart', JSON.stringify(cart)); updateBagBadge(); }
+function cartCount() { return Object.values(cart).reduce((a, b) => a + b, 0); }
+function cartSubtotal() {
+  return Object.entries(cart).reduce((sum, [id, q]) => {
+    const p = PRODUCTS.find((x) => x.id === id); return p ? sum + p.price * q : sum;
+  }, 0);
+}
+function updateBagBadge() {
+  const n = cartCount(), el = $('#bagCount');
+  el.style.display = n ? 'flex' : 'none'; el.textContent = n;
+}
+function addToBag(id, qty, btn) {
+  cart[id] = Math.min(10, (cart[id] || 0) + qty); saveCart(); renderCart();
+  if (btn) {
+    const r = btn.getBoundingClientRect(); confettiBurst(r.left + r.width / 2, r.top);
+    const old = btn.textContent; btn.textContent = 'ADDED ✓'; btn.classList.add('added');
+    setTimeout(() => { btn.textContent = old; btn.classList.remove('added'); }, 1200);
+  } else toast('Added to bag 👜');
+  openDrawer();
+}
+function toggleWish(id) {
+  const i = wishlist.indexOf(id);
+  if (i >= 0) { wishlist.splice(i, 1); toast('Removed from wishlist'); }
+  else { wishlist.push(id); toast('Saved to wishlist ♥'); }
+  localStorage.setItem('hsr_wish', JSON.stringify(wishlist));
+  renderGrid(); renderBestsellers();
+  if ($('#pdp').classList.contains('show') && window._pdpId === id) openPDP(id, true);
+}
+function openDrawer() { $('#cartDrawer').classList.add('show'); $('#scrim').classList.add('show'); }
+function closeAll() {
+  $('#cartDrawer').classList.remove('show'); $('#scrim').classList.remove('show');
+  $('#coModal').classList.remove('show'); $('#searchOv').classList.remove('show');
+  $('#stickyAtc').classList.remove('show');
+}
+function renderCart() {
+  const body = $('#cartBody'), foot = $('#cartFoot');
+  const ids = Object.keys(cart).filter((id) => PRODUCTS.find((p) => p.id === id));
+  if (!ids.length) {
+    body.innerHTML = '<div class="empty"><div class="big">👜</div><p>Your bag is empty.<br>Let\'s fix that.</p></div>';
+    foot.style.display = 'none'; return;
+  }
+  const sub = cartSubtotal();
+  const ship = sub >= FREE_SHIP ? 0 : SHIP_COST;
+  const left = Math.max(0, FREE_SHIP - sub);
+  body.innerHTML =
+    '<div class="ship-bar"><div class="t">' + (left ? 'Add <b>' + money(left) + '</b> more for FREE shipping 🚚' : 'You unlocked <b>FREE shipping</b>! 🎉') + '</div>' +
+    '<div class="ship-track"><div class="ship-fill" style="width:' + Math.min(100, sub / FREE_SHIP * 100) + '%"></div></div></div>' +
+    (cartCount() === 1 ? '<div class="ship-bar" style="border-style:dashed"><div class="t">✦ Add <b>1 more pair</b> to unlock <b>₹100 OFF</b> <span class="caveat" style="font-size:17px;color:var(--rose)">festive treat!!</span></div></div>' : '') +
+    (cartCount() === 2 ? '<div class="ship-bar" style="border-style:dashed"><div class="t">✦ Add <b>1 more pair</b> to unlock <b>₹200 OFF</b> <span class="caveat" style="font-size:17px;color:var(--rose)">go on, you deserve it!!</span></div></div>' : '') +
+    ids.map((id) => {
+      const p = PRODUCTS.find((x) => x.id === id), q = cart[id];
+      return '<div class="cart-item"><img src="' + p.image + '" alt="' + p.name + '">' +
+        '<div class="ci-info"><div class="n">' + p.name + '</div><div class="p">' + money(p.price * q) + '</div>' +
+        '<div class="qty"><button data-dec="' + id + '">−</button><span>' + q + '</span><button data-inc="' + id + '">+</button></div>' +
+        '<div><button class="ci-rm" data-rm="' + id + '">remove</button></div></div></div>';
+    }).join('');
+  foot.style.display = 'block';
+  const n = cartCount(), disc = offerFor(n);
+  const total = sub + ship - disc;
+  $('#totRows').innerHTML =
+    '<div class="tot-row"><span>Subtotal</span><span>' + money(sub) + '</span></div>' +
+    (disc ? '<div class="tot-row"><span>Festive offer (FESTIVE100)</span><span style="color:var(--ok)">− ₹' + disc + '</span></div>' : '') +
+    '<div class="tot-row"><span>Shipping</span><span>' + (ship ? money(ship) : 'FREE') + '</span></div>' +
+    '<div class="tot-row grand"><span>Total</span><span>' + money(Math.max(0, total)) + '</span></div>';
+  body.querySelectorAll('[data-inc]').forEach((b) => b.addEventListener('click', () => { cart[b.dataset.inc]++; saveCart(); renderCart(); }));
+  body.querySelectorAll('[data-dec]').forEach((b) => b.addEventListener('click', () => {
+    const id = b.dataset.dec; cart[id]--; if (cart[id] <= 0) delete cart[id]; saveCart(); renderCart();
+  }));
+  body.querySelectorAll('[data-rm]').forEach((b) => b.addEventListener('click', () => { delete cart[b.dataset.rm]; saveCart(); renderCart(); }));
+}
+
+/* ---------- product detail (PDP) ---------- */
+function openPDP(id, keepScroll) {
+  const p = PRODUCTS.find((x) => x.id === id); if (!p) return;
+  window._pdpId = id;
+  const off = offPct(p);
+  const loved = wishlist.includes(id);
+  const related = PRODUCTS.filter((x) => x.id !== id && x.category === p.category)
+    .concat(PRODUCTS.filter((x) => x.id !== id && x.category !== p.category)).slice(0, 3);
+  const gallery = (p.images && p.images.length ? p.images : [p.image]);
+  $('#pdpScroll').innerHTML =
+    '<div class="pdp-hero"><img id="pdpMain" src="' + gallery[0] + '" alt="' + p.name + '">' +
+    '<button class="pdp-close" data-pdp-close>✕</button>' +
+    '<button class="pdp-heart' + (loved ? ' loved' : '') + '" data-pdp-wish>' + (loved ? '♥' : '♡') + '</button>' +
+    '<div class="pdp-badges">' + (off ? '<span class="bdg off">' + off + '% OFF</span>' : '') +
+    (p.badges || []).map((b) => '<span class="bdg tag">' + b + '</span>').join('') + '</div></div>' +
+    (gallery.length > 1 ? '<div class="pdp-thumbs">' + gallery.map((g, i) =>
+      '<img src="' + g + '" data-thumb="' + i + '" class="' + (i === 0 ? 'on' : '') + '" alt="' + p.name + ' view ' + (i + 1) + '">').join('') + '</div>' : '') +
+    '<div class="pdp-info"><h2>' + p.name + '</h2>' +
+    '<div class="pdp-stars">★ ' + p.rating + ' <span>· customer rated</span></div>' +
+    '<div class="pdp-price"><span class="price">' + money(p.price) + '</span>' +
+    (p.compare_at ? '<span class="mrp">' + money(p.compare_at) + '</span><span class="off-t">' + off + '% off</span>' : '') + '</div>' +
+    '<div class="tax-note">Inclusive of all taxes</div>' +
+    '<ul class="hl"><li><i>✓</i> Anti-tarnish coated — stays shiny for ages</li>' +
+    '<li><i>✓</i> 100% nickel-free — safe for sensitive ears</li>' +
+    '<li><i>✓</i> 12-month anti-tarnish warranty included</li>' +
+    '<li><i>✓</i> Weight: ' + p.weight + ' · ' + p.dimensions + '</li></ul>' +
+    '<div class="sec-kicker" style="margin-bottom:6px">CHECK DELIVERY</div>' +
+    '<div class="pin-row"><input id="pinInput" inputmode="numeric" maxlength="6" placeholder="Enter pincode">' +
+    '<button id="pinBtn">Check</button></div><div class="pin-msg" id="pinMsg"></div>' +
+    '<div class="trust-row2"><div>💵 COD available</div><div>↩️ 7-day easy returns</div>' +
+    '<div>🔒 Secure via PayU</div><div>🚚 Ships in 24–48 hrs</div></div>' +
+    '<div class="acc"><div class="faq-item"><button class="faq-q">Details &amp; material <span class="pl">+</span></button>' +
+    '<div class="faq-a"><p>' + p.description + '<br><br><b>Material:</b> ' + p.material + '<br><b>SKU:</b> ' + p.sku + '</p></div></div>' +
+    '<div class="faq-item"><button class="faq-q">Care instructions <span class="pl">+</span></button>' +
+    '<div class="faq-a"><p>Keep dry, store in the pouch provided, and put on after perfume. Avoid direct contact with water and sprays.</p></div></div>' +
+    '<div class="faq-item"><button class="faq-q">Shipping &amp; returns <span class="pl">+</span></button>' +
+    '<div class="faq-a"><p>Dispatch in 24–48 hrs, delivery in 3–7 working days. Free shipping over ₹499. 7-day easy returns on unworn pieces.</p></div></div></div>' +
+    (related.length ? '<div class="xsell"><h3>Complete the stack ✦</h3><div class="cards">' + related.map(cardHTML).join('') + '</div></div>' : '') +
+    '</div>';
+  const sc = $('#pdpScroll');
+  if (!keepScroll) sc.scrollTop = 0;
+  $('#pdp').classList.add('show'); document.body.style.overflow = 'hidden';
+  sc.querySelector('[data-pdp-close]').addEventListener('click', closePDP);
+  sc.querySelector('[data-pdp-wish]').addEventListener('click', () => toggleWish(id));
+  sc.querySelectorAll('[data-thumb]').forEach((t) => t.addEventListener('click', () => {
+    sc.querySelector('#pdpMain').src = gallery[t.dataset.thumb];
+    sc.querySelectorAll('[data-thumb]').forEach((x) => x.classList.remove('on'));
+    t.classList.add('on');
+  }));
+  sc.querySelectorAll('.faq-q').forEach((b) => b.addEventListener('click', () => b.parentElement.classList.toggle('open')));
+  bindCards(sc);
+  $('#pinBtn').addEventListener('click', checkPin);
+  $('#pinInput').addEventListener('keydown', (e) => e.key === 'Enter' && checkPin());
+  // sticky ATC
+  $('#stickyAtc').innerHTML = '<img src="' + p.image + '" alt=""><div class="sp"><div class="n">' + p.name +
+    '</div><div class="p">' + money(p.price) + '</div></div><button data-sticky-add>ADD TO BAG</button>';
+  $('#stickyAtc').querySelector('[data-sticky-add]').addEventListener('click', (e) => addToBag(id, 1, e.target));
+  sc.onscroll = () => $('#stickyAtc').classList.toggle('show', sc.scrollTop > 420);
+}
+function closePDP() { $('#pdp').classList.remove('show'); $('#stickyAtc').classList.remove('show'); document.body.style.overflow = ''; }
+function checkPin() {
+  const v = $('#pinInput').value.replace(/\D/g, ''), msg = $('#pinMsg');
+  if (!/^\d{6}$/.test(v)) { msg.className = 'pin-msg'; msg.textContent = 'Please enter a valid 6-digit pincode.'; return; }
+  const d = new Date(Date.now() + 5 * 864e5);
+  const ds = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  msg.className = 'pin-msg ok'; msg.textContent = '✓ Delivery by ' + ds + ' · COD available at ' + v;
+}
+</script>
+<script>
+/* ---------- checkout ---------- */
+function coItems() {
+  return Object.entries(cart).map(([id, qty]) => ({ id, qty }))
+    .filter((it) => PRODUCTS.find((p) => p.id === it.id));
+}
+function coTotals(method) {
+  const sub = cartSubtotal();
+  const pinEl = $('#f_pin');
+  const pin = pinEl ? pinEl.value.trim() : '';
+  const { cost: ship, eta } = shipFor(sub, pin);
+  const disc = offerFor(cartCount());
+  const perk = method === 'prepaid' ? PREPAID_PERK : 0;
+  return { sub, ship, eta, pin, disc, perk, total: Math.max(0, sub + ship - disc - perk) };
+}
+function openCheckout() {
+  if (!cartCount()) { toast('Your bag is empty'); return; }
+  closeAll();
+  $('#coBody').innerHTML =
+    '<div class="co-err" id="coErr"></div>' +
+    '<div class="co-sec">DELIVERY ADDRESS</div>' +
+    '<div class="f-row"><div class="field"><input id="f_name" placeholder="Full name *"></div>' +
+    '<div class="field"><input id="f_phone" placeholder="10-digit mobile *" inputmode="numeric" maxlength="13"></div>' +
+    '<div class="field full"><input id="f_email" type="email" placeholder="Email *"></div>' +
+    '<div class="field full"><input id="f_addr" placeholder="Flat / street address *"></div>' +
+    '<div class="field"><input id="f_city" placeholder="City *"></div>' +
+    '<div class="field"><input id="f_state" placeholder="State *"></div>' +
+    '<div class="field"><input id="f_pin" placeholder="Pincode *" inputmode="numeric" maxlength="6"></div>' +
+    '<div class="field"><label style="font-size:13px;display:flex;gap:8px;align-items:center;color:var(--muted)">' +
+    '<input type="checkbox" id="f_wa" checked style="width:18px;height:18px;accent-color:var(--maroon)"> Get order updates on WhatsApp</label></div></div>' +
+    '<div class="co-sec">PAYMENT METHOD</div>' +
+    '<label class="pay-opt sel" data-m="cod"><input type="radio" name="pm" checked><div><div class="pt">💵 Cash on Delivery</div>' +
+    '<div class="pd">Pay cash or UPI when your order arrives. Zero risk.</div></div></label>' +
+    '<label class="pay-opt" data-m="prepaid"><input type="radio" name="pm"><div><div class="pt">⚡ Pay Online</div>' +
+    '<div class="pd">UPI · Cards · NetBanking via PayU — 100% secure. <b>UPI recommended</b> — fastest checkout.</div>' +
+    '<span class="perk">₹' + PREPAID_PERK + ' OFF prepaid perk applied</span></div></label>' +
+    '<div class="co-sec">ORDER SUMMARY</div><div id="coLines"></div>';
+  $('#coFoot').innerHTML = '<div id="coTot"></div><button class="checkout-btn" id="placeBtn">Place Order →</button>';
+  $('#coModal').classList.add('show'); $('#scrim').classList.add('show');
+  let method = 'cod';
+  const paint = () => {
+    const t = coTotals(method);
+    $('#coLines').innerHTML = coItems().map((it) => {
+      const p = PRODUCTS.find((x) => x.id === it.id);
+      return '<div class="order-line"><span>' + p.name + ' × ' + it.qty + '</span><span>' + money(p.price * it.qty) + '</span></div>';
+    }).join('') +
+      '<div class="order-line"><span>Shipping' + (t.pin && /^\d{6}$/.test(t.pin) ? ' <small style="color:var(--muted)">· ' + t.pin + ' · ' + t.eta + '</small>' : '') + '</span><span>' + (t.ship ? money(t.ship) : 'FREE') + '</span></div>' +
+      (!t.pin || !/^\d{6}$/.test(t.pin) ? '<div class="order-line" style="font-size:12.5px;color:var(--muted)"><span>🚚 Enter pincode above for exact delivery charges</span><span></span></div>' : '') +
+      (t.disc ? '<div class="order-line"><span>Festive offer</span><span style="color:var(--ok)">− ₹' + t.disc + '</span></div>' : '') +
+      (t.perk ? '<div class="order-line"><span>Prepaid perk</span><span style="color:var(--ok)">− ₹' + t.perk + '</span></div>' : '');
+    $('#coTot').innerHTML = '<div class="tot-row grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
+    $('#placeBtn').textContent = method === 'cod' ? 'Place COD Order →' : 'Pay ' + money(t.total) + ' →';
+  };
+  paint();
+  $('#f_pin').addEventListener('input', paint);
+  $$('#coBody .pay-opt').forEach((o) => o.addEventListener('click', () => {
+    $$('#coBody .pay-opt').forEach((x) => x.classList.remove('sel'));
+    o.classList.add('sel'); o.querySelector('input').checked = true; method = o.dataset.m; paint();
+  }));
+  $('#placeBtn').addEventListener('click', () => placeOrder(method));
+}
+function coError(m) { const e = $('#coErr'); e.textContent = m; e.classList.add('show'); e.scrollIntoView(); }
+async function placeOrder(method) {
+  const g = (id) => $('#' + id).value.trim();
+  const customer = { firstname: g('f_name'), phone: g('f_phone'), email: g('f_email'), address: g('f_addr'), city: g('f_city'), state: g('f_state'), pincode: g('f_pin') };
+  const btn = $('#placeBtn'); btn.disabled = true; btn.textContent = 'Placing order…';
+  try {
+    if (method === 'cod') {
+      const r = await fetch('/api/order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: coItems(), customer }) });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || 'Order failed');
+      cart = {}; saveCart(); renderCart(); showSuccess(j.orderId, 'cod');
+    } else {
+      const r = await fetch('/api/pay', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: coItems(), customer }) });
+      if (!r.ok) throw new Error(await r.text() || 'Payment setup failed');
+      const html = await r.text();
+      document.open(); document.write(html); document.close(); // auto-submits to PayU
+    }
+  } catch (e) { coError(e.message); btn.disabled = false; btn.textContent = method === 'cod' ? 'Place COD Order →' : 'Try again →'; }
+}
+function showSuccess(orderId, kind) {
+  $('#coBody').innerHTML = '<div class="success"><div class="tick">✓</div><h2>Order placed!</h2>' +
+    '<div class="oid">' + orderId + '</div>' +
+    '<p style="color:var(--muted);font-size:14.5px;line-height:1.7">' +
+    (kind === 'cod' ? 'Pay when your jewels arrive. We\'ll ship within 24–48 hours — keep your phone handy!' : 'Payment confirmed! Your jewels ship within 24–48 hours.') +
+    '<br><br>Thank you for shopping with Hastara ✦</p></div>';
+  $('#coFoot').innerHTML = '<button class="checkout-btn" data-close-co2>Keep shopping ✦</button>';
+  $('#coFoot [data-close-co2]').addEventListener('click', closeAll);
+}
+
+/* ---------- policies ---------- */
+const POLICIES = {
+  shipping: ['Shipping Policy', '<p>We dispatch all orders within <b>24–48 hours</b>. Delivery takes <b>2–7 working days</b> depending on your pincode (metros 2–5 days, rest of India 4–7 days).</p><p><b>Shipping charges:</b> FREE on orders above ₹499. Below ₹499: <b>₹49</b> for metro pincodes (Delhi, Mumbai, Pune, Ahmedabad, Bangalore, Chennai, Kolkata, Hyderabad), <b>₹69</b> for the rest of India. Enter your pincode at checkout for exact charges.</p><p>You\'ll receive tracking details on email/SMS once your order ships.</p>'],
+  returns: ['Returns & Refunds', '<p><b>7-day easy returns</b> on unworn pieces in original packaging.</p><p>Prepaid orders are refunded to the source account within 5–7 working days. COD order refunds are made via bank transfer.</p><p>Sale items marked "final sale" cannot be returned.</p>'],
+  privacy: ['Privacy Policy', '<p>We collect only what we need to fulfil your order — name, contact, and address. We never sell your data.</p><p>Payment details are processed securely by PayU; we never see or store your card/UPI credentials.</p>'],
+  terms: ['Terms of Service', '<p>All earrings are fashion jewellery: gold/silver-plated alloy, nickel-free and anti-tarnish coated. They are not solid gold or silver.</p><p>Prices include all taxes. We reserve the right to cancel orders in case of pricing errors, with a full refund.</p>'],
+  about: ['About Hastara ✦', '<p>Hastara was born from a simple obsession — earrings that make you feel like the main character without burning your wallet.</p><p>Every pair is nickel-free, anti-tarnish, and designed for the jewellery-maxxing era: stack them, mix them, own every room you walk into.</p><p>Designed in India. Made to be stacked. ✦</p>'],
+};
+function openPolicy(key) {
+  const [t, h] = POLICIES[key] || POLICIES.about;
+  $('#coBody').innerHTML = '<div class="co-sec">' + t.toUpperCase() + '</div><div style="font-size:14.5px;line-height:1.8;color:var(--ink)">' + h + '</div>';
+  $('#coFoot').innerHTML = '<button class="checkout-btn" data-close-co2>Close</button>';
+  $('#coFoot [data-close-co2]').addEventListener('click', closeAll);
+  $('#coModal').classList.add('show'); $('#scrim').classList.add('show');
+}
+
+/* ---------- search ---------- */
+function openSearch() { $('#searchOv').classList.add('show'); setTimeout(() => $('#searchInput').focus(), 80); doSearch(''); }
+function doSearch(q) {
+  q = q.trim().toLowerCase();
+  const list = q ? PRODUCTS.filter((p) => (p.name + ' ' + p.category + ' ' + p.description).toLowerCase().includes(q)) : PRODUCTS;
+  const g = $('#searchGrid');
+  g.innerHTML = list.length ? list.map(cardHTML).join('') : '<p style="color:var(--muted)">No matches for "' + q + '" — try "jhumka" or "hoops" ✦</p>';
+  bindCards(g);
+}
+
+/* ---------- global bindings + init ---------- */
+function initEvents() {
+  $('#bagBtn').addEventListener('click', () => { renderCart(); openDrawer(); });
+  $('#checkoutBtn').addEventListener('click', openCheckout);
+  $('#searchBtn').addEventListener('click', openSearch);
+  $('#under399Btn').addEventListener('click', () => setFilter('under399'));
+  $('#searchInput').addEventListener('input', (e) => doSearch(e.target.value));
+  $('#wishBtn').addEventListener('click', () => {
+    if (!wishlist.length) { toast('Tap ♡ on any product to save it here'); return; }
+    setFilter('all');
+    const g = $('#productGrid');
+    g.innerHTML = wishlist.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean).map(cardHTML).join('');
+    bindCards(g); $('#gridTitle').textContent = 'Your wishlist ♥';
+    document.getElementById('shop').scrollIntoView({ behavior: 'smooth' });
+  });
+  $('#scrim').addEventListener('click', closeAll);
+  $$('[data-close]').forEach((b) => b.addEventListener('click', closeAll));
+  $$('[data-close-co]').forEach((b) => b.addEventListener('click', closeAll));
+  $$('[data-close-search]').forEach((b) => b.addEventListener('click', closeAll));
+  document.addEventListener('keydown', (e) => e.key === 'Escape' && (closePDP(), closeAll()));
+}
+initStatic(); initEvents(); updateBagBadge(); loadProducts();
+</script>
+</body>
+</html>
