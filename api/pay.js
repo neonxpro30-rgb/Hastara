@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
 
     const body = lib.parseJsonBody(req);
     const catalog = lib.loadCatalog();
-    const order = lib.buildOrder(catalog, body.items, body.customer && body.customer.pincode, true); // prepaid -> ₹40 perk applies
+    const order = await lib.buildOrderLive(catalog, body.items, body.customer && body.customer.pincode, true); // prepaid -> ₹40 perk applies
     if (order.error) { res.status(400).send(order.error); return; }
     const vc = lib.validCustomer(body.customer);
     if (vc.error) { res.status(400).send(vc.error); return; }
