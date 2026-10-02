@@ -121,7 +121,7 @@ module.exports = async (req, res) => {
       lines: order.lines, subtotal: order.subtotal, discount: order.discount || 0, shipping: order.shipping,
       total: order.total, customer: order.customer, createdAt: new Date().toISOString(),
     };
-    await lib.saveOrder(record);
+    await lib.saveOrder(record); try { const nimbus = require('./nimbus'); const nimbusOrderId = await nimbus.createDraftOrder({ orderId: order.orderId, payment: 'prepaid', total: order.total, lines: order.lines, customer: order.customer }); if (nimbusOrderId) record.nimbusOrderId = nimbusOrderId; } catch (e) { /* ignore */ } // Push to NimbusPost as a PENDING draft (free, no AWB yet). Never fails the order.
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.status(200).send(successPage(record));

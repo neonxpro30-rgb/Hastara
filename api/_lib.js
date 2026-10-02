@@ -108,4 +108,4 @@ function parseJsonBody(req) {
   return b || {};
 }
 
-module.exports = { loadCatalog, findProduct, buildOrder, validCustomer, orderId, saveOrder, parseJsonBody };
+/* Async order builder with live NimbusPost shipping rate. Keeps FREE shipping over ₹499; falls back to flat-rate table when NimbusPost is unreachable. */ async function buildOrderLive(catalog, items, pincode, isPrepaid) { const order = buildOrder(catalog, items, pincode, isPrepaid); if (order.error || order.shipping === 0) return order; try { const nimbus = require('./nimbus'); const live = await nimbus.getRate(pincode, isPrepaid ? 'prepaid' : 'cod', order.subtotal); if (live && live.cost > 0) { order.shipping = live.cost; order.shipEtaDays = live.etaDays; order.shipCourier = live.courier; order.shipLive = true; order.total = Math.max(0, order.subtotal + order.shipping - order.discount - order.perk); } } catch (e) { /* fallback rates stand */ } return order; } module.exports = { loadCatalog, findProduct, buildOrder, buildOrderLive, validCustomer, orderId, saveOrder, parseJsonBody };
