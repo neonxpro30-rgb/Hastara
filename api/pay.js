@@ -3,7 +3,7 @@
 const crypto = require('crypto');
 const lib = require('./_lib');
 
-const PAYU_KEY = process.env.PAYU_KEY || process.env.PAYU_MERCHANT_KEY;
+const PAYU_KEY = process.env.PAYU_KEY;
 const PAYU_SALT = process.env.PAYU_SALT;
 const PAYU_URL = 'https://secure.payu.in/_payment';
 
@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
 
     const body = lib.parseJsonBody(req);
     const catalog = lib.loadCatalog();
-    const order = await lib.buildOrderLive(catalog, body.items, body.customer && body.customer.pincode, true); // prepaid -> ₹40 perk applies
+    const order = await lib.buildOrder(catalog, body.items, body.customer && body.customer.pincode, true, body.coupon); // prepaid -> ₹40 perk applies
     if (order.error) { res.status(400).send(order.error); return; }
     const vc = lib.validCustomer(body.customer);
     if (vc.error) { res.status(400).send(vc.error); return; }
@@ -39,7 +39,8 @@ module.exports = async (req, res) => {
     // Stash the order in udf1 so /api/verify can rebuild it after payment.
     const udf1 = Buffer.from(JSON.stringify({
       orderId, lines: order.lines, subtotal: order.subtotal, discount: order.discount,
-      shipping: order.shipping, total: order.total, customer: vc.customer,
+      shipping: order.shipping, couponCode: order.couponCode || '', couponDiscount: order.couponDiscount || 0,
+      total: order.total, customer: vc.customer,
     })).toString('base64');
 
     const hashStr = [PAYU_KEY, txnid, amount, productinfo, vc.customer.firstname,

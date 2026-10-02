@@ -26,7 +26,8 @@ function isMetroPin(pin) {
 }
 
 // Server-side totals: never trust client amounts.
-function buildOrder(catalog, items, pincode, isPrepaid) {
+// Async because an optional coupon code is validated against Firestore.
+async function buildOrder(catalog, items, pincode, isPrepaid, couponCode) {
   const lines = [];
   let subtotal = 0;
   for (const it of items || []) {
@@ -44,7 +45,15 @@ function buildOrder(catalog, items, pincode, isPrepaid) {
   const discount = count >= 3 ? 200 : count >= 2 ? 100 : 0;
   // ₹40 prepaid perk (mirrored in the storefront): PayU/prepaid orders only, never COD.
   const perk = isPrepaid ? PREPAID_PERK : 0;
-  return { lines, subtotal, shipping, discount, perk, total: Math.max(0, subtotal + shipping - discount - perk) };
+  const order = { lines, subtotal, shipping, discount, perk, total: Math.max(0, subtotal + shipping - discount - perk) };
+  // Optional coupon code: validated + quoted server-side, stacks after the tier offer.
+  if (couponCode) {
+    const { applyCoupon } = require('./_coupons');
+    const withCoupon = await applyCoupon(order, couponCode);
+    if (withCoupon.error) return { error: withCoupon.error };
+    return withCoupon;
+  }
+  return order;
 }
 
 function validCustomer(c) {
@@ -143,4 +152,4 @@ function parseJsonBody(req) {
   return b || {};
 }
 
-/* Async order builder with live NimbusPost shipping rate. Keeps FREE shipping over ₹499; falls back to flat-rate table when NimbusPost is unreachable. */ async function buildOrderLive(catalog, items, pincode, isPrepaid) { const order = buildOrder(catalog, items, pincode, isPrepaid); if (order.error || order.shipping === 0) return order; try { const nimbus = require('./nimbus'); const live = await nimbus.getRate(pincode, isPrepaid ? 'prepaid' : 'cod', order.subtotal); if (live && live.cost > 0) { order.shipping = live.cost; order.shipEtaDays = live.etaDays; order.shipCourier = live.courier; order.shipLive = true; order.total = Math.max(0, order.subtotal + order.shipping - order.discount - order.perk); } } catch (e) { /* fallback rates stand */ } return order; } module.exports = { loadCatalog, findProduct, buildOrder, buildOrderLive, validCustomer, orderId, saveOrder, parseJsonBody };
+module.exports = { loadCatalog, findProduct, buildOrder, validCustomer, orderId, saveOrder, parseJsonBody };

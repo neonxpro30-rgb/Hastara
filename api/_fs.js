@@ -122,4 +122,10 @@ async function docSet(col, id, obj) {
   return Object.assign({ _id: _docId(d.name) }, unfv({ mapValue: { fields: d.fields || {} } }));
 }
 
-module.exports = { serviceAccount, fv, unfv, colList, docGet, docSet };
+// Delete a document.
+async function docDel(col, id) {
+  await _req('DELETE', '/documents/' + col + '/' + encodeURIComponent(id));
+  return true;
+}
+
+module.exports = { serviceAccount, fv, unfv, colList, docGet, docSet, docDel };

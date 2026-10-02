@@ -17,6 +17,7 @@ textarea{min-height:70px;resize:vertical}
 label{font-size:12px;color:#c9a227;font-weight:700;letter-spacing:.5px;display:block;margin-top:10px}
 button{background:#c9a227;color:#1c1216;border:none;border-radius:10px;padding:12px 20px;font-weight:800;font-size:14px;cursor:pointer}
 button.ghost{background:transparent;border:1px solid #4a2c38;color:#e8c766}
+button.danger{background:#7a2440;color:#fff}
 button:disabled{opacity:.5}
 .row{display:flex;gap:10px;flex-wrap:wrap}
 .row>*{flex:1;min-width:140px}
@@ -47,228 +48,442 @@ select.st{width:auto;min-width:130px;padding:8px}
 </head>
 <body>
 <div class="wrap">
+
 <div id="loginBox">
-<h1>Hastara &#10022; Admin</h1>
-<p class="sub">Staff only. This page is hidden from Google.</p>
-<div class="card">
-<label>Password</label>
-<input type="password" id="pw" placeholder="Admin password" autocomplete="current-password">
-<div style="height:10px"></div>
-<button id="loginBtn" style="width:100%">Log in</button>
-<div class="err" id="loginErr">Wrong password.</div>
+  <h1>Hastara ✦ Admin</h1>
+  <p class="sub">Staff only. This page is hidden from Google.</p>
+  <div class="card">
+    <label>Password</label>
+    <input type="password" id="pw" placeholder="Admin password" autocomplete="current-password">
+    <div style="height:10px"></div>
+    <button id="loginBtn" style="width:100%">Log in</button>
+    <div class="err" id="loginErr">Wrong password.</div>
+  </div>
 </div>
-</div>
+
 <div id="dash" class="hidden">
-<div class="row" style="align-items:center">
-<div><h1>Hastara &#10022; Admin</h1><p class="sub" id="dashSub"></p></div>
-<div style="flex:0"><button class="ghost" id="seedBtn">&#8635; Seed products from site</button></div>
+  <div class="row" style="align-items:center">
+    <div><h1>Hastara ✦ Admin</h1><p class="sub" id="dashSub"></p></div>
+    <div style="flex:0"><button class="ghost" id="seedBtn">↻ Seed products from site</button></div>
+  </div>
+  <div class="err" id="err"></div>
+  <div class="okmsg" id="okmsg"></div>
+
+  <div class="tabs">
+    <button id="tabOrders" class="on">Orders</button>
+    <button id="tabProducts">Products</button>
+    <button id="tabCoupons">Coupons</button>
+    <button id="tabSettings">Settings</button>
+  </div>
+
+  <div id="paneOrders">
+    <div class="card">
+      <input id="ordSearch" placeholder="🔍 Search by order id, name or phone…" style="margin-bottom:10px">
+      <div id="ordersList">Loading…</div>
+    </div>
+  </div>
+
+  <div id="paneProducts" class="hidden">
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <div><h3 style="color:#e8c766">Products</h3><p class="hint">Edits go live on the site within a minute.</p></div>
+        <div style="flex:0"><button id="addBtn">+ Add product</button></div>
+      </div>
+      <div id="prodList" style="margin-top:10px">Loading…</div>
+    </div>
+    <div class="card hidden" id="editCard">
+      <h3 style="color:#e8c766" id="editTitle">Edit product</h3>
+      <div class="row">
+        <div><label>ID (a-z, 0-9, dashes)</label><input id="f_id" placeholder="moon-petal"></div>
+        <div><label>Name</label><input id="f_name" placeholder="Moon Petal Drops"></div>
+      </div>
+      <div class="row">
+        <div><label>Price ₹</label><input id="f_price" type="number" placeholder="365"></div>
+        <div><label>MRP ₹ (compare at)</label><input id="f_compare" type="number" placeholder="499"></div>
+        <div><label>Rating</label><input id="f_rating" type="number" step="0.1" placeholder="4.6"></div>
+      </div>
+      <div class="row">
+        <div><label>Category</label><input id="f_cat" placeholder="earrings"></div>
+        <div><label>SKU</label><input id="f_sku" placeholder="HSR-001"></div>
+        <div><label>Active</label><select id="f_active"><option value="1">Yes</option><option value="0">No</option></select></div>
+      </div>
+      <label>Description</label><textarea id="f_desc"></textarea>
+      <div class="row">
+        <div><label>Material</label><input id="f_mat"></div>
+        <div><label>Dimensions</label><input id="f_dim"></div>
+        <div><label>Weight</label><input id="f_wt"></div>
+      </div>
+      <label>Badges (comma separated)</label><input id="f_badges" placeholder="Bestseller, Festive">
+      <label>Images</label>
+      <div class="thumbs" id="thumbs"></div>
+      <input type="file" id="imgFile" accept="image/*">
+      <button class="ghost" id="upBtn">⬆ Upload image</button>
+      <p class="hint">Uploads go to Cloudinary (hastara_products). First image = main photo.</p>
+      <div style="height:12px"></div>
+      <div class="row">
+        <button id="saveBtn">💾 Save product</button>
+        <button class="ghost" id="cancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="paneCoupons" class="hidden">
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <div><h3 style="color:#e8c766">Coupons</h3><p class="hint">Offer codes customers apply at checkout. Changes go live instantly.</p></div>
+        <div style="flex:0"><button id="cpnAddBtn">+ Add coupon</button></div>
+      </div>
+      <div id="cpnList" style="margin-top:10px">Loading…</div>
+    </div>
+    <div class="card hidden" id="cpnCard">
+      <h3 style="color:#e8c766" id="cpnTitle">Add coupon</h3>
+      <div class="row">
+        <div><label>Code (A-Z, 0-9, -)</label><input id="c_code" placeholder="DIWALI100"></div>
+        <div><label>Type</label><select id="c_type"><option value="flat">Flat ₹ off</option><option value="percent">Percent % off</option></select></div>
+        <div><label>Value (₹ or %)</label><input id="c_value" type="number" min="1" placeholder="100"></div>
+      </div>
+      <div class="row">
+        <div><label>Min order ₹ (0 = none)</label><input id="c_min" type="number" min="0" placeholder="0"></div>
+        <div><label>Max discount ₹ — percent only (0 = no cap)</label><input id="c_max" type="number" min="0" placeholder="0"></div>
+        <div><label>Status</label><select id="c_active"><option value="1">Active</option><option value="0">Paused</option></select></div>
+      </div>
+      <div class="row">
+        <div><label>Starts at (optional)</label><input id="c_start" type="datetime-local"></div>
+        <div><label>Ends at (optional)</label><input id="c_end" type="datetime-local"></div>
+        <div><label>Usage limit (0 = unlimited)</label><input id="c_limit" type="number" min="0" placeholder="0"></div>
+      </div>
+      <label>Internal note</label><input id="c_note" placeholder="e.g. Diwali campaign — not shown to customers">
+      <div style="height:12px"></div>
+      <div class="row">
+        <button id="cpnSave">💾 Save coupon</button>
+        <button class="ghost" id="cpnCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="paneSettings" class="hidden">
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <div><h3 style="color:#e8c766">Store settings</h3><p class="hint">Controls the announcement marquee, footer contact links and WhatsApp button on the site.</p></div>
+      </div>
+      <label>Announcement marquee</label>
+      <select id="s_ann_on"><option value="1">On — show the marquee</option><option value="0">Off — hide it</option></select>
+      <label>Marquee lines (one per line)</label>
+      <textarea id="s_ann_lines" style="min-height:110px"></textarea>
+      <label>Support email</label><input id="s_email" placeholder="support@hastara.shop">
+      <div class="row">
+        <div><label>WhatsApp number (digits only, with country code)</label><input id="s_wa" placeholder="919876543210"></div>
+        <div><label>Instagram handle (without @)</label><input id="s_ig" placeholder="hastara.shop"></div>
+      </div>
+      <div style="height:12px"></div>
+      <button id="setSave">💾 Save settings</button>
+      <p class="hint">Changes go live on the site within a minute.</p>
+    </div>
+  </div>
 </div>
-<div class="err" id="err"></div>
-<div class="okmsg" id="okmsg"></div>
-<div class="tabs">
-<button id="tabOrders" class="on">Orders</button>
-<button id="tabProducts">Products</button>
 </div>
-<div id="paneOrders">
-<div class="card"><div id="ordersList">Loading...</div></div>
-</div>
-<div id="paneProducts" class="hidden">
-<div class="card">
-<div class="row" style="align-items:center">
-<div><h3 style="color:#e8c766">Products</h3><p class="hint">Edits go live on the site within a minute.</p></div>
-<div style="flex:0"><button id="addBtn">+ Add product</button></div>
-</div>
-<div id="prodList" style="margin-top:10px">Loading...</div>
-</div>
-<div class="card hidden" id="editCard">
-<h3 style="color:#e8c766" id="editTitle">Edit product</h3>
-<div class="row">
-<div><label>ID (a-z, 0-9, dashes)</label><input id="f_id" placeholder="moon-petal"></div>
-<div><label>Name</label><input id="f_name" placeholder="Moon Petal Drops"></div>
-</div>
-<div class="row">
-<div><label>Price &#8377;</label><input id="f_price" type="number" placeholder="365"></div>
-<div><label>MRP &#8377; (compare at)</label><input id="f_compare" type="number" placeholder="499"></div>
-<div><label>Rating</label><input id="f_rating" type="number" step="0.1" placeholder="4.6"></div>
-</div>
-<div class="row">
-<div><label>Category</label><input id="f_cat" placeholder="earrings"></div>
-<div><label>SKU</label><input id="f_sku" placeholder="HSR-001"></div>
-<div><label>Active</label><select id="f_active"><option value="1">Yes</option><option value="0">No</option></select></div>
-</div>
-<label>Description</label><textarea id="f_desc"></textarea>
-<div class="row">
-<div><label>Material</label><input id="f_mat"></div>
-<div><label>Dimensions</label><input id="f_dim"></div>
-<div><label>Weight</label><input id="f_wt"></div>
-</div>
-<label>Badges (comma separated)</label><input id="f_badges" placeholder="Bestseller, Festive">
-<label>Images</label>
-<div class="thumbs" id="thumbs"></div>
-<input type="file" id="imgFile" accept="image/*">
-<button class="ghost" id="upBtn">&#11006; Upload image</button>
-<p class="hint">Uploads go to Cloudinary (hastara_products). First image = main photo.</p>
-<div style="height:12px"></div>
-<div class="row">
-<button id="saveBtn">Save product</button>
-<button class="ghost" id="cancelBtn">Cancel</button>
-</div>
-</div>
-</div>
-</div>
-</div>
+
 <script>
 const $=id=>document.getElementById(id);
 let PRODUCTS=[], STATUSES=['confirmed','packed','shipped','delivered','cancelled'];
 let editImages=[], editingId=null;
+
 async function api(path,method,body){
-const r=await fetch(path,{method:method||'GET',credentials:'include',headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
-const j=await r.json().catch(()=>({ok:false}));
-if(r.status===401){showLogin();throw new Error('login');}
-return j;
+  const r=await fetch(path,{method:method||'GET',credentials:'include',
+    headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+  const j=await r.json().catch(()=>({ok:false}));
+  if(r.status===401){showLogin();throw new Error('login');}
+  return j;
 }
 function showLogin(){$('loginBox').classList.remove('hidden');$('dash').classList.add('hidden');}
 function showDash(){$('loginBox').classList.add('hidden');$('dash').classList.remove('hidden');}
 function err(m){const e=$('err');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',4000);}
 function okm(m){const e=$('okmsg');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',3000);}
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* login */
 $('loginBtn').onclick=doLogin;
 $('pw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 async function doLogin(){
-$('loginBtn').disabled=true;
-try{
-const j=await api('/api/admin/login','POST',{password:$('pw').value});
-if(j.ok){$('pw').value='';$('loginErr').style.display='none';showDash();await boot();}
-else $('loginErr').style.display='block';
-}catch(e){if(e.message!=='login')$('loginErr').style.display='block';}
-$('loginBtn').disabled=false;
+  $('loginBtn').disabled=true;
+  try{
+    const j=await api('/api/admin/login','POST',{password:$('pw').value});
+    if(j.ok){$('pw').value='';$('loginErr').style.display='none';showDash();await boot();}
+    else $('loginErr').style.display='block';
+  }catch(e){if(e.message!=='login')$('loginErr').style.display='block';}
+  $('loginBtn').disabled=false;
 }
+
+/* tabs */
+const TABS=['Orders','Products','Coupons','Settings'];
 $('tabOrders').onclick=()=>{setTab('Orders');loadOrders();};
 $('tabProducts').onclick=()=>{setTab('Products');loadProducts();};
+$('tabCoupons').onclick=()=>{setTab('Coupons');loadCoupons();};
+$('tabSettings').onclick=()=>{setTab('Settings');loadSettings();};
 function setTab(t){
-const o=t==='Orders';
-$('tabOrders').classList.toggle('on',o);$('tabProducts').classList.toggle('on',!o);
-$('paneOrders').classList.toggle('hidden',!o);$('paneProducts').classList.toggle('hidden',o);
+  TABS.forEach(x=>{
+    $('tab'+x).classList.toggle('on',x===t);
+    $('pane'+x).classList.toggle('hidden',x!==t);
+  });
+}
+
+/* orders */
+let ORDERS=[];
+function orderRow(o){
+  const did=o._id||o.orderId||o.id||'';
+  const oid=o.orderId||o.id||o._id||'—';
+  const dt=String(o.createdAt||o.created_at||o.date||'').slice(0,10);
+  const paym=o.payment||o.paymentMethod||o.mode||'';
+  const lns=o.lines||o.items||o.products||[];
+  const items=lns.map(l=>esc(l.name||l.title||l.id||'item')+' ×'+(l.qty||l.quantity||1)).join('<br>')||'—';
+  const c=o.customer||o.shippingAddress||{};
+  const cn=c.firstname||c.name||o.customerName||'—';
+  const cp=c.phone||c.mobile||o.phone||'';
+  const ct=((c.city||'')+' '+(c.pincode||c.zip||'')).trim();
+  const tot=o.total||o.amount||o.grandTotal||'—';
+  const st=o.status||'confirmed';
+  return '<tr><td><b>'+esc(oid)+'</b><br><span style="color:#a98f83">'+esc(dt)+'</span><br><span class="pill">'+esc(paym)+'</span></td>'+
+  '<td>'+esc(cn)+'<br>'+esc(cp)+'<br><span style="color:#a98f83">'+esc(ct)+'</span></td>'+
+  '<td>'+items+'</td><td><b>₹'+esc(tot)+'</b></td>'+
+  '<td><select class="st" data-oid="'+esc(did)+'">'+STATUSES.map(s=>'<option value="'+s+'"'+(s===st?' selected':'')+'>'+s+'</option>').join('')+'</select></td></tr>';
+}
+function renderOrders(){
+  const q=($('ordSearch').value||'').trim().toLowerCase();
+  const os=ORDERS.filter(o=>{
+    if(!q)return true;
+    const c=o.customer||o.shippingAddress||{};
+    const hay=[o.orderId||o.id||o._id||'',c.firstname||c.name||o.customerName||'',
+      String(c.phone||c.mobile||o.phone||'')].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+  $('dashSub').textContent=ORDERS.length+' orders'+(q?' ('+os.length+' shown)':'');
+  if(!os.length){$('ordersList').innerHTML=q?'No orders match your search.':'No orders yet.';return;}
+  $('ordersList').innerHTML='<div class="tblwrap"><table><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr>'+
+    os.map(orderRow).join('')+'</table></div>';
+  document.querySelectorAll('select.st').forEach(s=>s.onchange=async()=>{
+    const j2=await api('/api/admin/orders','PATCH',{orderId:s.dataset.oid,status:s.value});
+    j2.ok?okm('Status updated'):err('Update failed');
+  });
 }
 async function loadOrders(){
-$('ordersList').textContent='Loading...';
-try{
-const j=await api('/api/admin/orders');
-if(!j.ok){err('Could not load orders');return;}
-STATUSES=j.statuses||STATUSES;
-const os=j.orders||[];
-$('dashSub').textContent=os.length+' orders';
-if(!os.length){$('ordersList').textContent='No orders yet.';return;}
-$('ordersList').innerHTML='<div class="tblwrap"><table><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr>'+
-os.map(o=>{
-const did=o._id||o.orderId||o.id||'';
-const oid=o.orderId||o.id||o._id||'-';
-const dt=String(o.createdAt||o.created_at||o.date||'').slice(0,10);
-const paym=o.payment||o.paymentMethod||o.mode||'';
-const lns=o.lines||o.items||o.products||[];
-const items=lns.map(l=>esc(l.name||l.title||l.id||'item')+' x'+(l.qty||l.quantity||1)).join('<br>')||'-';
-const c=o.customer||o.shippingAddress||{};
-const cn=c.firstname||c.name||o.customerName||'-';
-const cp=c.phone||c.mobile||o.phone||'';
-const ct=((c.city||'')+' '+(c.pincode||c.zip||'')).trim();
-const tot=o.total||o.amount||o.grandTotal||'-';
-const st=o.status||'confirmed';
-return '<tr><td><b>'+esc(oid)+'</b><br><span style="color:#a98f83">'+esc(dt)+'</span><br><span class="pill">'+esc(paym)+'</span></td>'+
-'<td>'+esc(cn)+'<br>'+esc(cp)+'<br><span style="color:#a98f83">'+esc(ct)+'</span></td>'+
-'<td>'+items+'</td><td><b>&#8377;'+esc(tot)+'</b></td>'+
-'<td><select class="st" data-oid="'+esc(did)+'">'+STATUSES.map(s=>'<option value="'+s+'"'+(s===st?' selected':'')+'>'+s+'</option>').join('')+'</select></td></tr>';
-}).join('')+'</table></div>';
-document.querySelectorAll('select.st').forEach(s=>s.onchange=async()=>{
-const j2=await api('/api/admin/orders','PATCH',{orderId:s.dataset.oid,status:s.value});
-j2.ok?okm('Status updated'):err('Update failed');
-});
-}catch(e){if(e.message!=='login')err('Could not load orders');}
+  $('ordersList').textContent='Loading…';
+  try{
+    const j=await api('/api/admin/orders');
+    if(!j.ok){err('Could not load orders');return;}
+    STATUSES=j.statuses||STATUSES;
+    ORDERS=j.orders||[];
+    renderOrders();
+  }catch(e){if(e.message!=='login')err('Could not load orders');}
 }
+$('ordSearch').addEventListener('input',renderOrders);
+
+/* products */
 async function loadProducts(){
-$('prodList').textContent='Loading...';
-try{
-const j=await api('/api/admin/products');
-if(!j.ok){err('Could not load products');return;}
-PRODUCTS=j.products||[];
-if(!PRODUCTS.length){$('prodList').innerHTML='No products in Firestore yet. Hit the seed button above.';return;}
-$('prodList').innerHTML=PRODUCTS.map(p=>
-'<div class="prod"><img src="'+esc(p.image||'')+'" loading="lazy"><div style="flex:1"><div class="nm">'+esc(p.name)+'</div><div class="pr">&#8377;'+esc(p.price)+'</div><div style="font-size:12px;color:#a98f83">'+esc(p.id)+(p.active?'':' - HIDDEN')+'</div></div><button class="ghost" data-edit="'+esc(p.id)+'">Edit</button></div>'
-).join('');
-document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
-}catch(e){if(e.message!=='login')err('Could not load products');}
+  $('prodList').textContent='Loading…';
+  try{
+    const j=await api('/api/admin/products');
+    if(!j.ok){err('Could not load products');return;}
+    PRODUCTS=j.products||[];
+    if(!PRODUCTS.length){$('prodList').innerHTML='No products in Firestore yet. Hit “↻ Seed products from site”.';return;}
+    $('prodList').innerHTML=PRODUCTS.map(p=>{
+      const did=p._id||p.id||'';
+      return '<div class="prod"><img src="'+esc(p.image||'')+'" loading="lazy"><div style="flex:1"><div class="nm">'+esc(p.name||'(unnamed)')+'</div><div class="pr">₹'+esc(p.price||0)+'</div><div style="font-size:12px;color:#a98f83">'+esc(p.id||did)+(p.active?'':' · HIDDEN')+'</div></div><button class="ghost" data-edit="'+esc(p.id||'')+'">Edit</button> <button class="danger" data-pdel="'+esc(did)+'">Delete</button></div>';
+    }).join('');
+    document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
+    document.querySelectorAll('[data-pdel]').forEach(b=>b.onclick=async()=>{
+      const p=PRODUCTS.find(x=>(x._id||x.id)===b.dataset.pdel)||{};
+      if(!confirm('Delete "'+(p.name||b.dataset.pdel)+'"? This cannot be undone.'))return;
+      try{
+        const j=await api('/api/admin/products?id='+encodeURIComponent(b.dataset.pdel),'DELETE');
+        if(j.ok){okm('Deleted ✓');await loadProducts();}
+        else err(j.error||'Delete failed');
+      }catch(e){if(e.message!=='login')err('Delete failed');}
+    });
+  }catch(e){if(e.message!=='login')err('Could not load products');}
 }
 function openEdit(id){
-const p=PRODUCTS.find(x=>x.id===id)||{};
-editingId=id||null;
-$('editTitle').textContent=id?'Edit product':'Add product';
-$('f_id').value=p.id||'';$('f_id').disabled=!!id;
-$('f_name').value=p.name||'';$('f_price').value=p.price||'';
-$('f_compare').value=p.compare_at||'';$('f_rating').value=p.rating||'';
-$('f_cat').value=p.category||'earrings';$('f_sku').value=p.sku||'';
-$('f_active').value=p.active===false?'0':'1';
-$('f_desc').value=p.description||'';$('f_mat').value=p.material||'';
-$('f_dim').value=p.dimensions||'';$('f_wt').value=p.weight||'';
-$('f_badges').value=(p.badges||[]).join(', ');
-editImages=[...(p.images||[])];
-renderThumbs();
-$('editCard').classList.remove('hidden');
-$('editCard').scrollIntoView({behavior:'smooth'});
+  const p=PRODUCTS.find(x=>x.id===id)||{};
+  editingId=id||null;
+  $('editTitle').textContent=id?'Edit product':'Add product';
+  $('f_id').value=p.id||'';$('f_id').disabled=!!id;
+  $('f_name').value=p.name||'';$('f_price').value=p.price||'';
+  $('f_compare').value=p.compare_at||'';$('f_rating').value=p.rating||'';
+  $('f_cat').value=p.category||'earrings';$('f_sku').value=p.sku||'';
+  $('f_active').value=p.active===false?'0':'1';
+  $('f_desc').value=p.description||'';$('f_mat').value=p.material||'';
+  $('f_dim').value=p.dimensions||'';$('f_wt').value=p.weight||'';
+  $('f_badges').value=(p.badges||[]).join(', ');
+  editImages=[...(p.images||[])];
+  renderThumbs();
+  $('editCard').classList.remove('hidden');
+  $('editCard').scrollIntoView({behavior:'smooth'});
 }
 $('addBtn').onclick=()=>openEdit(null);
 $('cancelBtn').onclick=()=>$('editCard').classList.add('hidden');
 function renderThumbs(){
-$('thumbs').innerHTML=editImages.map((u,i)=>'<div class="thumbwrap"><img src="'+esc(u)+'"><button data-rm="'+i+'">x</button></div>').join('');
-document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{editImages.splice(+b.dataset.rm,1);renderThumbs();});
+  $('thumbs').innerHTML=editImages.map((u,i)=>'<div class="thumbwrap"><img src="'+esc(u)+'"><button data-rm="'+i+'">✕</button></div>').join('');
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{editImages.splice(+b.dataset.rm,1);renderThumbs();});
 }
 $('upBtn').onclick=async()=>{
-const f=$('imgFile').files[0];
-if(!f){err('Choose an image first');return;}
-$('upBtn').disabled=true;$('upBtn').textContent='Uploading...';
-try{
-const s=await api('/api/admin/sign-upload','POST',{folder:'hastara_products'});
-if(!s.ok)throw new Error(s.error||'sign failed');
-const fd=new FormData();
-fd.append('file',f);fd.append('api_key',s.api_key);fd.append('timestamp',s.timestamp);
-fd.append('signature',s.signature);fd.append('folder',s.folder);
-const r=await fetch('https://api.cloudinary.com/v1_1/'+s.cloud_name+'/image/upload',{method:'POST',body:fd});
-const j=await r.json();
-if(!j.secure_url)throw new Error('upload failed');
-editImages.push(j.secure_url);renderThumbs();okm('Image uploaded');
-$('imgFile').value='';
-}catch(e){err('Upload failed: '+e.message);}
-$('upBtn').disabled=false;$('upBtn').textContent='Upload image';
+  const f=$('imgFile').files[0];
+  if(!f){err('Choose an image first');return;}
+  $('upBtn').disabled=true;$('upBtn').textContent='Uploading…';
+  try{
+    const s=await api('/api/admin/sign-upload','POST',{folder:'hastara_products'});
+    if(!s.ok)throw new Error(s.error||'sign failed');
+    const fd=new FormData();
+    fd.append('file',f);fd.append('api_key',s.api_key);fd.append('timestamp',s.timestamp);
+    fd.append('signature',s.signature);fd.append('folder',s.folder);
+    const r=await fetch('https://api.cloudinary.com/v1_1/'+s.cloud_name+'/image/upload',{method:'POST',body:fd});
+    const j=await r.json();
+    if(!j.secure_url)throw new Error('upload failed');
+    editImages.push(j.secure_url);renderThumbs();okm('Image uploaded');
+    $('imgFile').value='';
+  }catch(e){err('Upload failed: '+e.message);}
+  $('upBtn').disabled=false;$('upBtn').textContent='⬆ Upload image';
 };
 $('saveBtn').onclick=async()=>{
-const p={
-id:$('f_id').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'-'),
-name:$('f_name').value.trim(),price:+$('f_price').value||0,
-compare_at:+$('f_compare').value||0,rating:+$('f_rating').value||0,
-category:$('f_cat').value.trim()||'earrings',sku:$('f_sku').value.trim(),
-active:$('f_active').value==='1',description:$('f_desc').value.trim(),
-material:$('f_mat').value.trim(),dimensions:$('f_dim').value.trim(),
-weight:$('f_wt').value.trim(),
-badges:$('f_badges').value.split(',').map(s=>s.trim()).filter(Boolean),
-images:editImages,
+  const p={
+    id:$('f_id').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'-'),
+    name:$('f_name').value.trim(),price:+$('f_price').value||0,
+    compare_at:+$('f_compare').value||0,rating:+$('f_rating').value||0,
+    category:$('f_cat').value.trim()||'earrings',sku:$('f_sku').value.trim(),
+    active:$('f_active').value==='1',description:$('f_desc').value.trim(),
+    material:$('f_mat').value.trim(),dimensions:$('f_dim').value.trim(),
+    weight:$('f_wt').value.trim(),
+    badges:$('f_badges').value.split(',').map(s=>s.trim()).filter(Boolean),
+    images:editImages,
+  };
+  if(!p.id||!p.name||!p.price){err('ID, name and price are required');return;}
+  if(!p.images.length){err('Upload at least 1 image');return;}
+  $('saveBtn').disabled=true;
+  try{
+    const j=await api('/api/admin/products','POST',{product:p});
+    if(j.ok){okm('Saved ✓');$('editCard').classList.add('hidden');await loadProducts();}
+    else err(j.error||'Save failed');
+  }catch(e){if(e.message!=='login')err('Save failed');}
+  $('saveBtn').disabled=false;
 };
-if(!p.id||!p.name||!p.price){err('ID, name and price are required');return;}
-if(!p.images.length){err('Upload at least 1 image');return;}
-$('saveBtn').disabled=true;
-try{
-const j=await api('/api/admin/products','POST',{product:p});
-if(j.ok){okm('Saved');$('editCard').classList.add('hidden');await loadProducts();}
-else err(j.error||'Save failed');
-}catch(e){if(e.message!=='login')err('Save failed');}
-$('saveBtn').disabled=false;
+
+/* coupons */
+let COUPONS=[], editingCpn=null;
+const fmtDt=s=>s?String(s).slice(0,16).replace('T',' '):'';
+async function loadCoupons(){
+  $('cpnList').textContent='Loading…';
+  try{
+    const j=await api('/api/admin/coupons');
+    if(!j.ok){err('Could not load coupons');return;}
+    COUPONS=j.coupons||[];
+    if(!COUPONS.length){$('cpnList').innerHTML='No coupons yet. Hit “+ Add coupon” to create your first offer.';return;}
+    $('cpnList').innerHTML='<div class="tblwrap"><table><tr><th>Code</th><th>Offer</th><th>Min order</th><th>Used / Limit</th><th>Validity</th><th>Status</th><th></th></tr>'+
+      COUPONS.map(c=>{
+        const offer=c.type==='percent'
+          ? c.value+'% off'+(c.max_discount>0?' (max ₹'+c.max_discount+')':'')
+          : '₹'+c.value+' off';
+        const used=(c.used_count||0)+' / '+(c.usage_limit>0?c.usage_limit:'∞');
+        const v=[fmtDt(c.starts_at),fmtDt(c.ends_at)].filter(Boolean).join(' → ')||'—';
+        return '<tr><td><b>'+esc(c.code)+'</b>'+(c.note?'<br><span style="color:#a98f83">'+esc(c.note)+'</span>':'')+'</td>'+
+          '<td>'+esc(offer)+'</td><td>'+(c.min_order>0?'₹'+c.min_order:'—')+'</td><td>'+used+'</td><td>'+esc(v)+'</td>'+
+          '<td><span class="pill">'+(c.active?'ACTIVE':'PAUSED')+'</span></td>'+
+          '<td style="white-space:nowrap"><button class="ghost" data-ctoggle="'+esc(c.code)+'">'+(c.active?'Pause':'Resume')+'</button> '+
+          '<button class="ghost" data-cedit="'+esc(c.code)+'">Edit</button> '+
+          '<button class="danger" data-cdel="'+esc(c.code)+'">✕</button></td></tr>';
+      }).join('')+'</table></div>';
+    document.querySelectorAll('[data-ctoggle]').forEach(b=>b.onclick=async()=>{
+      const c=COUPONS.find(x=>x.code===b.dataset.ctoggle);if(!c)return;
+      try{
+        const j2=await api('/api/admin/coupons','POST',{coupon:Object.assign({},c,{active:!c.active})});
+        if(j2.ok){okm(c.active?'Coupon paused':'Coupon activated ✓');await loadCoupons();}
+        else err(j2.error||'Update failed');
+      }catch(e){if(e.message!=='login')err('Update failed');}
+    });
+    document.querySelectorAll('[data-cedit]').forEach(b=>b.onclick=()=>openCpn(b.dataset.cedit));
+    document.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{
+      if(!confirm('Delete coupon "'+b.dataset.cdel+'"? This cannot be undone.'))return;
+      try{
+        const j2=await api('/api/admin/coupons?id='+encodeURIComponent(b.dataset.cdel),'DELETE');
+        if(j2.ok){okm('Coupon deleted ✓');await loadCoupons();}
+        else err(j2.error||'Delete failed');
+      }catch(e){if(e.message!=='login')err('Delete failed');}
+    });
+  }catch(e){if(e.message!=='login')err('Could not load coupons');}
+}
+function openCpn(code){
+  const c=COUPONS.find(x=>x.code===code)||{};
+  editingCpn=code||null;
+  $('cpnTitle').textContent=code?'Edit coupon':'Add coupon';
+  $('c_code').value=c.code||'';$('c_code').disabled=!!code;
+  $('c_type').value=c.type||'flat';$('c_value').value=c.value||'';
+  $('c_min').value=c.min_order||'';$('c_max').value=c.max_discount||'';
+  $('c_active').value=c.active===false?'0':'1';
+  $('c_start').value=String(c.starts_at||'').slice(0,16);
+  $('c_end').value=String(c.ends_at||'').slice(0,16);
+  $('c_limit').value=c.usage_limit||'';$('c_note').value=c.note||'';
+  $('cpnCard').classList.remove('hidden');
+  $('cpnCard').scrollIntoView({behavior:'smooth'});
+}
+$('cpnAddBtn').onclick=()=>openCpn(null);
+$('cpnCancel').onclick=()=>$('cpnCard').classList.add('hidden');
+$('cpnSave').onclick=async()=>{
+  const coupon={
+    code:$('c_code').value.trim(),type:$('c_type').value,value:+$('c_value').value||0,
+    min_order:+$('c_min').value||0,max_discount:+$('c_max').value||0,
+    active:$('c_active').value==='1',
+    starts_at:$('c_start').value.trim(),ends_at:$('c_end').value.trim(),
+    usage_limit:+$('c_limit').value||0,note:$('c_note').value.trim(),
+  };
+  if(!coupon.code){err('Coupon code is required');return;}
+  if(!(coupon.value>0)){err('Value must be more than 0');return;}
+  $('cpnSave').disabled=true;
+  try{
+    const j=await api('/api/admin/coupons','POST',{coupon});
+    if(j.ok){okm('Coupon saved ✓');$('cpnCard').classList.add('hidden');await loadCoupons();}
+    else err(j.error||'Save failed');
+  }catch(e){if(e.message!=='login')err('Save failed');}
+  $('cpnSave').disabled=false;
 };
+
+/* settings */
+async function loadSettings(){
+  try{
+    const j=await api('/api/admin/settings');
+    if(!j.ok){err('Could not load settings');return;}
+    const s=j.settings||{};
+    $('s_ann_on').value=s.announcement_on===false?'0':'1';
+    $('s_ann_lines').value=(s.announcement_lines||[]).join('\n');
+    $('s_email').value=s.support_email||'';
+    $('s_wa').value=s.whatsapp_number||'';
+    $('s_ig').value=s.instagram_handle||'';
+  }catch(e){if(e.message!=='login')err('Could not load settings');}
+}
+$('setSave').onclick=async()=>{
+  const settings={
+    announcement_on:$('s_ann_on').value==='1',
+    announcement_lines:$('s_ann_lines').value,
+    support_email:$('s_email').value.trim(),
+    whatsapp_number:$('s_wa').value.trim(),
+    instagram_handle:$('s_ig').value.trim(),
+  };
+  $('setSave').disabled=true;
+  try{
+    const j=await api('/api/admin/settings','POST',{settings});
+    if(j.ok)okm('Settings saved ✓ — live on the site within a minute');
+    else err(j.error||'Save failed');
+  }catch(e){if(e.message!=='login')err('Save failed');}
+  $('setSave').disabled=false;
+};
+
+/* seed */
 $('seedBtn').onclick=async()=>{
-if(!confirm('Copy all products from products.json into Firestore?'))return;
-try{
-const j=await api('/api/admin/seed','POST',{});
-if(j.ok){okm('Seeded '+j.seeded+' products');await loadProducts();}
-else err(j.error||'Seed failed');
-}catch(e){if(e.message!=='login')err('Seed failed');}
+  if(!confirm('Copy all products from products.json into Firestore?'))return;
+  try{
+    const j=await api('/api/admin/seed','POST',{});
+    j.ok?(okm('Seeded '+j.seeded+' products ✓'),await loadProducts()):err(j.error||'Seed failed');
+  }catch(e){if(e.message!=='login')err('Seed failed');}
 };
+
 async function boot(){setTab('Orders');await loadOrders();}
+/* try silent session */
 (async()=>{try{const j=await api('/api/admin/orders');if(j.ok){showDash();await boot();}}catch(e){}})();
 </script>
 </body>

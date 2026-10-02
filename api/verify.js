@@ -3,7 +3,7 @@
 const crypto = require('crypto');
 const lib = require('./_lib');
 
-const PAYU_KEY = process.env.PAYU_KEY || process.env.PAYU_MERCHANT_KEY;
+const PAYU_KEY = process.env.PAYU_KEY;
 const PAYU_SALT = process.env.PAYU_SALT;
 
 function esc(s) {
@@ -119,9 +119,14 @@ module.exports = async (req, res) => {
     const record = {
       orderId: order.orderId, txnid, payment: 'prepaid', status: 'confirmed',
       lines: order.lines, subtotal: order.subtotal, discount: order.discount || 0, shipping: order.shipping,
+      couponCode: order.couponCode || '', couponDiscount: order.couponDiscount || 0,
       total: order.total, customer: order.customer, createdAt: new Date().toISOString(),
     };
-    await lib.saveOrder(record); try { const nimbus = require('./nimbus'); const nimbusOrderId = await nimbus.createDraftOrder({ orderId: order.orderId, payment: 'prepaid', total: order.total, lines: order.lines, customer: order.customer }); if (nimbusOrderId) record.nimbusOrderId = nimbusOrderId; } catch (e) { /* ignore */ } // Push to NimbusPost as a PENDING draft (free, no AWB yet). Never fails the order.
+    await lib.saveOrder(record);
+    // Redeem the coupon now that payment succeeded — never fail the confirmation over this.
+    if (record.couponCode) {
+      try { await require('./_coupons').redeemCoupon(record.couponCode); } catch (e) { /* ignore */ }
+    }
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.status(200).send(successPage(record));

@@ -1,6 +1,11 @@
-// Admin products: GET list, POST upsert {product}. Auth required.
+// Admin products: GET list, POST upsert {product}, DELETE ?id=. Auth required.
 const admin = require('../_admin');
 const fsdb = require('../_fs');
+
+function queryId(req) {
+  try { return new URL(req.url || '', 'http://x').searchParams.get('id') || ''; }
+  catch (e) { return ''; }
+}
 
 function cleanProduct(p) {
   const o = {
@@ -39,6 +44,14 @@ module.exports = async (req, res) => {
       if (!p.images.length) { admin.json(res, 400, { ok: false, error: 'at least 1 image required' }); return; }
       const saved = await fsdb.docSet('products', p.id, p);
       admin.json(res, 200, { ok: true, product: saved });
+      return;
+    }
+    if (req.method === 'DELETE') {
+      const body = admin.parseBody(req) || {};
+      const id = String(queryId(req) || body.id || '').trim();
+      if (!id) { admin.json(res, 400, { ok: false, error: 'id required' }); return; }
+      await fsdb.docDel('products', id);
+      admin.json(res, 200, { ok: true, deleted: id });
       return;
     }
     admin.json(res, 405, { ok: false });
