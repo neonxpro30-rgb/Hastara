@@ -281,7 +281,7 @@ $('ordSearch').addEventListener('input',renderOrders);
 async function loadProducts(){
   $('prodList').textContent='Loading…';
   try{
-    const j=await api('/api/admin/products');
+    const j=await api('/api/admin/data?resource=products');
     if(!j.ok){err('Could not load products');return;}
     PRODUCTS=j.products||[];
     if(!PRODUCTS.length){$('prodList').innerHTML='No products in Firestore yet. Hit “↻ Seed products from site”.';return;}
@@ -294,7 +294,7 @@ async function loadProducts(){
       const p=PRODUCTS.find(x=>(x._id||x.id)===b.dataset.pdel)||{};
       if(!confirm('Delete "'+(p.name||b.dataset.pdel)+'"? This cannot be undone.'))return;
       try{
-        const j=await api('/api/admin/products?id='+encodeURIComponent(b.dataset.pdel),'DELETE');
+        const j=await api('/api/admin/data?resource=products?id='+encodeURIComponent(b.dataset.pdel),'DELETE');
         if(j.ok){okm('Deleted ✓');await loadProducts();}
         else err(j.error||'Delete failed');
       }catch(e){if(e.message!=='login')err('Delete failed');}
@@ -358,7 +358,7 @@ $('saveBtn').onclick=async()=>{
   if(!p.images.length){err('Upload at least 1 image');return;}
   $('saveBtn').disabled=true;
   try{
-    const j=await api('/api/admin/products','POST',{product:p});
+    const j=await api('/api/admin/data?resource=products','POST',{product:p});
     if(j.ok){okm('Saved ✓');$('editCard').classList.add('hidden');await loadProducts();}
     else err(j.error||'Save failed');
   }catch(e){if(e.message!=='login')err('Save failed');}
@@ -371,7 +371,7 @@ const fmtDt=s=>s?String(s).slice(0,16).replace('T',' '):'';
 async function loadCoupons(){
   $('cpnList').textContent='Loading…';
   try{
-    const j=await api('/api/admin/coupons');
+    const j=await api('/api/admin/data?resource=coupons');
     if(!j.ok){err('Could not load coupons');return;}
     COUPONS=j.coupons||[];
     if(!COUPONS.length){$('cpnList').innerHTML='No coupons yet. Hit “+ Add coupon” to create your first offer.';return;}
@@ -392,7 +392,7 @@ async function loadCoupons(){
     document.querySelectorAll('[data-ctoggle]').forEach(b=>b.onclick=async()=>{
       const c=COUPONS.find(x=>x.code===b.dataset.ctoggle);if(!c)return;
       try{
-        const j2=await api('/api/admin/coupons','POST',{coupon:Object.assign({},c,{active:!c.active})});
+        const j2=await api('/api/admin/data?resource=coupons','POST',{coupon:Object.assign({},c,{active:!c.active})});
         if(j2.ok){okm(c.active?'Coupon paused':'Coupon activated ✓');await loadCoupons();}
         else err(j2.error||'Update failed');
       }catch(e){if(e.message!=='login')err('Update failed');}
@@ -401,7 +401,7 @@ async function loadCoupons(){
     document.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{
       if(!confirm('Delete coupon "'+b.dataset.cdel+'"? This cannot be undone.'))return;
       try{
-        const j2=await api('/api/admin/coupons?id='+encodeURIComponent(b.dataset.cdel),'DELETE');
+        const j2=await api('/api/admin/data?resource=coupons?id='+encodeURIComponent(b.dataset.cdel),'DELETE');
         if(j2.ok){okm('Coupon deleted ✓');await loadCoupons();}
         else err(j2.error||'Delete failed');
       }catch(e){if(e.message!=='login')err('Delete failed');}
@@ -436,7 +436,7 @@ $('cpnSave').onclick=async()=>{
   if(!(coupon.value>0)){err('Value must be more than 0');return;}
   $('cpnSave').disabled=true;
   try{
-    const j=await api('/api/admin/coupons','POST',{coupon});
+    const j=await api('/api/admin/data?resource=coupons','POST',{coupon});
     if(j.ok){okm('Coupon saved ✓');$('cpnCard').classList.add('hidden');await loadCoupons();}
     else err(j.error||'Save failed');
   }catch(e){if(e.message!=='login')err('Save failed');}
@@ -446,7 +446,7 @@ $('cpnSave').onclick=async()=>{
 /* settings */
 async function loadSettings(){
   try{
-    const j=await api('/api/admin/settings');
+    const j=await api('/api/admin/data?resource=settings');
     if(!j.ok){err('Could not load settings');return;}
     const s=j.settings||{};
     $('s_ann_on').value=s.announcement_on===false?'0':'1';
@@ -466,7 +466,7 @@ $('setSave').onclick=async()=>{
   };
   $('setSave').disabled=true;
   try{
-    const j=await api('/api/admin/settings','POST',{settings});
+    const j=await api('/api/admin/data?resource=settings','POST',{settings});
     if(j.ok)okm('Settings saved ✓ — live on the site within a minute');
     else err(j.error||'Save failed');
   }catch(e){if(e.message!=='login')err('Save failed');}

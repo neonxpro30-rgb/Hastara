@@ -777,7 +777,7 @@ function confettiBurst(x, y) {
 const hesc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 async function loadSettings() {
   try {
-    const r = await fetch('/api/settings');
+    const r = await fetch('/api/store');
     const j = await r.json();
     const s = (j && j.settings) || {};
     if (s.announcement_on === false) {
@@ -1136,7 +1136,7 @@ function applyCouponFlow() {
   if (!code) { say('Please enter a coupon code first.'); return; }
   say(''); cpnBusy = true;
   const btn = $('#cpnBtn'); if (btn) btn.disabled = true;
-  fetch('/api/coupon', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+  fetch('/api/store?action=coupon', { method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code, subtotal: cartSubtotal() }) })
     .then((r) => r.json())
     .then((j) => {
@@ -1169,7 +1169,7 @@ function renderCpnBox() {
 function refreshCoupon() {
   if (!COUPON || cpnBusy) return;
   cpnBusy = true;
-  fetch('/api/coupon', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+  fetch('/api/store?action=coupon', { method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code: COUPON.code, subtotal: cartSubtotal() }) })
     .then((r) => r.json())
     .then((j) => {

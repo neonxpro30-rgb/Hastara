@@ -1,4 +1,5 @@
-// NimbusPost v2 Partner API helpers for Hastara.
+// NimbusPost v2 Partner API helpers for Hastara (underscore-prefixed: helper, not a route).
+// Env: NIMBUSPOST_API_KEY, NIMBUSPOST_API_SECRET (falls back to NIMBUSPOST_SECRET).
 // Env: NIMBUSPOST_API_KEY, NIMBUSPOST_API_SECRET (dashboard -> Settings -> API Keys).
 // Every call fails soft (returns null) so checkout/orders never break when
 // NimbusPost is down or keys are missing — the flat-rate fallback applies.
@@ -9,14 +10,18 @@ const TIMEOUT_MS = 8000;
 // Standard parcel for jewellery orders: ~500g chargeable, small box.
 const PARCEL = { weightG: 500, length: 15, width: 15, height: 10 };
 
+function apiSecret() {
+  return process.env.NIMBUSPOST_API_SECRET || process.env.NIMBUSPOST_SECRET || '';
+}
+
 function configured() {
-  return !!(process.env.NIMBUSPOST_API_KEY && process.env.NIMBUSPOST_API_SECRET);
+  return !!(process.env.NIMBUSPOST_API_KEY && apiSecret());
 }
 
 function headers() {
   return {
     'x-api-key': process.env.NIMBUSPOST_API_KEY,
-    'x-api-secret': process.env.NIMBUSPOST_API_SECRET,
+    'x-api-secret': apiSecret(),
     'Content-Type': 'application/json',
     Accept: 'application/json',
   };

@@ -1,7 +1,7 @@
 // POST {pincode, paymentMode ('cod'|'prepaid'), subtotal?} ->
 // {ok, live, cost, etaDays, courier} — live NimbusPost rate, or flat fallback.
 const lib = require('./_lib');
-const nimbus = require('./nimbus');
+const nimbus = require('./_nimbus');
 
 module.exports = async (req, res) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
