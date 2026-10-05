@@ -459,9 +459,13 @@ footer a.f-link{display:block;color:#e9cfc0;text-decoration:none;font-size:14px;
   flex:0 0 auto;cursor:pointer}
 .pdp-thumbs img.on{border-color:var(--gold)}
 @media(min-width:900px){
-  .pdp-hero{max-width:540px;margin:0 auto}
-  .pdp-thumbs{max-width:540px;margin:0 auto}
-  .pdp-info{max-width:760px;margin:0 auto}
+  #pdpScroll{display:grid;grid-template-columns:minmax(0,540px) minmax(0,1fr);
+    grid-template-areas:"hero info" "thumbs info";column-gap:48px;
+    max-width:1180px;margin:0 auto;padding:40px 32px 130px;align-items:start;align-content:start}
+  .pdp-hero{grid-area:hero;max-width:none;margin:0}
+  .pdp-thumbs{grid-area:thumbs;max-width:none;margin:0;padding:12px 0 4px}
+  .pdp-info{grid-area:info;max-width:none;margin:0;padding:6px 0 0}
+  .pdp-info .cards{grid-template-columns:repeat(2,1fr)}
 }
 .pdp-close{position:absolute;top:14px;left:14px;width:42px;height:42px;border-radius:50%;
   background:rgba(255,255,255,.92);font-size:18px;color:var(--maroon);box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:2}
