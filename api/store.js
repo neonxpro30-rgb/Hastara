@@ -12,7 +12,6 @@ const DEFAULTS = {
     '✦ COD AVAILABLE',
     '✦ FREE SHIPPING OVER ₹499',
     '✦ 7-DAY EASY RETURNS',
-    '✦ 12-MONTH ANTI-TARNISH WARRANTY',
   ],
   support_email: 'support@hastara.shop',
   whatsapp_number: '',

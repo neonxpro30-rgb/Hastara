@@ -843,13 +843,13 @@ async function loadSettings() {
 
 /* ---------- static content ---------- */
 function initStatic() {
-  const items = ['✦ FESTIVE SALE', '✦ BUY 2 GET ₹100 OFF · 3+ GET ₹200 OFF', '✦ COD AVAILABLE', '✦ FREE SHIPPING OVER ₹499', '✦ 7-DAY EASY RETURNS', '✦ 12-MONTH ANTI-TARNISH WARRANTY'];
+  const items = ['✦ FESTIVE SALE', '✦ BUY 2 GET ₹100 OFF · 3+ GET ₹200 OFF', '✦ COD AVAILABLE', '✦ FREE SHIPPING OVER ₹499', '✦ 7-DAY EASY RETURNS'];
   const half = items.map((t) => '<span>' + t + '</span>').join('');
   $('#marqueeTrack').innerHTML = half + half;
   loadSettings(); // overrides marquee + footer contacts from admin Settings when set
 
   $('#trustRow').innerHTML = [
-    ['💵', 'COD Available'], ['🚚', 'Free Shipping ₹499+'], ['↩️', '7-Day Easy Returns'], ['✨', 'Skin-Friendly & Anti-Tarnish'], ['🛡️', '12-Month Warranty'],
+    ['💵', 'COD Available'], ['🚚', 'Free Shipping ₹499+'], ['↩️', '7-Day Easy Returns'], ['✨', 'Skin-Friendly & Anti-Tarnish'],
   ].map((t) => '<div class="trust-chip"><i>' + t[0] + '</i>' + t[1] + '</div>').join('');
 
   const ugcTiles = [
@@ -875,7 +875,6 @@ function initStatic() {
     '<div class="rev"><div class="stars">' + r[0] + '</div><p>"' + r[1] + '"</p><div class="who"><b>' + r[2] + '</b><br>' + r[3] + '</div></div>').join('');
 
   const faqs = [
-    ['Do the earrings come with a warranty?', 'Yes — every pair carries a 12-month anti-tarnish warranty. If your pair ever loses its shine with normal wear, write to support@hastara.shop and we\'ll make it right.'],
     ['How long does delivery take?', 'We dispatch in 24–48 hours. Delivery takes 3–7 working days depending on your pincode. You can check the estimate on any product page with the pincode checker.'],
     ['Is Cash on Delivery (COD) available?', 'Yes! COD is available on all orders across India. Pay cash or UPI when your jewels arrive.'],
     ['What if I don\'t like the product?', 'No stress — we offer 7-day easy returns. Unworn pieces in original packaging get a full refund to your source account (prepaid) — COD refunds come as bank transfer.'],
@@ -1121,7 +1120,6 @@ function openPDP(id, keepScroll) {
     '<div class="tax-note">Inclusive of all taxes</div>' +
     '<ul class="hl"><li><i>✓</i> Anti-tarnish coated — stays shiny for ages</li>' +
     '<li><i>✓</i> 100% nickel-free — safe for sensitive ears</li>' +
-    '<li><i>✓</i> 12-month anti-tarnish warranty included</li>' +
     '<li><i>✓</i> Weight: ' + p.weight + ' · ' + p.dimensions + '</li></ul>' +
     '<div class="sec-kicker" style="margin-bottom:6px">CHECK DELIVERY</div>' +
     '<div class="pin-row"><input id="pinInput" inputmode="numeric" maxlength="6" placeholder="Enter pincode">' +
