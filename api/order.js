@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
     if (req.method !== 'POST') { res.status(405).send(JSON.stringify({ ok: false })); return; }
     const body = lib.parseJsonBody(req);
     const catalog = lib.loadCatalog();
-    const order = await lib.buildOrder(catalog, body.items, body.customer && body.customer.pincode, false, body.coupon);
+    const order = await lib.buildOrder(catalog, body.items, body.customer && body.customer.pincode, false, body.coupon, body.courier);
     if (order.error) { res.status(400).send(JSON.stringify({ ok: false, error: order.error })); return; }
     const vc = lib.validCustomer(body.customer);
     if (vc.error) { res.status(400).send(JSON.stringify({ ok: false, error: vc.error })); return; }
@@ -15,6 +15,7 @@ module.exports = async (req, res) => {
     const record = {
       orderId, payment: 'COD', status: 'confirmed',
       lines: order.lines, subtotal: order.subtotal, discount: order.discount, shipping: order.shipping,
+      courier: order.courier || '',
       couponCode: order.couponCode || '', couponDiscount: order.couponDiscount || 0,
       total: order.total, customer: vc.customer, createdAt: new Date().toISOString(),
     };

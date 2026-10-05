@@ -1,5 +1,7 @@
 // POST {pincode, paymentMode ('cod'|'prepaid'), subtotal?} ->
-// {ok, live, cost, etaDays, courier} — live NimbusPost rate, or flat fallback.
+// {ok, live, options:[{courier, cost, etaDays}]} — live NimbusPost courier choices,
+// cheapest-first. `cost/courier/etaDays` of the cheapest are also top-level for
+// backward compat. Falls back to a single flat-rate option when NimbusPost is down.
 const lib = require('./_lib');
 const nimbus = require('./_nimbus');
 
@@ -20,25 +22,28 @@ module.exports = async (req, res) => {
       return;
     }
 
-    // FREE shipping over ₹499 stays (store absorbs the courier cost).
+    // FREE shipping over ₹499 stays (store absorbs the courier cost, store picks courier).
     if (subtotal >= 499) {
-      res.status(200).send(JSON.stringify({ ok: true, live: false, cost: 0, etaDays: null, courier: '' }));
+      res.status(200).send(JSON.stringify({ ok: true, live: false, options: [], cost: 0, etaDays: null, courier: '' }));
       return;
     }
 
-    const live = await nimbus.getRate(pincode, paymentMode, subtotal);
-    if (live && live.cost > 0) {
+    const live = await nimbus.getRates(pincode, paymentMode, subtotal, 4);
+    if (live && live.length) {
       res.status(200).send(JSON.stringify({
-        ok: true, live: true, cost: live.cost, etaDays: live.etaDays, courier: live.courier,
+        ok: true, live: true, options: live,
+        cost: live[0].cost, etaDays: live[0].etaDays, courier: live[0].courier,
       }));
       return;
     }
 
-    // Fallback: old flat-rate table.
+    // Fallback: old flat-rate table as a single non-live option.
     const metro = /^(11|40|41|38|56|60|70|50)/.test(pincode);
+    const flat = metro ? 49 : 69;
     res.status(200).send(JSON.stringify({
-      ok: true, live: false, cost: metro ? 49 : 69,
-      etaDays: null, courier: '',
+      ok: true, live: false,
+      options: [{ courier: '', cost: flat, etaDays: null }],
+      cost: flat, etaDays: null, courier: '',
     }));
   } catch (e) {
     res.status(500).send(JSON.stringify({ ok: false, error: 'Server error.' }));

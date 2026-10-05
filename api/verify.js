@@ -119,6 +119,7 @@ module.exports = async (req, res) => {
     const record = {
       orderId: order.orderId, txnid, payment: 'prepaid', status: 'confirmed',
       lines: order.lines, subtotal: order.subtotal, discount: order.discount || 0, shipping: order.shipping,
+      courier: order.courier || '',
       couponCode: order.couponCode || '', couponDiscount: order.couponDiscount || 0,
       total: order.total, customer: order.customer, createdAt: new Date().toISOString(),
     };

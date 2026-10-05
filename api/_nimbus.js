@@ -69,9 +69,11 @@ function warehousePincode(wh) {
   return /^\d{6}$/.test(p) ? p : '';
 }
 
-// Live shipping rate for a delivery pincode.
-// paymentMode: 'cod' | 'prepaid'. Returns {cost (₹), etaDays, courier} or null.
-async function getRate(deliveryPincode, paymentMode, orderValue) {
+// Live shipping rates for a delivery pincode.
+// paymentMode: 'cod' | 'prepaid'.
+// Returns [{cost (₹), etaDays, courier}] sorted cheapest-first (de-duplicated by
+// courier name), or null when NimbusPost is unavailable. `limit` caps the list.
+async function getRates(deliveryPincode, paymentMode, orderValue, limit) {
   if (!configured()) return null;
   if (!/^\d{6}$/.test(deliveryPincode || '')) return null;
   const wh = await primaryWarehouse();
@@ -85,20 +87,32 @@ async function getRate(deliveryPincode, paymentMode, orderValue) {
     orderValuePaise: Math.round((orderValue || 0) * 100),
   });
   const avail = (data && data.available) || [];
-  let best = null;
+  const out = [];
   for (const c of avail) {
     const paise = c && c.result && c.result.totalPaise;
     if (!c || !c.courierId || !(paise > 0)) continue;
-    const rupees = Math.ceil(paise / 100);
-    if (!best || rupees < best.cost) {
-      best = {
-        cost: rupees,
-        etaDays: c.tatDays || null,
-        courier: c.courierDisplayName || c.courierName || '',
-      };
-    }
+    out.push({
+      cost: Math.ceil(paise / 100),
+      etaDays: c.tatDays || null,
+      courier: c.courierDisplayName || c.courierName || '',
+    });
   }
-  return best;
+  out.sort((a, b) => a.cost - b.cost);
+  const seen = {};
+  const deduped = out.filter((o) => {
+    const k = String(o.courier).toLowerCase();
+    if (!k || seen[k]) return false;
+    seen[k] = 1;
+    return true;
+  });
+  return deduped.slice(0, Math.max(1, limit || 4));
+}
+
+// Cheapest single rate (backward-compat wrapper over getRates).
+// paymentMode: 'cod' | 'prepaid'. Returns {cost (₹), etaDays, courier} or null.
+async function getRate(deliveryPincode, paymentMode, orderValue) {
+  const rates = await getRates(deliveryPincode, paymentMode, orderValue, 1);
+  return (rates && rates[0]) || null;
 }
 
 // Create a PENDING draft order in NimbusPost (no courier, no AWB, no wallet
@@ -145,4 +159,4 @@ async function createDraftOrder(order) {
   return (data && data.order_id) || null;
 }
 
-module.exports = { configured, getRate, createDraftOrder, primaryWarehouse };
+module.exports = { configured, getRate, getRates, createDraftOrder, primaryWarehouse };

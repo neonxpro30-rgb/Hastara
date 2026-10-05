@@ -519,6 +519,14 @@ footer a.f-link{display:block;color:#e9cfc0;text-decoration:none;font-size:14px;
 .pay-opt{display:flex;gap:12px;border:2px solid var(--line);border-radius:14px;padding:15px;margin-bottom:10px;
   background:#fff;align-items:flex-start;cursor:pointer}
 .pay-opt.sel{border-color:var(--maroon);background:#fff8f4}
+.cour-opt{display:flex;gap:12px;border:2px solid var(--line);border-radius:14px;padding:12px 15px;margin-bottom:8px;
+cursor:pointer;transition:border-color .15s}
+.cour-opt.sel{border-color:var(--maroon);background:#fff8f4}
+.cour-opt input{margin-top:3px;accent-color:var(--maroon);width:18px;height:18px}
+.cour-opt .pt{font-weight:700;font-size:14.5px}
+.cour-opt .pd{font-size:13px;color:var(--muted);margin-top:2px}
+.cbest{display:inline-block;background:#fdf0e4;color:#b3541e;font-size:10.5px;font-weight:800;
+padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:1px;letter-spacing:.3px}
 .pay-opt input{margin-top:3px;accent-color:var(--maroon);width:18px;height:18px}
 .pay-opt .pt{font-weight:700;font-size:15px}
 .pay-opt .pd{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.5}
@@ -745,11 +753,13 @@ function shipFor(sub, pin) {
     ? { cost: 49, eta: '3–5 days' }
     : { cost: 69, eta: '5–7 days' };
 }
-// Live NimbusPost rate (null = fall back to shipFor above).
-let liveRate = null; // { pin, cost, etaDays, courier, live }
+// Live NimbusPost courier options (null = fall back to shipFor above).
+let liveRate = null; // { pin, options:[{courier,cost,etaDays}], live }
+let shipChoice = ''; // chosen courier name ('' = cheapest option)
 let rateTimer = null;
+function escH(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 async function fetchLiveRate(pin, method) {
-  liveRate = null;
+  liveRate = null; shipChoice = '';
   if (!/^\d{6}$/.test(pin || '')) return;
   try {
     const r = await fetch('/api/shipping-rate', {
@@ -758,7 +768,10 @@ async function fetchLiveRate(pin, method) {
       body: JSON.stringify({ pincode: pin, paymentMode: method, subtotal: cartSubtotal() })
     });
     const j = await r.json();
-    if (j && j.ok) liveRate = { pin, cost: j.cost, etaDays: j.etaDays, courier: j.courier, live: !!j.live };
+    if (j && j.ok && j.options && j.options.length) {
+      liveRate = { pin, options: j.options, live: !!j.live };
+      shipChoice = j.options[0].courier || '';
+    }
   } catch (e) { liveRate = null; }
 }
 function liveEta(e) {
@@ -1210,17 +1223,19 @@ function coTotals(method) {
   const sub = cartSubtotal();
   const pinEl = $('#f_pin');
   const pin = pinEl ? pinEl.value.trim() : '';
-  let ship, eta;
-  if (liveRate && liveRate.pin === pin && /^\d{6}$/.test(pin)) {
-    ship = liveRate.cost;
-    eta = (liveEta(liveRate.etaDays) + (liveRate.courier ? ' · ' + liveRate.courier : '')).trim();
+  let ship, eta, courier = '';
+  const rateOpts = (liveRate && liveRate.pin === pin && /^\d{6}$/.test(pin)) ? liveRate.options : null;
+  if (rateOpts && rateOpts.length) {
+    const sel = rateOpts.filter((o) => o.courier === shipChoice)[0] || rateOpts[0];
+    ship = sel.cost; courier = sel.courier;
+    eta = (liveEta(sel.etaDays) + (sel.courier ? ' · ' + sel.courier : '')).trim();
   } else {
     const f = shipFor(sub, pin); ship = f.cost; eta = f.eta;
   }
   const disc = offerFor(cartCount());
   const perk = method === 'prepaid' ? PREPAID_PERK : 0;
   const cpn = COUPON ? COUPON.discount : 0;
-  return { sub, ship, eta, pin, disc, perk, cpn, total: Math.max(0, sub + ship - disc - cpn - perk) };
+  return { sub, ship, eta, pin, disc, perk, cpn, courier, total: Math.max(0, sub + ship - disc - cpn - perk) };
 }
 function openCheckout() {
   if (!cartCount()) { toast('Your bag is empty'); return; }
@@ -1243,6 +1258,7 @@ function openCheckout() {
     '<label class="pay-opt" data-m="prepaid"><input type="radio" name="pm"><div><div class="pt">⚡ Pay Online</div>' +
     '<div class="pd">UPI · Cards · NetBanking via PayU — 100% secure. <b>UPI recommended</b> — fastest checkout.</div>' +
     '<span class="perk">₹' + PREPAID_PERK + ' OFF prepaid perk applied</span></div></label>' +
+    '<div id="courierBox"></div>' +
     '<div class="co-sec">HAVE A COUPON CODE?</div><div id="cpnBox"></div>' +
     '<div class="co-sec">ORDER SUMMARY</div><div id="coLines"></div>';
   $('#coFoot').innerHTML = '<div id="coTot"></div><button class="checkout-btn" id="placeBtn">Place Order →</button>';
@@ -1250,6 +1266,22 @@ function openCheckout() {
   let method = 'cod';
   const paint = () => {
     const t = coTotals(method);
+    // Courier choice UI: show when 2+ live options are available.
+    const cOpts = (liveRate && liveRate.live && liveRate.pin === t.pin && /^\d{6}$/.test(t.pin)) ? liveRate.options : null;
+    if (cOpts && cOpts.length > 1) {
+      $('#courierBox').innerHTML = '<div class="co-sec">🚚 CHOOSE DELIVERY PARTNER</div>' + cOpts.map((o, i) =>
+        '<label class="cour-opt' + (o.courier === shipChoice ? ' sel' : '') + '" data-c="' + escH(o.courier) + '">' +
+        '<input type="radio" name="cour"' + (o.courier === shipChoice ? ' checked' : '') + '><div>' +
+        '<div class="pt">' + escH(o.courier) + (i === 0 ? '<span class="cbest">LOWEST PRICE</span>' : '') + '</div>' +
+        '<div class="pd">' + money(o.cost) + (o.etaDays ? ' · ~' + escH(liveEta(o.etaDays)) : '') + '</div>' +
+        '</div></label>'
+      ).join('');
+      $$('#courierBox .cour-opt').forEach((el) => el.addEventListener('click', () => {
+        if (shipChoice !== el.dataset.c) { shipChoice = el.dataset.c; paint(); }
+      }));
+    } else {
+      $('#courierBox').innerHTML = '';
+    }
     $('#coLines').innerHTML = coItems().map((it) => {
       const p = PRODUCTS.find((x) => x.id === it.id);
       return '<div class="order-line"><span>' + p.name + ' × ' + it.qty + '</span><span>' + money(p.price * it.qty) + '</span></div>';
@@ -1263,12 +1295,12 @@ function openCheckout() {
     $('#placeBtn').textContent = method === 'cod' ? 'Place COD Order →' : 'Pay ' + money(t.total) + ' →';
   };
   window._coPaint = paint; // coupon flows re-paint the summary through this
-  liveRate = null;
+  liveRate = null; shipChoice = '';
   paint(); renderCpnBox();
   const queueRate = (delay) => {
     clearTimeout(rateTimer);
     const pin = $('#f_pin').value.trim();
-    if (!/^\d{6}$/.test(pin)) { liveRate = null; return; }
+    if (!/^\d{6}$/.test(pin)) { liveRate = null; shipChoice = ''; return; }
     rateTimer = setTimeout(async () => { await fetchLiveRate(pin, method); paint(); }, delay);
   };
   $('#f_pin').addEventListener('input', () => { paint(); queueRate(600); });
@@ -1282,7 +1314,8 @@ function coError(m) { const e = $('#coErr'); e.textContent = m; e.classList.add(
 async function placeOrder(method) {
   const g = (id) => $('#' + id).value.trim();
   const customer = { firstname: g('f_name'), phone: g('f_phone'), email: g('f_email'), address: g('f_addr'), city: g('f_city'), state: g('f_state'), pincode: g('f_pin') };
-  const payload = { items: coItems(), customer, coupon: COUPON ? COUPON.code : '' };
+  const t = coTotals(method);
+  const payload = { items: coItems(), customer, coupon: COUPON ? COUPON.code : '', courier: t.courier || '' };
   const btn = $('#placeBtn'); btn.disabled = true; btn.textContent = 'Placing order…';
   try {
     if (method === 'cod') {

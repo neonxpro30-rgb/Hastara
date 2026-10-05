@@ -27,7 +27,9 @@ function isMetroPin(pin) {
 
 // Server-side totals: never trust client amounts.
 // Async because an optional coupon code is validated against Firestore.
-async function buildOrder(catalog, items, pincode, isPrepaid, couponCode) {
+// courierName: customer's chosen courier (validated against live NimbusPost
+// rates below); ignored when it doesn't match a live quote.
+async function buildOrder(catalog, items, pincode, isPrepaid, couponCode, courierName) {
   const lines = [];
   let subtotal = 0;
   for (const it of items || []) {
@@ -38,14 +40,30 @@ async function buildOrder(catalog, items, pincode, isPrepaid, couponCode) {
     subtotal += p.price * qty;
   }
   if (!lines.length) return { error: 'Your bag is empty.' };
-  // Zone-based shipping: FREE over ₹499; ₹49 metros / ₹69 rest of India below that.
-  const shipping = subtotal >= FREE_SHIP ? 0 : (isMetroPin(pincode) ? SHIP_METRO : SHIP_OTHER);
+  // Shipping: FREE over ₹499 (store absorbs the courier cost, store picks courier).
+  // Below that: use the customer's chosen live courier rate when it validates
+  // against NimbusPost; otherwise the cheapest live rate; otherwise flat fallback.
+  let shipping = 0, courier = '';
+  if (subtotal < FREE_SHIP) {
+    let liveOk = false;
+    try {
+      const nimbus = require('./_nimbus');
+      const rates = await nimbus.getRates(pincode, isPrepaid ? 'prepaid' : 'cod', subtotal, 4);
+      if (rates && rates.length) {
+        const want = String(courierName || '').trim().toLowerCase();
+        const match = want ? rates.filter((r) => String(r.courier).toLowerCase() === want)[0] : null;
+        const pick = match || rates[0];
+        shipping = pick.cost; courier = pick.courier; liveOk = true;
+      }
+    } catch (e) { /* fall through to flat rate */ }
+    if (!liveOk) shipping = isMetroPin(pincode) ? SHIP_METRO : SHIP_OTHER;
+  }
   // Tiered festive offer (mirrored in the storefront): 2 pairs -> ₹100 off, 3+ -> ₹200 off.
   const count = lines.reduce((a, l) => a + l.qty, 0);
   const discount = count >= 3 ? 200 : count >= 2 ? 100 : 0;
   // ₹40 prepaid perk (mirrored in the storefront): PayU/prepaid orders only, never COD.
   const perk = isPrepaid ? PREPAID_PERK : 0;
-  const order = { lines, subtotal, shipping, discount, perk, total: Math.max(0, subtotal + shipping - discount - perk) };
+  const order = { lines, subtotal, shipping, courier, discount, perk, total: Math.max(0, subtotal + shipping - discount - perk) };
   // Optional coupon code: validated + quoted server-side, stacks after the tier offer.
   if (couponCode) {
     const { applyCoupon } = require('./_coupons');
