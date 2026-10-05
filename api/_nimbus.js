@@ -38,6 +38,8 @@ async function api(method, path, body) {
       signal: ctl.signal,
     });
     const j = await r.json().catch(() => null);
+    // TEMP DEBUG: log raw NimbusPost responses.
+    if (path.indexOf('/v2/orders') === 0) console.log('[nimbus-draft] raw:', JSON.stringify(j).slice(0, 2000));
     if (!j || j.success !== true) return null;
     return j.data || null;
   } catch (e) {
@@ -155,7 +157,10 @@ async function createDraftOrder(order) {
     },
   };
   if (isCod) body.order_collectable_amount = Math.round(order.total || 0);
+  // TEMP DEBUG: log request + raw response to diagnose draft creation.
+  console.log('[nimbus-draft] request:', JSON.stringify(body).slice(0, 2000));
   const data = await api('POST', '/v2/orders', body);
+  console.log('[nimbus-draft] response data:', JSON.stringify(data).slice(0, 2000));
   return (data && data.order_id) || null;
 }
 
