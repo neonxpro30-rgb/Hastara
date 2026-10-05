@@ -129,7 +129,7 @@ module.exports = async (req, res) => {
     if (!nimbusDraftId) {
       try {
         nimbusDraftId = await require('./_nimbus').createDraftOrder({
-          orderId: order.orderId, payment: 'prepaid', total: order.total,
+          orderId: order.orderId, payment: 'prepaid', total: order.total, shipping: order.shipping,
           lines: order.lines, customer: order.customer,
         }) || '';
       } catch (e) { /* ignore — confirmation still succeeds */ }

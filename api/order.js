@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
     let nimbusDraftId = '';
     try {
       nimbusDraftId = await require('./_nimbus').createDraftOrder({
-        orderId, payment: 'COD', total: order.total,
+        orderId, payment: 'COD', total: order.total, shipping: order.shipping,
         lines: order.lines, customer: vc.customer,
       }) || '';
     } catch (e) { /* ignore — order still succeeds */ }
