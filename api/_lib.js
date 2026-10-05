@@ -170,4 +170,22 @@ function parseJsonBody(req) {
   return b || {};
 }
 
-module.exports = { loadCatalog, findProduct, buildOrder, validCustomer, orderId, saveOrder, parseJsonBody };
+// Fetch a single order document's raw Firestore fields (or null).
+// Used for idempotency checks, e.g. "was a NimbusPost draft already created?".
+async function getOrderFields(orderId) {
+  try {
+    const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+    if (!raw || !orderId) return null;
+    const sa = JSON.parse(raw);
+    if (!sa.client_email || !sa.private_key || !sa.project_id) return null;
+    const token = await _fsAccessToken(sa);
+    const url = 'https://firestore.googleapis.com/v1/projects/' + sa.project_id +
+      '/databases/(default)/documents/orders/' + encodeURIComponent(String(orderId));
+    const r = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return (j && j.fields) || null;
+  } catch (e) { return null; }
+}
+
+module.exports = { loadCatalog, findProduct, buildOrder, validCustomer, orderId, saveOrder, parseJsonBody, getOrderFields };

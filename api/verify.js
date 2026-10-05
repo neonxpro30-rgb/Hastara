@@ -116,10 +116,29 @@ module.exports = async (req, res) => {
       return;
     }
 
+    // Idempotency: if a draft was already created for this order (page refresh
+    // / PayU retry), don't create another one.
+    let nimbusDraftId = '';
+    try {
+      const existing = await lib.getOrderFields(order.orderId);
+      const prev = existing && existing.nimbusDraftId && existing.nimbusDraftId.stringValue;
+      if (prev) nimbusDraftId = prev;
+    } catch (e) { /* ignore */ }
+    // Auto-create a PENDING draft in NimbusPost so it shows up in the
+    // dashboard for review/booking. Best-effort: never fail the confirmation over this.
+    if (!nimbusDraftId) {
+      try {
+        nimbusDraftId = await require('./_nimbus').createDraftOrder({
+          orderId: order.orderId, payment: 'prepaid', total: order.total,
+          lines: order.lines, customer: order.customer,
+        }) || '';
+      } catch (e) { /* ignore — confirmation still succeeds */ }
+    }
+
     const record = {
       orderId: order.orderId, txnid, payment: 'prepaid', status: 'confirmed',
       lines: order.lines, subtotal: order.subtotal, discount: order.discount || 0, shipping: order.shipping,
-      courier: order.courier || '',
+      courier: order.courier || '', nimbusDraftId,
       couponCode: order.couponCode || '', couponDiscount: order.couponDiscount || 0,
       total: order.total, customer: order.customer, createdAt: new Date().toISOString(),
     };

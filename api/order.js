@@ -12,10 +12,19 @@ module.exports = async (req, res) => {
     if (vc.error) { res.status(400).send(JSON.stringify({ ok: false, error: vc.error })); return; }
 
     const orderId = lib.orderId('HSRC');
+    // Auto-create a PENDING draft in NimbusPost so it shows up in the
+    // dashboard for review/booking. Best-effort: never fail the order over this.
+    let nimbusDraftId = '';
+    try {
+      nimbusDraftId = await require('./_nimbus').createDraftOrder({
+        orderId, payment: 'COD', total: order.total,
+        lines: order.lines, customer: vc.customer,
+      }) || '';
+    } catch (e) { /* ignore — order still succeeds */ }
     const record = {
       orderId, payment: 'COD', status: 'confirmed',
       lines: order.lines, subtotal: order.subtotal, discount: order.discount, shipping: order.shipping,
-      courier: order.courier || '',
+      courier: order.courier || '', nimbusDraftId,
       couponCode: order.couponCode || '', couponDiscount: order.couponDiscount || 0,
       total: order.total, customer: vc.customer, createdAt: new Date().toISOString(),
     };
