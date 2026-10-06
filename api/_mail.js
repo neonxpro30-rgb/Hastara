@@ -59,8 +59,11 @@ const CSS = [
 ].join('');
 
 function shell(inner) {
-  return '<!doctype html><html><body style="' + CSS.split('body{')[1].split('}')[0] + '">'
-    + '<div class="wrap"><div class="card"><style>' + CSS + '</style>' + inner
+  // <style> MUST be in <head> — Gmail strips <style> tags placed inside <body>.
+  return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<style>' + CSS + '</style></head>'
+    + '<body style="margin:0;padding:0;background:#FFF8EF;">'
+    + '<div class="wrap"><div class="card">' + inner
     + '</div><div class="foot">Need help? Reply to this email or write to <b>support@hastara.shop</b><br>✦ HASTARA — Earrings with main-character energy ✦</div></div></body></html>';
 }
 
