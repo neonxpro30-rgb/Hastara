@@ -678,7 +678,7 @@ async function loadSettings() {
     const email = s.support_email || 'support@hastara.shop';
     const fc = $('#footContact');
     if (fc) fc.innerHTML = '✉️ ' + hesc(email) +
-      (s.whatsapp_number ? '<br>💬 <a class="f-link" style="display:inline" href="https://wa.me/' + encodeURIComponent(String(s.whatsapp_number)) + '?text=' + encodeURIComponent('Hi! I came from Hastara website. I want to grow my E-Commerce brand!') + '" target="_blank" rel="noopener">Chat on WhatsApp</a>' : '') +
+      (s.whatsapp_number ? '<br>💬 <a class="f-link" style="display:inline" href="https://wa.me/' + encodeURIComponent(String(s.whatsapp_number)) + '?text=' + encodeURIComponent('Hi! I need help from Hastara support.') + '" target="_blank" rel="noopener">Chat on WhatsApp</a>' : '') +
       '<br>📍 Mohanlalganj, Lucknow, Uttar Pradesh 226301, India';
     if (s.instagram_handle) {
       const fi = $('#footInsta');
@@ -754,7 +754,7 @@ function initStatic() {
     e.preventDefault(); toast('You\'re on the list! Watch your inbox ✦'); $('#newsEmail').value = '';
   });
   $('#waBtn').addEventListener('click', () => {
-    if (WHATSAPP_NUMBER) window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent('Hi! I came from Hastara website. I want to grow my E-Commerce brand!'), '_blank');
+    if (WHATSAPP_NUMBER) window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent('Hi! I need help from Hastara support.'), '_blank');
     else toast('WhatsApp support launching soon!');
   });
   $$('[data-policy]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); openPolicy(a.dataset.policy); }));
