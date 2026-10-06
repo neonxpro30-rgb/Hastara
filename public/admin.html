@@ -245,7 +245,9 @@ function orderRow(o){
   const st=o.status||'confirmed';
   const cour=o.courier||'';
   const nim=o.nimbusDraftId||'';
-  const shipInfo=(cour?'<br>🚚 '+esc(cour):'')+(nim?'<br><span style="color:#2e9e6b">● Nimbus pending</span>':'<br><span style="color:#a98f83">○ Nimbus not synced</span>');
+  const awb=o.awb||'';
+  const nstat=o.nimbusStatus||'';
+  const shipInfo=(cour?'<br>🚚 '+esc(cour):'')+(awb?'<br>📦 AWB: <b>'+esc(awb)+'</b>':'')+(nstat?'<br><span style="color:#2e9e6b;font-size:11px">'+esc(nstat)+'</span>':'')+(nim?'<br><span style="color:#2e9e6b">● Nimbus pending</span>':'<br><span style="color:#a98f83">○ Nimbus not synced</span>');
   return '<tr><td><b>'+esc(oid)+'</b><br><span style="color:#a98f83">'+esc(dt)+'</span><br><span class="pill">'+esc(paym)+'</span>'+shipInfo+'</td>'+
   '<td>'+esc(cn)+'<br>'+esc(cp)+'<br><span style="color:#a98f83">'+esc(ct)+'</span></td>'+
   '<td>'+items+'</td><td><b>₹'+esc(tot)+'</b></td>'+

@@ -143,6 +143,12 @@ module.exports = async (req, res) => {
       total: order.total, customer: order.customer, createdAt: new Date().toISOString(),
     };
     await lib.saveOrder(record);
+    // Order confirmation email — best-effort, never fail the confirmation over this.
+    try {
+      const mail = require('./_mail');
+      await mail.send(record.customer.email, 'Payment successful! Order ' + record.orderId + ' confirmed ✦',
+        mail.orderEmail(record));
+    } catch (e) { /* ignore */ }
     // Reserve the purchased units now that payment succeeded. If stock ran out
     // in the meantime (race), the order still stands — flag it for manual review.
     try {

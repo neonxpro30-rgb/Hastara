@@ -36,6 +36,12 @@ module.exports = async (req, res) => {
     if (order.couponCode) {
       try { await require('./_coupons').redeemCoupon(order.couponCode); } catch (e) { /* ignore */ }
     }
+    // Order confirmation email — best-effort, never fail the order over this.
+    try {
+      const mail = require('./_mail');
+      await mail.send(vc.customer.email, 'Order confirmed! Your jewels are being packed ✦ — ' + orderId,
+        mail.orderEmail(Object.assign({}, record, { payment: 'COD' })));
+    } catch (e) { /* ignore */ }
 
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.status(200).send(JSON.stringify({ ok: true, orderId, total: order.total, saved }));
