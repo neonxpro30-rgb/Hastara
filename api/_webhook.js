@@ -41,7 +41,7 @@ function mapStatus(raw) {
   return '';
 }
 
-module.exports = async (req, res) => {
+async function handleNimbusWebhook(req, res) {
   try {
     if (req.method !== 'POST') { res.status(405).send(JSON.stringify({ ok: false })); return; }
     // Shared-secret auth via query param.
@@ -99,4 +99,6 @@ module.exports = async (req, res) => {
   } catch (e) {
     res.status(200).send(JSON.stringify({ ok: true, note: 'error ignored' }));
   }
-};
+}
+
+module.exports = { handleNimbusWebhook };

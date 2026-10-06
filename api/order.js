@@ -1,8 +1,19 @@
 // COD orders: POST {items, customer} -> validate, create order, save, confirm.
+// Also handles the NimbusPost shipment webhook at POST ?hook=nimbus&key=SECRET
+// (merged here to stay under Vercel Hobby's 12-function limit).
 const lib = require('./_lib');
 
 module.exports = async (req, res) => {
   try {
+    // NimbusPost webhook delegation (see api/_webhook.js).
+    try {
+      const u = new URL(req.url || '', 'http://x');
+      if (u.searchParams.get('hook') === 'nimbus') {
+        const { handleNimbusWebhook } = require('./_webhook');
+        await handleNimbusWebhook(req, res);
+        return;
+      }
+    } catch (e) { /* fall through to normal order handling */ }
     if (req.method !== 'POST') { res.status(405).send(JSON.stringify({ ok: false })); return; }
     const body = lib.parseJsonBody(req);
     const catalog = lib.loadCatalog();
