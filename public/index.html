@@ -1040,7 +1040,7 @@ function renderBestsellers() {
 </script>
 <script>
 /* ---------- cart ---------- */
-function saveCart() { try { localStorage.setItem('hsr_cart', JSON.stringify(cart)); } catch (e) {} updateBagBadge(); }
+function saveCart() { localStorage.setItem('hsr_cart', JSON.stringify(cart)); updateBagBadge(); }
 function cartCount() { return Object.values(cart).reduce((a, b) => a + b, 0); }
 function cartSubtotal() {
   return Object.entries(cart).reduce((sum, [id, q]) => {
@@ -1069,7 +1069,7 @@ function toggleWish(id) {
   const i = wishlist.indexOf(id);
   if (i >= 0) { wishlist.splice(i, 1); toast('Removed from wishlist'); }
   else { wishlist.push(id); toast('Saved to wishlist ♥'); }
-  try { localStorage.setItem('hsr_wish', JSON.stringify(wishlist)); } catch (e) {}
+  localStorage.setItem('hsr_wish', JSON.stringify(wishlist));
   renderGrid(); renderBestsellers();
   if ($('#pdp').classList.contains('show') && window._pdpId === id) openPDP(id, true);
 }
@@ -1379,7 +1379,7 @@ function showSuccess(orderId, kind) {
 /* ---------- policies ---------- */
 const POLICIES = {
   shipping: ['Shipping Policy', '<p>We dispatch all orders within <b>24–48 hours</b>. Delivery takes <b>2–7 working days</b> depending on your pincode (metros 2–5 days, rest of India 4–7 days).</p><p><b>Shipping charges:</b> FREE on orders above ₹499. Below ₹499: <b>₹49</b> for metro pincodes (Delhi, Mumbai, Pune, Ahmedabad, Bangalore, Chennai, Kolkata, Hyderabad), <b>₹69</b> for the rest of India. Enter your pincode at checkout for exact charges.</p><p>You\'ll receive tracking details on email/SMS once your order ships.</p>'],
-  returns: ['Returns & Refunds', '<p><b>Replacement only for damaged, wrong, or lost items.</b></p><p>If your order arrives damaged, you receive the wrong item, or the package is lost in transit — contact us within 7 days of delivery with an unboxing video/photos. We\\'ll send a free replacement or refund you.</p><p>Prepaid orders are refunded to the source account within 5–7 working days. COD order refunds are made via bank transfer.</p><p>We do not offer change-of-mind returns (e.g. "didn\\'t like it"). Please check the photos and size details carefully before ordering.</p>'],
+  returns: ['Returns & Refunds', '<p><b>Replacement only for damaged, wrong, or lost items.</b></p><p>If your order arrives damaged, you receive the wrong item, or the package is lost in transit — contact us within 7 days of delivery with an unboxing video/photos. We\'ll send a free replacement or refund you.</p><p>Prepaid orders are refunded to the source account within 5–7 working days. COD order refunds are made via bank transfer.</p><p>We do not offer change-of-mind returns (e.g. "didn\'t like it"). Please check the photos and size details carefully before ordering.</p>'],
   privacy: ['Privacy Policy', '<p>We collect only what we need to fulfil your order — name, contact, and address. We never sell your data.</p><p>Payment details are processed securely by PayU; we never see or store your card/UPI credentials.</p>'],
   terms: ['Terms of Service', '<p>All earrings are fashion jewellery: gold/silver-plated alloy, nickel-free and anti-tarnish coated. They are not solid gold or silver.</p><p>Prices include all taxes. We reserve the right to cancel orders in case of pricing errors, with a full refund.</p>'],
   about: ['About Hastara ✦', '<p>Hastara was born from a simple obsession — earrings that make you feel like the main character without burning your wallet.</p><p>Every pair is nickel-free, anti-tarnish, and designed for the jewellery-maxxing era: stack them, mix them, own every room you walk into.</p><p>Designed in India. Made to be stacked. ✦</p>'],
