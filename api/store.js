@@ -54,24 +54,6 @@ async function handleCoupon(req, res) {
 
 
 
-async function handleTestMail(req, res) {
-  const mail = require('./_mail');
-  let to = 'neonxpro30@gmail.com';
-  try { to = new URL(req.url || '', 'http://x').searchParams.get('to') || to; } catch (e) {}
-  const sample = {
-    orderId: 'HSR-TEST-002', payment: 'cod', subtotal: 548, discount: 100,
-    couponDiscount: 0, couponCode: '', perk: 0, shipping: 0, total: 448,
-    customer: { firstname: 'Naksh', phone: '9999999999', address: 'Test Street 123',
-      city: 'Gurgaon', state: 'Haryana', pincode: '122001', email: to },
-    lines: [
-      { name: 'Butterfly Studs', qty: 1, price: 299 },
-      { name: 'Tups', qty: 1, price: 249 },
-    ],
-  };
-  const ok = await mail.send(to, '✦ Hastara — Order HSR-TEST-002 confirmed!', mail.orderEmail(sample));
-  json(res, 200, { sent: ok, to });
-}
-
 module.exports = async (req, res) => {
   try {
     let action = '';
@@ -79,7 +61,6 @@ module.exports = async (req, res) => {
     catch (e) { action = ''; }
     if (req.method === 'POST' && action === 'coupon') { await handleCoupon(req, res); return; }
     if (req.method === 'GET' && (action === 'settings' || action === '')) { await handleSettings(req, res); return; }
-    if (req.method === 'GET' && action === 'testmail') { await handleTestMail(req, res); return; }
     json(res, 405, { ok: false });
   } catch (e) {
     json(res, 500, { ok: false, error: 'Server error. Please try again.' });
