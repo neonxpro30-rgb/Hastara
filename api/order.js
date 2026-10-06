@@ -10,6 +10,9 @@ module.exports = async (req, res) => {
     if (order.error) { res.status(400).send(JSON.stringify({ ok: false, error: order.error })); return; }
     const vc = lib.validCustomer(body.customer);
     if (vc.error) { res.status(400).send(JSON.stringify({ ok: false, error: vc.error })); return; }
+    // Stock: block overselling, then reserve the units.
+    const sc = await lib.checkAndDecrementStock(order.lines);
+    if (sc.error) { res.status(400).send(JSON.stringify({ ok: false, error: sc.error })); return; }
 
     const orderId = lib.orderId('HSRC');
     // Auto-create a PENDING draft in NimbusPost so it shows up in the

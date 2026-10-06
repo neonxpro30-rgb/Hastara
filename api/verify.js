@@ -143,6 +143,15 @@ module.exports = async (req, res) => {
       total: order.total, customer: order.customer, createdAt: new Date().toISOString(),
     };
     await lib.saveOrder(record);
+    // Reserve the purchased units now that payment succeeded. If stock ran out
+    // in the meantime (race), the order still stands — flag it for manual review.
+    try {
+      const ds = await lib.decrementStock(record.lines);
+      if (ds.error) {
+        record.stockNote = ds.error;
+        await lib.saveOrder(record);
+      }
+    } catch (e) { /* never fail the confirmation over stock */ }
     // Redeem the coupon now that payment succeeded — never fail the confirmation over this.
     if (record.couponCode) {
       try { await require('./_coupons').redeemCoupon(record.couponCode); } catch (e) { /* ignore */ }

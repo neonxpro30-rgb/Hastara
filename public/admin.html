@@ -101,6 +101,7 @@ select.st{width:auto;min-width:130px;padding:8px}
         <div><label>Price ₹</label><input id="f_price" type="number" placeholder="365"></div>
         <div><label>MRP ₹ (compare at)</label><input id="f_compare" type="number" placeholder="499"></div>
         <div><label>Rating</label><input id="f_rating" type="number" step="0.1" placeholder="4.6"></div>
+        <div><label>Stock (units)</label><input id="f_stock" type="number" min="0" placeholder="3"></div>
       </div>
       <div class="row">
         <div><label>Category</label><input id="f_cat" placeholder="earrings"></div>
@@ -311,6 +312,7 @@ function openEdit(id){
   $('f_id').value=p.id||'';$('f_id').disabled=!!id;
   $('f_name').value=p.name||'';$('f_price').value=p.price||'';
   $('f_compare').value=p.compare_at||'';$('f_rating').value=p.rating||'';
+  $('f_stock').value=(p.stock===undefined||p.stock===null||p.stock==='')?'':p.stock;
   $('f_cat').value=p.category||'earrings';$('f_sku').value=p.sku||'';
   $('f_active').value=p.active===false?'0':'1';
   $('f_desc').value=p.description||'';$('f_mat').value=p.material||'';
@@ -350,6 +352,7 @@ $('saveBtn').onclick=async()=>{
     id:$('f_id').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'-'),
     name:$('f_name').value.trim(),price:+$('f_price').value||0,
     compare_at:+$('f_compare').value||0,rating:+$('f_rating').value||0,
+    stock:$('f_stock').value.trim()==='' ? undefined : Math.max(0,parseInt($('f_stock').value,10)||0),
     category:$('f_cat').value.trim()||'earrings',sku:$('f_sku').value.trim(),
     active:$('f_active').value==='1',description:$('f_desc').value.trim(),
     material:$('f_mat').value.trim(),dimensions:$('f_dim').value.trim(),

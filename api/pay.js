@@ -31,6 +31,9 @@ module.exports = async (req, res) => {
     if (order.error) { res.status(400).send(order.error); return; }
     const vc = lib.validCustomer(body.customer);
     if (vc.error) { res.status(400).send(vc.error); return; }
+    // Stock: fail fast before sending the customer to PayU.
+    const sc = await lib.checkStock(order.lines);
+    if (sc.error) { res.status(400).send(sc.error); return; }
 
     const orderId = lib.orderId('HSR');
     const txnid = orderId;

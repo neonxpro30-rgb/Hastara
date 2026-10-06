@@ -318,6 +318,9 @@ section{padding:56px 0}
 .bdg{font-size:10.5px;font-weight:800;letter-spacing:1px;padding:5px 10px;border-radius:999px;color:#fff}
 .bdg.off{background:var(--rose)}
 .bdg.tag{background:var(--maroon);transform:rotate(-3deg);box-shadow:0 3px 8px rgba(0,0,0,.2)}
+.bdg.low{background:#b45309;animation:pulse 1.6s infinite}
+.bdg.sold{background:#444}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 .heart{position:absolute;top:8px;right:8px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);
   font-size:17px;z-index:3;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .heart.loved{color:var(--rose)}
@@ -983,15 +986,27 @@ function cardHTML(p) {
   const loved = wishlist.includes(p.id) ? ' loved' : '';
   const heart = wishlist.includes(p.id) ? '♥' : '♡';
   const badges = (p.badges || []).map((b) => '<span class="bdg tag">' + b + '</span>').join('');
+  const st = stockOf(p);
+  const stockBadge = st === 0 ? '<span class="bdg sold">SOLD OUT</span>'
+    : (st <= 3 ? '<span class="bdg low">ONLY ' + st + ' LEFT!</span>' : '');
+  const addBtn = st === 0
+    ? '<button class="quick-add" disabled style="opacity:.45;cursor:not-allowed">SOLD OUT</button>'
+    : '<button class="quick-add" data-add="' + p.id + '">ADD TO BAG +</button>';
   return '<div class="card" data-id="' + p.id + '">' +
     '<div class="card-img" data-open="' + p.id + '"><img src="' + p.image + '" alt="' + p.name + '" loading="lazy">' +
-    '<div class="badges">' + (off ? '<span class="bdg off">' + off + '% OFF</span>' : '') + badges + '</div>' +
+    '<div class="badges">' + (off ? '<span class="bdg off">' + off + '% OFF</span>' : '') + stockBadge + badges + '</div>' +
     '<button class="heart' + loved + '" data-wish="' + p.id + '">' + heart + '</button></div>' +
     '<div class="card-body"><div class="card-name" data-open="' + p.id + '">' + p.name + '</div>' +
     '<div class="card-stars">★ ' + p.rating + ' <span>rated</span></div>' +
     '<div class="price-row"><span class="price">' + money(p.price) + '</span>' +
     (p.compare_at ? '<span class="mrp">' + money(p.compare_at) + '</span><span class="off-t">' + off + '% off</span>' : '') + '</div>' +
-    '<button class="quick-add" data-add="' + p.id + '">ADD TO BAG +</button></div></div>';
+    addBtn + '</div></div>';
+}
+
+// Units available; products without a stock value are untracked (ample).
+function stockOf(p) {
+  if (!p || p.stock === undefined || p.stock === null || p.stock === '') return 999;
+  const n = parseInt(p.stock, 10); return isNaN(n) ? 999 : Math.max(0, n);
 }
 
 function bindCards(root) {
@@ -1036,7 +1051,12 @@ function updateBagBadge() {
   el.style.display = n ? 'flex' : 'none'; el.textContent = n;
 }
 function addToBag(id, qty, btn) {
-  cart[id] = Math.min(10, (cart[id] || 0) + qty); saveCart(); renderCart();
+  const p = PRODUCTS.find((x) => x.id === id);
+  const st = stockOf(p);
+  const inBag = cart[id] || 0;
+  if (st === 0) { toast('Sorry, this just sold out ✦'); return; }
+  if (inBag + qty > st) { toast('Only ' + st + ' available — you already have ' + inBag + ' in your bag'); return; }
+  cart[id] = Math.min(10, inBag + qty); saveCart(); renderCart();
   if (btn) {
     const r = btn.getBoundingClientRect(); confettiBurst(r.left + r.width / 2, r.top);
     const old = btn.textContent; btn.textContent = 'ADDED ✓'; btn.classList.add('added');
@@ -1105,6 +1125,11 @@ function openPDP(id, keepScroll) {
   const related = PRODUCTS.filter((x) => x.id !== id && x.category === p.category)
     .concat(PRODUCTS.filter((x) => x.id !== id && x.category !== p.category)).slice(0, 3);
   const gallery = (p.images && p.images.length ? p.images : [p.image]);
+  const st = stockOf(p);
+  const stockLine = st === 0 ? '<div style="color:#b91c1c;font-weight:800;margin:8px 0">Sold out — check back soon ✦</div>'
+    : (st <= 5 ? '<div style="color:#b45309;font-weight:800;margin:8px 0">🔥 Only ' + st + ' left in stock — grab yours!</div>' : '');
+  const pdpAdd = st === 0 ? '' :
+    '<button data-sticky-add>ADD TO BAG</button>';
   $('#pdpScroll').innerHTML =
     '<div class="pdp-hero"><img id="pdpMain" src="' + gallery[0] + '" alt="' + p.name + '">' +
     '<button class="pdp-close" data-pdp-close>✕</button>' +
@@ -1117,7 +1142,7 @@ function openPDP(id, keepScroll) {
     '<div class="pdp-stars">★ ' + p.rating + ' <span>· customer rated</span></div>' +
     '<div class="pdp-price"><span class="price">' + money(p.price) + '</span>' +
     (p.compare_at ? '<span class="mrp">' + money(p.compare_at) + '</span><span class="off-t">' + off + '% off</span>' : '') + '</div>' +
-    '<div class="tax-note">Inclusive of all taxes</div>' +
+    '<div class="tax-note">Inclusive of all taxes</div>' + stockLine +
     '<ul class="hl"><li><i>✓</i> Anti-tarnish coated — stays shiny for ages</li>' +
     '<li><i>✓</i> 100% nickel-free — safe for sensitive ears</li>' +
     '<li><i>✓</i> Weight: ' + p.weight + ' · ' + p.dimensions + '</li></ul>' +
@@ -1150,8 +1175,9 @@ function openPDP(id, keepScroll) {
   $('#pinInput').addEventListener('keydown', (e) => e.key === 'Enter' && checkPin());
   // sticky ATC
   $('#stickyAtc').innerHTML = '<img src="' + p.image + '" alt=""><div class="sp"><div class="n">' + p.name +
-    '</div><div class="p">' + money(p.price) + '</div></div><button data-sticky-add>ADD TO BAG</button>';
-  $('#stickyAtc').querySelector('[data-sticky-add]').addEventListener('click', (e) => addToBag(id, 1, e.target));
+    '</div><div class="p">' + money(p.price) + '</div></div>' + pdpAdd;
+  const stickyBtn = $('#stickyAtc').querySelector('[data-sticky-add]');
+  if (stickyBtn) stickyBtn.addEventListener('click', (e) => addToBag(id, 1, e.target));
   sc.onscroll = () => $('#stickyAtc').classList.toggle('show', sc.scrollTop > 420);
 }
 function closePDP() { $('#pdp').classList.remove('show'); $('#stickyAtc').classList.remove('show'); document.body.style.overflow = ''; }

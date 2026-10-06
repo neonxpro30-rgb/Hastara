@@ -29,8 +29,14 @@ function cleanProduct(p) {
     badges: Array.isArray(p.badges) ? p.badges.map(String) : [],
     images: Array.isArray(p.images) ? p.images.map(String).filter(Boolean) : [],
     active: p.active !== false,
+    // Stock: units available. Missing/blank = untracked (treated as ample).
+    stock: (p.stock === undefined || p.stock === null || p.stock === '')
+      ? undefined
+      : Math.max(0, parseInt(p.stock, 10) || 0),
   };
   o.image = o.images[0] || String(p.image || '');
+  // Don't persist an undefined stock key — keeps old docs clean.
+  if (o.stock === undefined) delete o.stock;
   return o;
 }
 

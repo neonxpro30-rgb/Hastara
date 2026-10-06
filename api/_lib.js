@@ -170,6 +170,59 @@ function parseJsonBody(req) {
   return b || {};
 }
 
+// --- Stock management (Firestore `products` docs, `stock` integer field) ---
+// Products without a stock value are treated as untracked (ample stock).
+// Fail-open on infra errors: never block checkout because the stock system hiccuped;
+// only block when we positively know stock is insufficient.
+function _stockOf(doc) {
+  if (!doc || doc.stock === undefined || doc.stock === null || doc.stock === '') return 999;
+  const n = parseInt(doc.stock, 10);
+  return isNaN(n) ? 999 : Math.max(0, n);
+}
+
+async function checkStock(lines) {
+  try {
+    const fsdb = require('./_fs');
+    if (!fsdb.serviceAccount()) return { ok: true };
+    for (const l of lines || []) {
+      const doc = await fsdb.docGet('products', l.id);
+      const stock = _stockOf(doc);
+      if ((l.qty || 1) > stock) {
+        return { error: stock === 0
+          ? 'Sorry, ' + l.name + ' just sold out.'
+          : 'Only ' + stock + ' left of ' + l.name + ' — please lower the quantity.' };
+      }
+    }
+    return { ok: true };
+  } catch (e) { return { ok: true }; }
+}
+
+async function decrementStock(lines) {
+  try {
+    const fsdb = require('./_fs');
+    if (!fsdb.serviceAccount()) return { ok: true };
+    for (const l of lines || []) {
+      const doc = await fsdb.docGet('products', l.id);
+      if (!doc) continue;
+      const stock = _stockOf(doc);
+      if ((l.qty || 1) > stock) return { error: 'Insufficient stock for ' + l.name + '.' };
+      if (doc.stock === undefined || doc.stock === null || doc.stock === '') continue; // untracked
+      const upd = Object.assign({}, doc);
+      delete upd._id;
+      upd.stock = Math.max(0, stock - (l.qty || 1));
+      await fsdb.docSet('products', l.id, upd);
+    }
+    return { ok: true };
+  } catch (e) { return { ok: true }; }
+}
+
+// Check + decrement in one step (for COD, where the order is final immediately).
+async function checkAndDecrementStock(lines) {
+  const c = await checkStock(lines);
+  if (c.error) return c;
+  return decrementStock(lines);
+}
+
 // Fetch a single order document's raw Firestore fields (or null).
 // Used for idempotency checks, e.g. "was a NimbusPost draft already created?".
 async function getOrderFields(orderId) {
@@ -188,4 +241,4 @@ async function getOrderFields(orderId) {
   } catch (e) { return null; }
 }
 
-module.exports = { loadCatalog, findProduct, buildOrder, validCustomer, orderId, saveOrder, parseJsonBody, getOrderFields };
+module.exports = { loadCatalog, findProduct, buildOrder, validCustomer, orderId, saveOrder, parseJsonBody, getOrderFields, checkStock, decrementStock, checkAndDecrementStock };
