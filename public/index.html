@@ -792,8 +792,9 @@ function liveEta(e) {
 }
 
 let PRODUCTS = [];
-let cart = JSON.parse(localStorage.getItem('hsr_cart') || '{}');
-let wishlist = JSON.parse(localStorage.getItem('hsr_wish') || '[]');
+let cart = {}, wishlist = [];
+try { cart = JSON.parse(localStorage.getItem('hsr_cart') || '{}'); } catch (e) { cart = {}; }
+try { wishlist = JSON.parse(localStorage.getItem('hsr_wish') || '[]'); } catch (e) { wishlist = []; }
 let activeFilter = 'all';
 
 const $ = (s) => document.querySelector(s);
@@ -1039,7 +1040,7 @@ function renderBestsellers() {
 </script>
 <script>
 /* ---------- cart ---------- */
-function saveCart() { localStorage.setItem('hsr_cart', JSON.stringify(cart)); updateBagBadge(); }
+function saveCart() { try { localStorage.setItem('hsr_cart', JSON.stringify(cart)); } catch (e) {} updateBagBadge(); }
 function cartCount() { return Object.values(cart).reduce((a, b) => a + b, 0); }
 function cartSubtotal() {
   return Object.entries(cart).reduce((sum, [id, q]) => {
@@ -1068,7 +1069,7 @@ function toggleWish(id) {
   const i = wishlist.indexOf(id);
   if (i >= 0) { wishlist.splice(i, 1); toast('Removed from wishlist'); }
   else { wishlist.push(id); toast('Saved to wishlist ♥'); }
-  localStorage.setItem('hsr_wish', JSON.stringify(wishlist));
+  try { localStorage.setItem('hsr_wish', JSON.stringify(wishlist)); } catch (e) {}
   renderGrid(); renderBestsellers();
   if ($('#pdp').classList.contains('show') && window._pdpId === id) openPDP(id, true);
 }
@@ -1422,7 +1423,10 @@ function initEvents() {
   $$('[data-close-search]').forEach((b) => b.addEventListener('click', closeAll));
   document.addEventListener('keydown', (e) => e.key === 'Escape' && (closePDP(), closeAll()));
 }
-initStatic(); initEvents(); updateBagBadge(); loadProducts();
+try { initStatic(); } catch (e) {}
+try { initEvents(); } catch (e) {}
+try { updateBagBadge(); } catch (e) {}
+try { loadProducts(); } catch (e) { try { renderAll(); } catch (e2) {} }
 </script>
 </body>
 </html>
