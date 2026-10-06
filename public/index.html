@@ -464,10 +464,11 @@ footer a.f-link{display:block;color:#e9cfc0;text-decoration:none;font-size:14px;
 .pdp-thumbs img.on{border-color:var(--gold)}
 @media(min-width:900px){
   #pdpScroll{display:grid;grid-template-columns:minmax(0,540px) minmax(0,1fr);
-    grid-template-areas:"hero info" "thumbs info";column-gap:48px;
+    grid-template-areas:"left info";column-gap:48px;
     max-width:1180px;margin:0 auto;padding:40px 32px 130px;align-items:start;align-content:start}
-  .pdp-hero{grid-area:hero;max-width:none;margin:0}
-  .pdp-thumbs{grid-area:thumbs;max-width:none;margin:0;padding:12px 0 4px}
+  .pdp-left{grid-area:left;max-width:none;margin:0}
+  .pdp-hero{max-width:none;margin:0}
+  .pdp-thumbs{max-width:none;margin:0;padding:12px 0 4px}
   .pdp-info{grid-area:info;max-width:none;margin:0;padding:6px 0 0}
   .pdp-info .cards{grid-template-columns:repeat(2,1fr)}
 }
@@ -1137,13 +1138,13 @@ function openPDP(id, keepScroll) {
   const pdpAdd = st === 0 ? '' :
     '<button data-sticky-add>ADD TO BAG</button>';
   $('#pdpScroll').innerHTML =
-    '<div class="pdp-hero"><img id="pdpMain" src="' + gallery[0] + '" alt="' + p.name + '">' +
+    '<div class="pdp-left"><div class="pdp-hero"><img id="pdpMain" src="' + gallery[0] + '" alt="' + p.name + '">' +
     '<button class="pdp-close" data-pdp-close>✕</button>' +
     '<button class="pdp-heart' + (loved ? ' loved' : '') + '" data-pdp-wish>' + (loved ? '♥' : '♡') + '</button>' +
     '<div class="pdp-badges">' + (off ? '<span class="bdg off">' + off + '% OFF</span>' : '') +
     (p.badges || []).map((b) => '<span class="bdg tag">' + b + '</span>').join('') + '</div></div>' +
     (gallery.length > 1 ? '<div class="pdp-thumbs">' + gallery.map((g, i) =>
-      '<img src="' + g + '" data-thumb="' + i + '" class="' + (i === 0 ? 'on' : '') + '" alt="' + p.name + ' view ' + (i + 1) + '">').join('') + '</div>' : '') +
+      '<img src="' + g + '" data-thumb="' + i + '" class="' + (i === 0 ? 'on' : '') + '" alt="' + p.name + ' view ' + (i + 1) + '">').join('') + '</div>' : '') + '</div>' +
     '<div class="pdp-info"><h2>' + p.name + '</h2>' +
     '<div class="pdp-stars">★ ' + p.rating + ' <span>· customer rated</span></div>' +
     '<div class="pdp-price"><span class="price">' + money(p.price) + '</span>' +
