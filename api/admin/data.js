@@ -145,7 +145,10 @@ async function handleStatsReset(req, res) {
   let reset = 0;
   for (const d of days) {
     try {
-      await fsdb.docSet('stats_daily', d, { date: d, visits: 0, pdp_views: 0, bag_adds: 0 });
+      await fsdb.docSet('stats_daily', d, {
+        date: d, visits: 0, pdp_views: 0, bag_adds: 0,
+        engaged: 0, time_total: 0, time_n: 0, product_views: {},
+      });
       reset++;
     } catch (e) { /* keep going */ }
   }
@@ -182,7 +185,8 @@ async function handleStats(req, res) {
   const days = eachDay(from, to);
   const daily = {};
   days.forEach((d) => { daily[d] = { date: d, revenue: 0, orders: 0, units: 0, visits: 0 }; });
-  let visits = 0, pdp_views = 0, bag_adds = 0;
+  let visits = 0, pdp_views = 0, bag_adds = 0, engaged = 0, time_total = 0, time_n = 0;
+  const viewMap = {};
   for (const d of days) {
     try {
       const doc = await fsdb.docGet('stats_daily', d);
@@ -191,6 +195,13 @@ async function handleStats(req, res) {
         daily[d].visits = v; visits += v;
         pdp_views += Number(doc.pdp_views) || 0;
         bag_adds += Number(doc.bag_adds) || 0;
+        engaged += Number(doc.engaged) || 0;
+        time_total += Number(doc.time_total) || 0;
+        time_n += Number(doc.time_n) || 0;
+        const pv = doc.product_views || {};
+        for (const pid of Object.keys(pv)) {
+          viewMap[pid] = (viewMap[pid] || 0) + (Number(pv[pid]) || 0);
+        }
       }
     } catch (e) { /* missing day = zeros */ }
   }
@@ -220,15 +231,27 @@ async function handleStats(req, res) {
     }
   } catch (e) { /* orders read failed — return what we have */ }
   const top = Object.values(topMap).sort((a, b) => b.qty - a.qty).slice(0, 10);
+  // Most-viewed products: resolve names from the products collection.
+  const nameMap = {};
+  try {
+    const prods = await fsdb.colList('products', 200);
+    for (const p of prods) nameMap[String(p.id)] = String(p.name || p.id);
+  } catch (e) { /* names optional */ }
+  const topViewed = Object.keys(viewMap)
+    .map((pid) => ({ id: pid, name: nameMap[pid] || pid, views: viewMap[pid] }))
+    .sort((a, b) => b.views - a.views).slice(0, 10);
   const kpi = {
     revenue, orders, units,
     aov: orders ? Math.round(revenue / orders) : 0,
     visits, pdp_views, bag_adds,
     conversion: visits ? Math.round((orders / visits) * 1000) / 10 : 0,
+    engaged,
+    bounce: visits ? Math.round(((visits - engaged) / visits) * 1000) / 10 : 0,
+    avg_time: time_n ? Math.round(time_total / time_n) : 0,
   };
   admin.json(res, 200, {
     ok: true, from: days[0] || from, to: days[days.length - 1] || to,
-    kpi, daily: days.map((d) => daily[d]), top,
+    kpi, daily: days.map((d) => daily[d]), top, topViewed,
   });
 }
 

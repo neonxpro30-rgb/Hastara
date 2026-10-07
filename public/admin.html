@@ -116,6 +116,11 @@ select.st{width:auto;min-width:130px;padding:8px}
       <div id="topProds">Loading…</div>
       <p class="hint">Test orders and cancelled orders are excluded from all stats.</p>
     </div>
+    <div class="card">
+      <h3 style="color:#e8c766;margin-bottom:10px">Most viewed products</h3>
+      <div id="topViewed">Loading…</div>
+      <p class="hint">Which products visitors actually opened — bounce = visit with no product tap or bag add.</p>
+    </div>
   </div>
 
   <div id="paneOrders" class="hidden">
@@ -297,6 +302,7 @@ $('d_reset').onclick=async()=>{
   j.ok?(okm('Stats reset'),loadStats()):err('Reset failed');
 };
 function kpiCard(v,l){return '<div class="kpi"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>';}
+function fmtTime(s){s=Math.max(0,Math.round(s||0));if(s<60)return s+'s';var m=Math.floor(s/60);return m+'m '+(s%60)+'s';}
 function renderKPIs(k){
   $('kpis').innerHTML=
     kpiCard(inr(k.revenue),'REVENUE')+
@@ -305,6 +311,8 @@ function renderKPIs(k){
     kpiCard(k.visits,'SITE VISITS')+
     kpiCard(k.pdp_views,'PRODUCT TAPS')+
     kpiCard(k.bag_adds,'BAG ADDS')+
+    kpiCard(fmtTime(k.avg_time),'AVG TIME ON PAGE')+
+    kpiCard(k.bounce+'%','BOUNCE RATE')+
     kpiCard(k.conversion+'%','CONVERSION')+
     kpiCard(inr(k.aov),'AVG ORDER VALUE');
 }
@@ -351,11 +359,16 @@ function renderTop(top){
   $('topProds').innerHTML='<div class="tblwrap"><table><tr><th>Product</th><th>Units</th><th>Revenue</th></tr>'+
     top.map(t=>'<tr><td>'+esc(t.name)+'</td><td>'+t.qty+'</td><td><b>'+inr(t.revenue)+'</b></td></tr>').join('')+'</table></div>';
 }
+function renderViewed(tv){
+  if(!tv.length){$('topViewed').innerHTML='No product views in this range yet.';return;}
+  $('topViewed').innerHTML='<div class="tblwrap"><table><tr><th>Product</th><th>Views</th></tr>'+
+    tv.map(t=>'<tr><td>'+esc(t.name)+'</td><td><b>'+t.views+'</b></td></tr>').join('')+'</table></div>';
+}
 async function loadStats(){
   const t=istToday();
   const from=$('d_from').value||addDays(t,-6),to=$('d_to').value||t;
   $('kpis').textContent='Loading…';$('chRev').textContent='Loading…';
-  $('chTraf').textContent='Loading…';$('topProds').textContent='Loading…';
+  $('chTraf').textContent='Loading…';$('topProds').textContent='Loading…';$('topViewed').textContent='Loading…';
   try{
     const j=await api('/api/admin/data?resource=stats&from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to));
     if(!j.ok){err('Could not load stats');return;}
@@ -365,6 +378,7 @@ async function loadStats(){
     drawBars('chRev',j.daily.map(d=>({label:d.date.slice(5),value:d.revenue})),'#e8c766',v=>'₹'+v.toLocaleString('en-IN'));
     drawGrouped('chTraf',j.daily);
     renderTop(j.top||[]);
+    renderViewed(j.topViewed||[]);
   }catch(e){if(e.message!=='login')err('Could not load stats');}
 }
 

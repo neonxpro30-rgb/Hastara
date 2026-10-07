@@ -3,7 +3,10 @@
 // GET  /api/store?action=settings -> same as above
 // POST /api/store?action=coupon  -> {ok, code, discount} | {ok:false, error} (coupon quote)
 // POST /api/store?action=track   -> {ok:true} (public visit beacon; no auth)
-//   body {type:'visit'|'pdp'|'bag'} -> increments stats_daily/{YYYY-MM-DD} (IST)
+//   body {type:'visit'|'pdp'|'bag'|'engage'|'time', product?, seconds?}
+//   -> increments stats_daily/{YYYY-MM-DD} (IST). visit=once/session,
+//      pdp=+product id into product_views map, engage=once/session with any
+//      product interaction (for bounce rate), time=session seconds on pagehide.
 function istDay(d) {
   const t = d instanceof Date ? d : new Date(d);
   if (isNaN(t.getTime())) return '';
@@ -15,15 +18,35 @@ async function handleTrack(req, res) {
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
   body = body || {};
   const type = String(body.type || '');
-  const key = type === 'visit' ? 'visits' : type === 'pdp' ? 'pdp_views' : type === 'bag' ? 'bag_adds' : '';
-  if (!key) { json(res, 400, { ok: false }); return; }
+  const valid = type === 'visit' || type === 'pdp' || type === 'bag' || type === 'engage' || type === 'time';
+  if (!valid) { json(res, 400, { ok: false }); return; }
   try {
     const fsdb = require('./_fs');
     const day = istDay(new Date());
     const doc = (await fsdb.docGet('stats_daily', day)) || {};
     delete doc._id;
     doc.date = day;
-    doc[key] = (Number(doc[key]) || 0) + 1;
+    if (type === 'visit') {
+      doc.visits = (Number(doc.visits) || 0) + 1;
+    } else if (type === 'pdp') {
+      doc.pdp_views = (Number(doc.pdp_views) || 0) + 1;
+      const pid = String(body.product || '').slice(0, 60);
+      if (pid) {
+        const pv = (doc.product_views && typeof doc.product_views === 'object') ? doc.product_views : {};
+        pv[pid] = (Number(pv[pid]) || 0) + 1;
+        doc.product_views = pv;
+      }
+    } else if (type === 'bag') {
+      doc.bag_adds = (Number(doc.bag_adds) || 0) + 1;
+    } else if (type === 'engage') {
+      doc.engaged = (Number(doc.engaged) || 0) + 1;
+    } else if (type === 'time') {
+      const s = Math.min(7200, Math.max(0, parseInt(body.seconds, 10) || 0));
+      if (s >= 3) {
+        doc.time_total = (Number(doc.time_total) || 0) + s;
+        doc.time_n = (Number(doc.time_n) || 0) + 1;
+      }
+    }
     await fsdb.docSet('stats_daily', day, doc);
   } catch (e) { /* best-effort: never fail the storefront over analytics */ }
   json(res, 200, { ok: true });
