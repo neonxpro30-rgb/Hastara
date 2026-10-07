@@ -7,8 +7,9 @@
 const BASE = 'https://api-v2.nimbuspost.com';
 const TIMEOUT_MS = 8000;
 
-// Standard parcel for jewellery orders: ~500g chargeable, small box.
-const PARCEL = { weightG: 500, length: 15, width: 15, height: 10 };
+// Standard parcel for jewellery orders: box 18.5 x 13.5 x 10 cm, 100g
+// (measured 90g actual — Naksh 2026-10-07).
+const PARCEL = { weightG: 100, length: 18.5, width: 13.5, height: 10 };
 
 function apiSecret() {
   return process.env.NIMBUSPOST_API_SECRET || process.env.NIMBUSPOST_SECRET || '';
