@@ -52,6 +52,8 @@ module.exports = async (req, res) => {
       const mail = require('./_mail');
       await mail.send(vc.customer.email, 'Order confirmed! Your jewels are being packed ✦ — ' + orderId,
         mail.orderEmail(Object.assign({}, record, { payment: 'COD' })));
+      // Owner alert — best-effort, never fail the order over this.
+      await mail.sendOwnerAlert(record);
     } catch (e) { /* ignore */ }
 
     res.setHeader('Content-Type', 'application/json; charset=utf-8');

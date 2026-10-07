@@ -124,4 +124,35 @@ function shipEmail(o) {
   return shell(inner);
 }
 
-module.exports = { configured, send, orderEmail, shipEmail };
+// --- Owner alert: new order notification (sent to Naksh on every order) ---
+const OWNER_EMAIL = process.env.OWNER_EMAIL || 'neonxpro30@gmail.com';
+
+function ownerAlertEmail(o) {
+  const c = o.customer || {};
+  const lines = (o.lines || []).map((l) =>
+    '<div class="it">' +
+    '<div><div class="n">' + esc(l.name) + '</div><div class="q">Qty ' + l.qty + ' × ₹' + l.price + '</div></div>' +
+    '<div class="p">₹' + (l.price * l.qty) + '</div></div>').join('');
+  const inner =
+    '<div class="head"><div class="logo">✦ HASTARA ✦</div><h1>New order! 💰</h1><p>' +
+    (o.payment === 'prepaid' ? 'Prepaid — payment received' : 'Cash on Delivery') + '</p></div>' +
+    '<div class="body"><div class="oid">Order ' + esc(o.orderId) + '</div>' +
+    '<div class="items">' + lines + '</div>' + totalsHTML(o) +
+    '<div class="addr"><b>Customer</b><br>' + esc(c.firstname) + ' · ' + esc(c.phone) + '<br>' + esc(c.email || '') + '<br>' +
+    esc(c.address) + ', ' + esc(c.city) + ', ' + esc(c.state) + ' — ' + esc(c.pincode) + '</div>' +
+    (o.courier ? '<div class="next"><b>Chosen courier:</b> ' + esc(o.courier) + '</div>' : '') +
+    '<div class="next"><b>Action:</b> pack &amp; book from the <a href="https://www.hastara.shop/admin.html">admin panel</a>.</div>' +
+    '</div>';
+  return shell(inner);
+}
+
+async function sendOwnerAlert(o) {
+  if (!configured() || !o || !o.orderId) return false;
+  try {
+    return await send(OWNER_EMAIL,
+      '💰 New Hastara order ' + o.orderId + ' — ₹' + o.total + ' (' + (o.payment === 'prepaid' ? 'Prepaid' : 'COD') + ')',
+      ownerAlertEmail(o));
+  } catch (e) { return false; }
+}
+
+module.exports = { configured, send, orderEmail, shipEmail, ownerAlertEmail, sendOwnerAlert };

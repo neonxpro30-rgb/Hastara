@@ -148,6 +148,8 @@ module.exports = async (req, res) => {
       const mail = require('./_mail');
       await mail.send(record.customer.email, 'Payment successful! Order ' + record.orderId + ' confirmed ✦',
         mail.orderEmail(record));
+      // Owner alert — best-effort, never fail the confirmation over this.
+      await mail.sendOwnerAlert(record);
     } catch (e) { /* ignore */ }
     // Reserve the purchased units now that payment succeeded. If stock ran out
     // in the meantime (race), the order still stands — flag it for manual review.
