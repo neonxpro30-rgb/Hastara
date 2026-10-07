@@ -594,7 +594,7 @@ padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:1px;letter-spa
 <div class="toast" id="toast"></div>
 <script>
 /* ============ HASTARA v2 storefront ============ */
-let WHATSAPP_NUMBER = ''; // <-- Naksh: apna WhatsApp number yahan daalo, e.g. '919876543210' (Settings tab se bhi set hota hai)
+let WHATSAPP_NUMBER = '919554819859'; // bot number (Settings tab se override ho sakta hai)
 const FREE_SHIP = 499, SHIP_COST = 49, PREPAID_PERK = 40;
 // Pincode delivery zones (mirrored server-side in api/_lib.js).
 // Metros: Delhi 11, Mumbai 40, Pune 41, Ahmedabad 38, Bangalore 56, Chennai 60, Kolkata 70, Hyderabad 50.
@@ -678,7 +678,7 @@ async function loadSettings() {
     const email = s.support_email || 'support@hastara.shop';
     const fc = $('#footContact');
     if (fc) fc.innerHTML = '✉️ ' + hesc(email) +
-      (s.whatsapp_number ? '<br>💬 <a class="f-link" style="display:inline" href="https://wa.me/' + encodeURIComponent(String(s.whatsapp_number)) + '?text=' + encodeURIComponent('Hi! I need help from Hastara support. I want to grow my E-Commerce brand with Hastara!') + '" target="_blank" rel="noopener">Chat on WhatsApp</a>' : '') +
+      (WHATSAPP_NUMBER ? '<br>💬 <a class="f-link" style="display:inline" href="https://wa.me/' + encodeURIComponent(WHATSAPP_NUMBER) + '?text=' + encodeURIComponent('Hi! I need help from Hastara support. I want to grow my E-Commerce brand with Hastara!') + '" target="_blank" rel="noopener">Chat on WhatsApp</a>' : '') +
       '<br>📞 <a class="f-link" style="display:inline" href="tel:+919919170764">+91 99191 70764</a>' +
       '<br>📍 Mohanlalganj, Lucknow, Uttar Pradesh 226301, India';
     if (s.instagram_handle) {
