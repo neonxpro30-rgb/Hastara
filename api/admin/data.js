@@ -2,6 +2,7 @@
 // ?resource=products -> GET list, POST upsert {product}, DELETE ?id=
 // ?resource=coupons  -> GET list, POST upsert {coupon}, DELETE ?id=CODE
 // ?resource=settings -> GET, POST {settings}
+// ?resource=stats&from=YYYY-MM-DD&to=YYYY-MM-DD -> GET dashboard stats
 // Auth required for all.
 const admin = require('../_admin');
 const fsdb = require('../_fs');
@@ -131,6 +132,87 @@ async function handleSettings(req, res) {
   admin.json(res, 405, { ok: false });
 }
 
+/* ---------- stats ---------- */
+// GET ?resource=stats&from=YYYY-MM-DD&to=YYYY-MM-DD
+// Revenue/orders/units from the orders collection + visit counters from
+// stats_daily/{YYYY-MM-DD} (written by POST /api/store?action=track).
+// Cancelled orders and test orders (customer name contains "test") are excluded.
+const TEST_NAME = /\btest\b/i;
+function istDay(d) {
+  const t = d instanceof Date ? d : new Date(d);
+  if (isNaN(t.getTime())) return '';
+  return new Date(t.getTime() + (330 + t.getTimezoneOffset()) * 60000).toISOString().slice(0, 10);
+}
+function validDay(s) { return /^\d{4}-\d{2}-\d{2}$/.test(String(s || '')) ? String(s) : ''; }
+function eachDay(from, to) {
+  const out = [];
+  let d = new Date(from + 'T00:00:00Z');
+  const end = new Date(to + 'T00:00:00Z');
+  while (d <= end && out.length < 93) {
+    out.push(d.toISOString().slice(0, 10));
+    d = new Date(d.getTime() + 86400000);
+  }
+  return out;
+}
+async function handleStats(req, res) {
+  if (req.method !== 'GET') { admin.json(res, 405, { ok: false }); return; }
+  const today = istDay(new Date());
+  let from = validDay(queryParam(req, 'from')) || istDay(new Date(Date.now() - 6 * 86400000));
+  let to = validDay(queryParam(req, 'to')) || today;
+  if (from > to) { const t = from; from = to; to = t; }
+  const days = eachDay(from, to);
+  const daily = {};
+  days.forEach((d) => { daily[d] = { date: d, revenue: 0, orders: 0, units: 0, visits: 0 }; });
+  let visits = 0, pdp_views = 0, bag_adds = 0;
+  for (const d of days) {
+    try {
+      const doc = await fsdb.docGet('stats_daily', d);
+      if (doc) {
+        const v = Number(doc.visits) || 0;
+        daily[d].visits = v; visits += v;
+        pdp_views += Number(doc.pdp_views) || 0;
+        bag_adds += Number(doc.bag_adds) || 0;
+      }
+    } catch (e) { /* missing day = zeros */ }
+  }
+  let revenue = 0, orders = 0, units = 0;
+  const topMap = {};
+  try {
+    const all = await fsdb.colList('orders', 1000);
+    for (const o of all) {
+      if (String(o.status || '') === 'cancelled') continue;
+      const c = o.customer || {};
+      if (TEST_NAME.test(String(c.name || c.firstname || ''))) continue;
+      const day = istDay(o.createdAt);
+      if (!daily[day]) continue;
+      const tot = Number(o.total) || 0;
+      revenue += tot; orders += 1;
+      daily[day].revenue += tot; daily[day].orders += 1;
+      const lns = Array.isArray(o.lines) ? o.lines : [];
+      for (const l of lns) {
+        const q = Number(l.qty || l.quantity) || 0;
+        if (q <= 0) continue;
+        units += q; daily[day].units += q;
+        const pid = String(l.id || l.sku || l.name || 'item');
+        if (!topMap[pid]) topMap[pid] = { id: pid, name: String(l.name || l.title || pid), qty: 0, revenue: 0 };
+        topMap[pid].qty += q;
+        topMap[pid].revenue += (Number(l.price) || 0) * q;
+      }
+    }
+  } catch (e) { /* orders read failed — return what we have */ }
+  const top = Object.values(topMap).sort((a, b) => b.qty - a.qty).slice(0, 10);
+  const kpi = {
+    revenue, orders, units,
+    aov: orders ? Math.round(revenue / orders) : 0,
+    visits, pdp_views, bag_adds,
+    conversion: visits ? Math.round((orders / visits) * 1000) / 10 : 0,
+  };
+  admin.json(res, 200, {
+    ok: true, from: days[0] || from, to: days[days.length - 1] || to,
+    kpi, daily: days.map((d) => daily[d]), top,
+  });
+}
+
 module.exports = async (req, res) => {
   try {
     if (!admin.requireAuth(req, res)) return;
@@ -138,6 +220,7 @@ module.exports = async (req, res) => {
     if (resource === 'products') { await handleProducts(req, res); return; }
     if (resource === 'coupons') { await handleCoupons(req, res); return; }
     if (resource === 'settings') { await handleSettings(req, res); return; }
+    if (resource === 'stats') { await handleStats(req, res); return; }
     admin.json(res, 400, { ok: false, error: 'unknown resource' });
   } catch (e) { admin.json(res, 500, { ok: false, error: 'server error' }); }
 };

@@ -958,6 +958,7 @@ function addToBag(id, qty, btn) {
   if (st === 0) { toast('Sorry, this just sold out ✦'); return; }
   if (inBag + qty > st) { toast('Only ' + st + ' available — you already have ' + inBag + ' in your bag'); return; }
   cart[id] = Math.min(10, inBag + qty); saveCart(); renderCart();
+  try{track('bag');}catch(e){}
   if (btn) {
     const r = btn.getBoundingClientRect(); confettiBurst(r.left + r.width / 2, r.top);
     const old = btn.textContent; btn.textContent = 'ADDED ✓'; btn.classList.add('added');
@@ -1019,6 +1020,7 @@ function renderCart() {
 
 /* ---------- product detail (PDP) ---------- */
 function openPDP(id, keepScroll) {
+  try{track('pdp');}catch(e){}
   const p = PRODUCTS.find((x) => x.id === id); if (!p) return;
   window._pdpId = id;
   const off = offPct(p);
@@ -1324,6 +1326,9 @@ function initEvents() {
   document.addEventListener('keydown', (e) => e.key === 'Escape' && (closePDP(), closeAll()));
 }
 try { initStatic(); } catch (e) {}
+/* lightweight analytics beacon -> POST /api/store?action=track (visit once per session) */
+function track(t){try{fetch('/api/store?action=track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:t}),keepalive:true});}catch(e){}}
+try{if(!sessionStorage.getItem('hs_v')){sessionStorage.setItem('hs_v','1');track('visit');}}catch(e){}
 try { initEvents(); } catch (e) {}
 try { updateBagBadge(); } catch (e) {}
 try { loadProducts(); } catch (e) { try { renderAll(); } catch (e2) {} }

@@ -2,6 +2,32 @@
 // GET  /api/store                -> {ok, settings}  (public store settings)
 // GET  /api/store?action=settings -> same as above
 // POST /api/store?action=coupon  -> {ok, code, discount} | {ok:false, error} (coupon quote)
+// POST /api/store?action=track   -> {ok:true} (public visit beacon; no auth)
+//   body {type:'visit'|'pdp'|'bag'} -> increments stats_daily/{YYYY-MM-DD} (IST)
+function istDay(d) {
+  const t = d instanceof Date ? d : new Date(d);
+  if (isNaN(t.getTime())) return '';
+  return new Date(t.getTime() + (330 + t.getTimezoneOffset()) * 60000).toISOString().slice(0, 10);
+}
+
+async function handleTrack(req, res) {
+  let body = req.body;
+  if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
+  body = body || {};
+  const type = String(body.type || '');
+  const key = type === 'visit' ? 'visits' : type === 'pdp' ? 'pdp_views' : type === 'bag' ? 'bag_adds' : '';
+  if (!key) { json(res, 400, { ok: false }); return; }
+  try {
+    const fsdb = require('./_fs');
+    const day = istDay(new Date());
+    const doc = (await fsdb.docGet('stats_daily', day)) || {};
+    delete doc._id;
+    doc.date = day;
+    doc[key] = (Number(doc[key]) || 0) + 1;
+    await fsdb.docSet('stats_daily', day, doc);
+  } catch (e) { /* best-effort: never fail the storefront over analytics */ }
+  json(res, 200, { ok: true });
+}
 const { getCoupon, quoteCoupon } = require('./_coupons');
 
 const DEFAULTS = {
@@ -60,6 +86,7 @@ module.exports = async (req, res) => {
     try { action = new URL(req.url || '', 'http://x').searchParams.get('action') || ''; }
     catch (e) { action = ''; }
     if (req.method === 'POST' && action === 'coupon') { await handleCoupon(req, res); return; }
+    if (req.method === 'POST' && action === 'track') { await handleTrack(req, res); return; }
     if (req.method === 'GET' && (action === 'settings' || action === '')) { await handleSettings(req, res); return; }
     json(res, 405, { ok: false });
   } catch (e) {

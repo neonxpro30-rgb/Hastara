@@ -44,6 +44,17 @@ select.st{width:auto;min-width:130px;padding:8px}
 #loginBox{max-width:380px;margin:80px auto}
 .hidden{display:none!important}
 .hint{font-size:12px;color:#a98f83;margin-top:6px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{background:#241419;border:1px solid #3a222b;border-radius:12px;padding:14px}
+.kpi .v{font-size:22px;font-weight:800;color:#e8c766}
+.kpi .l{font-size:11px;color:#a98f83;letter-spacing:.5px;margin-top:4px}
+.daterow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.daterow input{width:auto;margin:0}
+.daterow button{padding:10px 14px}
+.chart h4{color:#e8c766;font-size:13px;margin-bottom:10px}
+.legend{font-size:12px;color:#a98f83;margin-bottom:8px}
+.legend span{display:inline-block;width:10px;height:10px;border-radius:3px;margin:0 6px 0 14px}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -70,15 +81,48 @@ select.st{width:auto;min-width:130px;padding:8px}
   <div class="okmsg" id="okmsg"></div>
 
   <div class="tabs">
-    <button id="tabOrders" class="on">Orders</button>
+    <button id="tabDashboard" class="on">Dashboard</button>
+    <button id="tabOrders">Orders</button>
     <button id="tabProducts">Products</button>
     <button id="tabCoupons">Coupons</button>
     <button id="tabSettings">Settings</button>
   </div>
 
-  <div id="paneOrders">
+  <div id="paneDashboard">
     <div class="card">
-      <input id="ordSearch" placeholder="🔍 Search by order id, name or phone…" style="margin-bottom:10px">
+      <div class="daterow">
+        <button class="ghost" data-range="today">Today</button>
+        <button class="ghost" data-range="7">Last 7 days</button>
+        <button class="ghost" data-range="30">Last 30 days</button>
+        <input type="date" id="d_from">
+        <span style="color:#a98f83">→</span>
+        <input type="date" id="d_to">
+        <button id="d_apply">Apply</button>
+      </div>
+      <div class="kpis" id="kpis">Loading…</div>
+    </div>
+    <div class="card chart">
+      <h4>Revenue per day (₹)</h4>
+      <div id="chRev">Loading…</div>
+    </div>
+    <div class="card chart">
+      <h4>Visits vs Orders per day</h4>
+      <div class="legend"><span style="background:#e8c766"></span>Visits<span style="background:#2e9e6b"></span>Orders</div>
+      <div id="chTraf">Loading…</div>
+    </div>
+    <div class="card">
+      <h3 style="color:#e8c766;margin-bottom:10px">Top products</h3>
+      <div id="topProds">Loading…</div>
+      <p class="hint">Test orders and cancelled orders are excluded from all stats.</p>
+    </div>
+  </div>
+
+  <div id="paneOrders" class="hidden">
+    <div class="card">
+      <div class="row" style="align-items:center;margin-bottom:10px">
+        <div><input id="ordSearch" placeholder="🔍 Search by order id, name or phone…"></div>
+        <div style="flex:0"><button class="ghost" id="ordRefresh">↻ Refresh</button></div>
+      </div>
       <div id="ordersList">Loading…</div>
     </div>
   </div>
@@ -201,6 +245,8 @@ function showDash(){$('loginBox').classList.add('hidden');$('dash').classList.re
 function err(m){const e=$('err');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',4000);}
 function okm(m){const e=$('okmsg');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',3000);}
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* Cloudinary thumbnail: 160px-wide version for the small admin list images */
+const thumb=u=>String(u||'').replace('/image/upload/','/image/upload/w_160,q_auto,f_auto/');
 
 /* login */
 $('loginBtn').onclick=doLogin;
@@ -209,14 +255,17 @@ async function doLogin(){
   $('loginBtn').disabled=true;
   try{
     const j=await api('/api/admin/login','POST',{password:$('pw').value});
-    if(j.ok){$('pw').value='';$('loginErr').style.display='none';showDash();await boot();}
+    if(j.ok){$('pw').value='';$('loginErr').style.display='none';showDash();
+      try{const o=await api('/api/admin/orders');if(o.ok){STATUSES=o.statuses||STATUSES;ORDERS=o.orders||[];ORDERS_LOADED=true;}}catch(e2){}
+      await boot();}
     else $('loginErr').style.display='block';
   }catch(e){if(e.message!=='login')$('loginErr').style.display='block';}
   $('loginBtn').disabled=false;
 }
 
 /* tabs */
-const TABS=['Orders','Products','Coupons','Settings'];
+const TABS=['Dashboard','Orders','Products','Coupons','Settings'];
+$('tabDashboard').onclick=()=>{setTab('Dashboard');loadStats();};
 $('tabOrders').onclick=()=>{setTab('Orders');loadOrders();};
 $('tabProducts').onclick=()=>{setTab('Products');loadProducts();};
 $('tabCoupons').onclick=()=>{setTab('Coupons');loadCoupons();};
@@ -228,8 +277,92 @@ function setTab(t){
   });
 }
 
+/* dashboard */
+const inr=n=>'₹'+(Math.round(Number(n)||0)).toLocaleString('en-IN');
+function istToday(){const d=new Date(Date.now()+(330+new Date().getTimezoneOffset())*60000);return d.toISOString().slice(0,10);}
+function addDays(ds,n){return new Date(new Date(ds+'T00:00:00Z').getTime()+n*86400000).toISOString().slice(0,10);}
+function setRangeUI(from,to){$('d_from').value=from;$('d_to').value=to;}
+document.querySelectorAll('[data-range]').forEach(b=>b.onclick=()=>{
+  const t=istToday(),r=b.dataset.range;
+  if(r==='today')setRangeUI(t,t);else setRangeUI(addDays(t,-(parseInt(r,10)-1)),t);
+  loadStats();
+});
+$('d_apply').onclick=()=>loadStats();
+function kpiCard(v,l){return '<div class="kpi"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>';}
+function renderKPIs(k){
+  $('kpis').innerHTML=
+    kpiCard(inr(k.revenue),'REVENUE')+
+    kpiCard(k.orders,'ORDERS')+
+    kpiCard(k.units,'UNITS SOLD')+
+    kpiCard(k.visits,'SITE VISITS')+
+    kpiCard(k.pdp_views,'PRODUCT TAPS')+
+    kpiCard(k.bag_adds,'BAG ADDS')+
+    kpiCard(k.conversion+'%','CONVERSION')+
+    kpiCard(inr(k.aov),'AVG ORDER VALUE');
+}
+function drawBars(elId,items,color,fmt){
+  const el=$(elId),W=620,H=230,padL=56,padB=34,padT=14;
+  const max=Math.max(1,...items.map(i=>i.value));
+  const n=items.length||1,bw=(W-padL-10)/n;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">';
+  for(let g=0;g<=4;g++){
+    const y=padT+(H-padT-padB)*g/4,val=Math.round(max*(1-g/4));
+    s+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-8)+'" y2="'+y+'" stroke="#3a222b"/>'+
+       '<text x="'+(padL-6)+'" y="'+(y+4)+'" fill="#a98f83" font-size="10" text-anchor="end">'+fmt(val)+'</text>';
+  }
+  const step=Math.max(1,Math.ceil(n/12));
+  items.forEach((it,i)=>{
+    const h=(H-padT-padB)*it.value/max,x=padL+i*bw+bw*0.2,y=H-padB-h;
+    s+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(bw*0.6).toFixed(1)+'" height="'+Math.max(h,2).toFixed(1)+'" rx="3" fill="'+color+'"><title>'+it.label+': '+fmt(it.value)+'</title></rect>';
+    if(i%step===0)s+='<text x="'+(x+bw*0.3).toFixed(1)+'" y="'+(H-12)+'" fill="#a98f83" font-size="10" text-anchor="middle">'+it.label+'</text>';
+  });
+  el.innerHTML=s+'</svg>';
+}
+function drawGrouped(elId,days){
+  const el=$(elId),W=620,H=230,padL=44,padB=34,padT=14;
+  const max=Math.max(1,...days.map(d=>d.visits));
+  const n=days.length||1,bw=(W-padL-10)/n;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">';
+  for(let g=0;g<=4;g++){
+    const y=padT+(H-padT-padB)*g/4,val=Math.round(max*(1-g/4));
+    s+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-8)+'" y2="'+y+'" stroke="#3a222b"/>'+
+       '<text x="'+(padL-6)+'" y="'+(y+4)+'" fill="#a98f83" font-size="10" text-anchor="end">'+val+'</text>';
+  }
+  const step=Math.max(1,Math.ceil(n/12));
+  days.forEach((d,i)=>{
+    const x=padL+i*bw+bw*0.15,w2=bw*0.7/2;
+    const hv=(H-padT-padB)*d.visits/max,ho=(H-padT-padB)*d.orders/max;
+    s+='<rect x="'+x.toFixed(1)+'" y="'+(H-padB-hv).toFixed(1)+'" width="'+w2.toFixed(1)+'" height="'+Math.max(hv,2).toFixed(1)+'" rx="2" fill="#e8c766"><title>'+d.date+': '+d.visits+' visits</title></rect>';
+    s+='<rect x="'+(x+w2).toFixed(1)+'" y="'+(H-padB-ho).toFixed(1)+'" width="'+w2.toFixed(1)+'" height="'+Math.max(ho,2).toFixed(1)+'" rx="2" fill="#2e9e6b"><title>'+d.date+': '+d.orders+' orders</title></rect>';
+    if(i%step===0)s+='<text x="'+(x+bw*0.35).toFixed(1)+'" y="'+(H-12)+'" fill="#a98f83" font-size="10" text-anchor="middle">'+d.date.slice(5)+'</text>';
+  });
+  el.innerHTML=s+'</svg>';
+}
+function renderTop(top){
+  if(!top.length){$('topProds').innerHTML='No sales in this range yet.';return;}
+  $('topProds').innerHTML='<div class="tblwrap"><table><tr><th>Product</th><th>Units</th><th>Revenue</th></tr>'+
+    top.map(t=>'<tr><td>'+esc(t.name)+'</td><td>'+t.qty+'</td><td><b>'+inr(t.revenue)+'</b></td></tr>').join('')+'</table></div>';
+}
+async function loadStats(){
+  const t=istToday();
+  const from=$('d_from').value||addDays(t,-6),to=$('d_to').value||t;
+  $('kpis').textContent='Loading…';$('chRev').textContent='Loading…';
+  $('chTraf').textContent='Loading…';$('topProds').textContent='Loading…';
+  try{
+    const j=await api('/api/admin/data?resource=stats&from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to));
+    if(!j.ok){err('Could not load stats');return;}
+    setRangeUI(j.from,j.to);
+    $('dashSub').textContent='Stats · '+j.from+' → '+j.to;
+    renderKPIs(j.kpi);
+    drawBars('chRev',j.daily.map(d=>({label:d.date.slice(5),value:d.revenue})),'#e8c766',v=>'₹'+v.toLocaleString('en-IN'));
+    drawGrouped('chTraf',j.daily);
+    renderTop(j.top||[]);
+  }catch(e){if(e.message!=='login')err('Could not load stats');}
+}
+
 /* orders */
 let ORDERS=[];
+let ORDERS_LOADED=false;
 function orderRow(o){
   const did=o._id||o.orderId||o.id||'';
   const oid=o.orderId||o.id||o._id||'—';
@@ -271,17 +404,20 @@ function renderOrders(){
     j2.ok?okm('Status updated'):err('Update failed');
   });
 }
-async function loadOrders(){
+async function loadOrders(force){
+  if(ORDERS_LOADED&&!force){renderOrders();return;}
   $('ordersList').textContent='Loading…';
   try{
     const j=await api('/api/admin/orders');
     if(!j.ok){err('Could not load orders');return;}
     STATUSES=j.statuses||STATUSES;
     ORDERS=j.orders||[];
+    ORDERS_LOADED=true;
     renderOrders();
   }catch(e){if(e.message!=='login')err('Could not load orders');}
 }
 $('ordSearch').addEventListener('input',renderOrders);
+$('ordRefresh').onclick=()=>loadOrders(true);
 
 /* products */
 async function loadProducts(){
@@ -293,7 +429,7 @@ async function loadProducts(){
     if(!PRODUCTS.length){$('prodList').innerHTML='No products in Firestore yet. Hit “↻ Seed products from site”.';return;}
     $('prodList').innerHTML=PRODUCTS.map(p=>{
       const did=p._id||p.id||'';
-      return '<div class="prod"><img src="'+esc(p.image||'')+'" loading="lazy"><div style="flex:1"><div class="nm">'+esc(p.name||'(unnamed)')+'</div><div class="pr">₹'+esc(p.price||0)+'</div><div style="font-size:12px;color:#a98f83">'+esc(p.id||did)+(p.active?'':' · HIDDEN')+'</div></div><button class="ghost" data-edit="'+esc(p.id||'')+'">Edit</button> <button class="danger" data-pdel="'+esc(did)+'">Delete</button></div>';
+      return '<div class="prod"><img src="'+esc(thumb(p.image||''))+'" loading="lazy"><div style="flex:1"><div class="nm">'+esc(p.name||'(unnamed)')+'</div><div class="pr">₹'+esc(p.price||0)+'</div><div style="font-size:12px;color:#a98f83">'+esc(p.id||did)+(p.active?'':' · HIDDEN')+'</div></div><button class="ghost" data-edit="'+esc(p.id||'')+'">Edit</button> <button class="danger" data-pdel="'+esc(did)+'">Delete</button></div>';
     }).join('');
     document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
     document.querySelectorAll('[data-pdel]').forEach(b=>b.onclick=async()=>{
@@ -328,7 +464,7 @@ function openEdit(id){
 $('addBtn').onclick=()=>openEdit(null);
 $('cancelBtn').onclick=()=>$('editCard').classList.add('hidden');
 function renderThumbs(){
-  $('thumbs').innerHTML=editImages.map((u,i)=>'<div class="thumbwrap"><img src="'+esc(u)+'"><button data-rm="'+i+'">✕</button></div>').join('');
+  $('thumbs').innerHTML=editImages.map((u,i)=>'<div class="thumbwrap"><img src="'+esc(thumb(u))+'" loading="lazy"><button data-rm="'+i+'">✕</button></div>').join('');
   document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{editImages.splice(+b.dataset.rm,1);renderThumbs();});
 }
 $('upBtn').onclick=async()=>{
@@ -490,9 +626,9 @@ $('seedBtn').onclick=async()=>{
   }catch(e){if(e.message!=='login')err('Seed failed');}
 };
 
-async function boot(){setTab('Orders');await loadOrders();}
+async function boot(){setTab('Dashboard');setRangeUI(addDays(istToday(),-6),istToday());await loadStats();}
 /* try silent session */
-(async()=>{try{const j=await api('/api/admin/orders');if(j.ok){showDash();await boot();}}catch(e){}})();
+(async()=>{try{const j=await api('/api/admin/orders');if(j.ok){STATUSES=j.statuses||STATUSES;ORDERS=j.orders||[];ORDERS_LOADED=true;showDash();await boot();}}catch(e){}})();
 </script>
 </body>
 </html>
