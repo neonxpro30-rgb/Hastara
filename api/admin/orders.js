@@ -24,6 +24,16 @@ module.exports = async (req, res) => {
       admin.json(res, 200, { ok: true, order: saved });
       return;
     }
+    if (req.method === 'DELETE') {
+      const u = new URL(req.url || '', 'http://x');
+      const orderId = String(u.searchParams.get('orderId') || '');
+      if (!orderId) { admin.json(res, 400, { ok: false, error: 'missing orderId' }); return; }
+      const cur = await fsdb.docGet('orders', orderId);
+      if (!cur) { admin.json(res, 404, { ok: false, error: 'order not found' }); return; }
+      await fsdb.docDel('orders', orderId);
+      admin.json(res, 200, { ok: true, deleted: orderId });
+      return;
+    }
     admin.json(res, 405, { ok: false });
   } catch (e) { admin.json(res, 500, { ok: false, error: 'server error' }); }
 };

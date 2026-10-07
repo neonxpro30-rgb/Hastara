@@ -133,6 +133,25 @@ async function handleSettings(req, res) {
 }
 
 /* ---------- stats ---------- */
+// DELETE ?resource=stats&from=YYYY-MM-DD&to=YYYY-MM-DD
+// Zeroes the visit counters (visits, pdp_views, bag_adds) in stats_daily/*
+// for the range. Used to wipe test traffic. Orders are untouched — delete or
+// cancel test orders separately via the orders API.
+async function handleStatsReset(req, res) {
+  let from = validDay(queryParam(req, 'from')) || istDay(new Date());
+  let to = validDay(queryParam(req, 'to')) || from;
+  if (from > to) { const t = from; from = to; to = t; }
+  const days = eachDay(from, to);
+  let reset = 0;
+  for (const d of days) {
+    try {
+      await fsdb.docSet('stats_daily', d, { date: d, visits: 0, pdp_views: 0, bag_adds: 0 });
+      reset++;
+    } catch (e) { /* keep going */ }
+  }
+  admin.json(res, 200, { ok: true, reset, from, to });
+}
+
 // GET ?resource=stats&from=YYYY-MM-DD&to=YYYY-MM-DD
 // Revenue/orders/units from the orders collection + visit counters from
 // stats_daily/{YYYY-MM-DD} (written by POST /api/store?action=track).
@@ -220,7 +239,10 @@ module.exports = async (req, res) => {
     if (resource === 'products') { await handleProducts(req, res); return; }
     if (resource === 'coupons') { await handleCoupons(req, res); return; }
     if (resource === 'settings') { await handleSettings(req, res); return; }
-    if (resource === 'stats') { await handleStats(req, res); return; }
+    if (resource === 'stats') {
+      if (req.method === 'DELETE') { await handleStatsReset(req, res); return; }
+      await handleStats(req, res); return;
+    }
     admin.json(res, 400, { ok: false, error: 'unknown resource' });
   } catch (e) { admin.json(res, 500, { ok: false, error: 'server error' }); }
 };

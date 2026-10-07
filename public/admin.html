@@ -98,6 +98,7 @@ select.st{width:auto;min-width:130px;padding:8px}
         <span style="color:#a98f83">→</span>
         <input type="date" id="d_to">
         <button id="d_apply">Apply</button>
+        <button class="ghost danger" id="d_reset" title="Zero visits/taps for the selected range">Reset stats</button>
       </div>
       <div class="kpis" id="kpis">Loading…</div>
     </div>
@@ -288,6 +289,13 @@ document.querySelectorAll('[data-range]').forEach(b=>b.onclick=()=>{
   loadStats();
 });
 $('d_apply').onclick=()=>loadStats();
+$('d_reset').onclick=async()=>{
+  const t=istToday();
+  const from=$('d_from').value||addDays(t,-6),to=$('d_to').value||t;
+  if(!confirm('Zero visits/product-taps/bag-adds for '+from+' → '+to+'? Orders are NOT touched.'))return;
+  const j=await api('/api/admin/data?resource=stats&from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to),'DELETE');
+  j.ok?(okm('Stats reset'),loadStats()):err('Reset failed');
+};
 function kpiCard(v,l){return '<div class="kpi"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>';}
 function renderKPIs(k){
   $('kpis').innerHTML=
@@ -384,7 +392,7 @@ function orderRow(o){
   return '<tr><td><b>'+esc(oid)+'</b><br><span style="color:#a98f83">'+esc(dt)+'</span><br><span class="pill">'+esc(paym)+'</span>'+shipInfo+'</td>'+
   '<td>'+esc(cn)+'<br>'+esc(cp)+'<br><span style="color:#a98f83">'+esc(ct)+'</span></td>'+
   '<td>'+items+'</td><td><b>₹'+esc(tot)+'</b></td>'+
-  '<td><select class="st" data-oid="'+esc(did)+'">'+STATUSES.map(s=>'<option value="'+s+'"'+(s===st?' selected':'')+'>'+s+'</option>').join('')+'</select></td></tr>';
+  '<td><select class="st" data-oid="'+esc(did)+'">'+STATUSES.map(s=>'<option value="'+s+'"'+(s===st?' selected':'')+'>'+s+'</option>').join('')+'</select><br><button class="ghost danger" data-del="'+esc(did)+'" style="margin-top:6px;font-size:11px">Delete</button></td></tr>';
 }
 function renderOrders(){
   const q=($('ordSearch').value||'').trim().toLowerCase();
@@ -402,6 +410,12 @@ function renderOrders(){
   document.querySelectorAll('select.st').forEach(s=>s.onchange=async()=>{
     const j2=await api('/api/admin/orders','PATCH',{orderId:s.dataset.oid,status:s.value});
     j2.ok?okm('Status updated'):err('Update failed');
+  });
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Delete order '+b.dataset.del+'? This cannot be undone.'))return;
+    const j2=await api('/api/admin/orders?orderId='+encodeURIComponent(b.dataset.del),'DELETE');
+    if(j2.ok){okm('Order deleted');ORDERS=ORDERS.filter(o=>(o._id||o.orderId||o.id)!==b.dataset.del);renderOrders();}
+    else err('Delete failed');
   });
 }
 async function loadOrders(force){
