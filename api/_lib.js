@@ -19,7 +19,7 @@ function findProduct(catalog, id) {
 // Metros: Delhi 11, Mumbai 40, Pune 41, Ahmedabad 38, Bangalore 56, Chennai 60, Kolkata 70, Hyderabad 50.
 const METRO_PIN = ['11', '40', '41', '38', '56', '60', '70', '50'];
 const FREE_SHIP = 499, SHIP_METRO = 49, SHIP_OTHER = 69;
-const PREPAID_PERK = 40; // ₹40 prepaid perk (PayU orders only), mirrored in the storefront checkout.
+const PREPAID_PERK = 20; // ₹20 prepaid perk (PayU orders only), mirrored in the storefront checkout.
 
 function isMetroPin(pin) {
   return /^\d{6}$/.test(pin || '') && METRO_PIN.indexOf(String(pin).slice(0, 2)) !== -1;
@@ -58,10 +58,10 @@ async function buildOrder(catalog, items, pincode, isPrepaid, couponCode, courie
     } catch (e) { /* fall through to flat rate */ }
     if (!liveOk) shipping = isMetroPin(pincode) ? SHIP_METRO : SHIP_OTHER;
   }
-  // Tiered festive offer (mirrored in the storefront): 2 pairs -> ₹100 off, 3+ -> ₹200 off.
+  // Tiered festive offer (mirrored in the storefront): 2 pairs -> ₹50 off, 3+ -> ₹100 off.
   const count = lines.reduce((a, l) => a + l.qty, 0);
-  const discount = count >= 3 ? 200 : count >= 2 ? 100 : 0;
-  // ₹40 prepaid perk (mirrored in the storefront): PayU/prepaid orders only, never COD.
+  const discount = count >= 3 ? 100 : count >= 2 ? 50 : 0;
+  // ₹20 prepaid perk (mirrored in the storefront): PayU/prepaid orders only, never COD.
   const perk = isPrepaid ? PREPAID_PERK : 0;
   const order = { lines, subtotal, shipping, courier, discount, perk, total: Math.max(0, subtotal + shipping - discount - perk) };
   // Optional coupon code: validated + quoted server-side, stacks after the tier offer.

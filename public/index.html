@@ -495,7 +495,7 @@ padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:1px;letter-spa
 <section id="offer" style="padding-top:34px"><div class="offer reveal">
   <div class="wrap">
     <span class="sec-kicker">FESTIVE DROP</span>
-    <h2>Buy 2, get <span style="color:var(--rose)">₹100 OFF</span><br>Buy 3+, get <span style="color:var(--rose)">₹200 OFF</span></h2>
+    <h2>Buy 2, get <span style="color:var(--rose)">₹50 OFF</span><br>Buy 3+, get <span style="color:var(--rose)">₹100 OFF</span></h2>
     <p style="color:var(--muted);font-size:14.5px">Auto-applied at checkout. Dhanteras to Diwali — stack them all.</p>
     <div class="code">FESTIVE100</div>
     <p style="font-size:13px;color:var(--muted)">Offer ends in</p>
@@ -595,7 +595,7 @@ padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:1px;letter-spa
 <script>
 /* ============ HASTARA v2 storefront ============ */
 let WHATSAPP_NUMBER = '919554819859'; // bot number (Settings tab se override ho sakta hai)
-const FREE_SHIP = 499, SHIP_COST = 49, PREPAID_PERK = 40;
+const FREE_SHIP = 499, SHIP_COST = 49, PREPAID_PERK = 20;
 // Pincode delivery zones (mirrored server-side in api/_lib.js).
 // Metros: Delhi 11, Mumbai 40, Pune 41, Ahmedabad 38, Bangalore 56, Chennai 60, Kolkata 70, Hyderabad 50.
 const METRO_PIN = ['11', '40', '41', '38', '56', '60', '70', '50'];
@@ -643,8 +643,8 @@ const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
 const money = (n) => '₹' + Number(n).toLocaleString('en-IN');
 const offPct = (p) => p.compare_at ? Math.round((1 - p.price / p.compare_at) * 100) : 0;
-// Tiered festive offer (mirrored server-side in api/_lib.js): 2 pairs -> ₹100 off, 3+ -> ₹200 off
-const offerFor = (n) => n >= 3 ? 200 : n >= 2 ? 100 : 0;
+// Tiered festive offer (mirrored server-side in api/_lib.js): 2 pairs -> ₹50 off, 3+ -> ₹100 off
+const offerFor = (n) => n >= 3 ? 100 : n >= 2 ? 50 : 0;
 
 function toast(msg) {
   const t = $('#toast'); t.textContent = msg; t.classList.add('show');
@@ -690,7 +690,7 @@ async function loadSettings() {
 
 /* ---------- static content ---------- */
 function initStatic() {
-  const items = ['✦ FESTIVE SALE', '✦ BUY 2 GET ₹100 OFF · 3+ GET ₹200 OFF', '✦ COD AVAILABLE', '✦ FREE SHIPPING OVER ₹499', '✦ 7-DAY EASY RETURNS'];
+  const items = ['✦ FESTIVE SALE', '✦ BUY 2 GET ₹50 OFF · 3+ GET ₹100 OFF', '✦ COD AVAILABLE', '✦ FREE SHIPPING OVER ₹499', '✦ 7-DAY EASY RETURNS'];
   const half = items.map((t) => '<span>' + t + '</span>').join('');
   $('#marqueeTrack').innerHTML = half + half;
   loadSettings(); // overrides marquee + footer contacts from admin Settings when set
@@ -994,8 +994,8 @@ function renderCart() {
   body.innerHTML =
     '<div class="ship-bar"><div class="t">' + (left ? 'Add <b>' + money(left) + '</b> more for FREE shipping 🚚' : 'You unlocked <b>FREE shipping</b>! 🎉') + '</div>' +
     '<div class="ship-track"><div class="ship-fill" style="width:' + Math.min(100, sub / FREE_SHIP * 100) + '%"></div></div></div>' +
-    (cartCount() === 1 ? '<div class="ship-bar" style="border-style:dashed"><div class="t">✦ Add <b>1 more pair</b> to unlock <b>₹100 OFF</b> <span class="caveat" style="font-size:17px;color:var(--rose)">festive treat!!</span></div></div>' : '') +
-    (cartCount() === 2 ? '<div class="ship-bar" style="border-style:dashed"><div class="t">✦ Add <b>1 more pair</b> to unlock <b>₹200 OFF</b> <span class="caveat" style="font-size:17px;color:var(--rose)">go on, you deserve it!!</span></div></div>' : '') +
+    (cartCount() === 1 ? '<div class="ship-bar" style="border-style:dashed"><div class="t">✦ Add <b>1 more pair</b> to unlock <b>₹50 OFF</b> <span class="caveat" style="font-size:17px;color:var(--rose)">festive treat!!</span></div></div>' : '') +
+    (cartCount() === 2 ? '<div class="ship-bar" style="border-style:dashed"><div class="t">✦ Add <b>1 more pair</b> to unlock <b>₹100 OFF</b> <span class="caveat" style="font-size:17px;color:var(--rose)">go on, you deserve it!!</span></div></div>' : '') +
     ids.map((id) => {
       const p = PRODUCTS.find((x) => x.id === id), q = cart[id];
       return '<div class="cart-item"><img src="' + p.image + '" alt="' + p.name + '">' +
