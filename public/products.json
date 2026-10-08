@@ -1,1 +1,84 @@
-{"products": [{"active": true, "badges": ["Bestseller", "Festive"], "category": "Drops", "compare_at": 499, "description": "Moonstone-glow petal drops wrapped in a halo of sparkling crystals. They catch light from across the room \u2014 and compliments from across the table. Featherlight, so you can dance all night.", "dimensions": "4.5 cm drop", "id": "moon-petal", "image": "assets/moon-petal-1.jpg", "images": ["assets/moon-petal-1.jpg", "assets/moon-petal-2.jpg", "assets/moon-petal-3.jpg", "assets/tryon-moonpetal.jpg", "assets/moon-petal-info.jpg"], "material": "Silver-plated alloy with moonstone-finish drops & crystals, nickel-free", "name": "Moon Petal Drops", "price": 365, "rating": 4.6, "sku": "HSR-MP-001", "weight": "9 g (pair)"}, {"active": true, "badges": ["Elegant"], "category": "Drops", "compare_at": 699, "description": "Twin gold leaves with pearl drops on delicate chains \u2014 the kind of earrings that make a plain kurta look intentional. Soft, romantic, and endlessly giftable.", "dimensions": "6 cm drop", "id": "pearl-leaf", "image": "assets/pearl-leaf-1.jpg", "images": ["assets/pearl-leaf-1.jpg", "assets/pearl-leaf-2.jpg", "assets/pearl-leaf-info.jpg"], "material": "Gold-plated alloy with shell pearls, nickel-free", "name": "Pearl Leaf Earrings", "price": 499, "rating": 4.7, "sku": "HSR-PL-001", "weight": "8 g (pair)"}, {"active": true, "badges": ["New", "Trending"], "category": "Drops", "compare_at": 649, "description": "A crystal halo crown over a blush rose-quartz drop. Soft-girl energy with main-character shine \u2014 made for golden-hour selfies and sangeet nights.", "dimensions": "3.5 cm drop", "id": "rose-halo", "image": "assets/rose-halo-1.jpg", "images": ["assets/rose-halo-1.jpg", "assets/rose-halo-2.jpg", "assets/rose-halo-3.jpg", "assets/tryon-rosehalo.jpg", "assets/rose-halo-info.jpg"], "material": "Silver-plated alloy with crystals & rose quartz, nickel-free", "name": "Rose Halo Earrings", "price": 449, "rating": 4.5, "sku": "HSR-RH-001", "weight": "7 g (pair)"}, {"active": true, "badges": ["Statement"], "category": "Drops", "compare_at": 799, "description": "Bold black trapezes floating under a single pearl stud. Minimal, sculptural, and impossible to ignore \u2014 for the girl whose jewellery speaks before she does.", "dimensions": "5.5 cm drop", "id": "ebony-trapeze", "image": "assets/ebony-1.jpg", "images": ["assets/ebony-1.jpg", "assets/ebony-2.jpg", "assets/ebony-3.jpg", "assets/ebony-info.jpg"], "material": "Silver-plated alloy with enamel & shell pearl, nickel-free", "name": "Ebony Trapeze Earrings", "price": 549, "rating": 4.6, "sku": "HSR-ET-001", "weight": "11 g (pair)"}, {"active": true, "badges": ["Bestseller"], "category": "Drops", "compare_at": 599, "description": "Crystal-paved stars with pearl drops that swing when you move. Celestial, dreamy, and weirdly perfect with everything from sarees to slip dresses.", "dimensions": "4 cm drop", "id": "luna-star", "image": "assets/luna-3.jpg", "images": ["assets/luna-3.jpg", "assets/luna-1.jpg", "assets/luna-2.jpg", "assets/tryon-lunastar.jpg", "assets/luna-star-info.jpg"], "material": "Silver-plated alloy with crystals & shell pearls, nickel-free", "name": "Luna Star Earrings", "price": 399, "rating": 4.8, "sku": "HSR-LS-001", "weight": "8 g (pair)"}, {"active": true, "badges": ["Daily Wear"], "category": "Studs", "compare_at": 449, "description": "Tiny silver butterflies with crystal-dusted wings. The everyday studs you'll forget you're wearing \u2014 until someone asks where they're from.", "dimensions": "1.5 cm", "id": "butterfly", "image": "assets/butterfly-2.jpg", "images": ["assets/butterfly-2.jpg", "assets/butterfly-1.jpg", "assets/butterfly-info.jpg"], "material": "Silver-plated alloy with crystals, nickel-free", "name": "Butterfly Studs", "price": 299, "rating": 4.5, "sku": "HSR-BF-001", "weight": "4 g (pair)"}, {"id": "mystery-potli", "name": "Mystery Potli", "sku": "HSR-GF-001", "category": "Gift Sets", "price": 499, "compare_at": 799, "rating": 4.9, "badges": ["Festive", "Limited"], "active": true, "image": "assets/mystery-potli.jpg", "images": ["assets/mystery-potli.jpg"], "description": "A surprise potli packed with 2 pairs of Hastara earrings worth \u20b9799+ \u2014 handpicked by us, wrapped festive-ready in a maroon silk potli. Part gift, part gamble, fully worth it. Limited festive run.", "material": "Assorted Hastara earrings, nickel-free", "weight": "Varies", "dimensions": "Surprise!"}]}
+{
+  "products": [
+    {
+      "id": "antique-jhumka",
+      "name": "Antique Gold Jhumka",
+      "sku": "HSR-AJ-001",
+      "price": 309,
+      "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791266070/hastara_products/v9ry98n713jrgg60oq22.jpg",
+      "active": true
+    },
+    {
+      "id": "butterfly",
+      "name": "Butterfly Studs",
+      "sku": "HSR-BF-001",
+      "price": 285,
+      "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791265749/hastara_products/iawiu3viz4vfn0vc1pvm.jpg",
+      "active": true
+    },
+    {
+      "id": "ebony-trapeze",
+      "name": "Ebony Trapeze Earrings",
+      "sku": "HSR-ET-001",
+      "price": 275,
+      "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791265937/hastara_products/kwzlnj4rr038o2a6a3dr.jpg",
+      "active": true
+    },
+    {
+      "id": "jhumka",
+      "name": "Jhumka",
+      "sku": "HSR-JH-001",
+      "price": 295,
+      "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791266002/hastara_products/pxxqd2murspsg8akndp1.jpg",
+      "active": true
+    },
+    {
+      "id": "luna-star",
+      "name": "Luna Star Earrings",
+      "sku": "HSR-LS-001",
+      "price": 279,
+      "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791265874/hastara_products/sfswtqnun5cn5m7kj3vo.jpg",
+      "active": true
+    },
+    {
+      "id": "mirror-earring",
+      "name": "Mirror Earring",
+      "sku": "HSR-ME-001",
+      "price": 295,
+      "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791266143/hastara_products/b1qu4w45tbciyepevrxm.jpg",
+      "active": true
+    },
+    {
+      "id": "moon-petal",
+      "name": "Moon Petal Drops",
+      "sku": "HSR-MP-001",
+      "price": 275,
+      "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791265825/hastara_products/up9fdihmcepvdb79h2v1.jpg",
+      "active": true
+    },
+    {
+      "id": "pearl-leaf-earrings",
+      "name": "Pearl Leaf Earrings",
+      "sku": "HSR-PL-001",
+      "price": 319,
+      "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791267443/hastara_products/zvd1am5xdknzcq3x50by.jpg",
+      "active": true
+    },
+    {
+      "id": "rose-halo-earrings",
+      "name": "Rose Halo Earrings",
+      "sku": "HSR-RH-001",
+      "price": 275,
+      "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791267513/hastara_products/x4tdvbgnyrjnypvvdxy6.jpg",
+      "active": true
+    },
+    {
+      "id": "tups",
+      "name": "Tups",
+      "sku": "HSR-TP-001",
+      "price": 295,
+      "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791267567/hastara_products/kxgkeq1guuwzemkq6mjo.jpg",
+      "active": true
+    }
+  ]
+}

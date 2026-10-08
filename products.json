@@ -4,7 +4,7 @@
       "id": "antique-jhumka",
       "name": "Antique Gold Jhumka",
       "sku": "HSR-AJ-001",
-      "price": 349,
+      "price": 309,
       "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791266070/hastara_products/v9ry98n713jrgg60oq22.jpg",
       "active": true
     },
@@ -12,7 +12,7 @@
       "id": "butterfly",
       "name": "Butterfly Studs",
       "sku": "HSR-BF-001",
-      "price": 299,
+      "price": 285,
       "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791265749/hastara_products/iawiu3viz4vfn0vc1pvm.jpg",
       "active": true
     },
@@ -20,7 +20,7 @@
       "id": "ebony-trapeze",
       "name": "Ebony Trapeze Earrings",
       "sku": "HSR-ET-001",
-      "price": 549,
+      "price": 275,
       "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791265937/hastara_products/kwzlnj4rr038o2a6a3dr.jpg",
       "active": true
     },
@@ -28,7 +28,7 @@
       "id": "jhumka",
       "name": "Jhumka",
       "sku": "HSR-JH-001",
-      "price": 299,
+      "price": 295,
       "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791266002/hastara_products/pxxqd2murspsg8akndp1.jpg",
       "active": true
     },
@@ -36,7 +36,7 @@
       "id": "luna-star",
       "name": "Luna Star Earrings",
       "sku": "HSR-LS-001",
-      "price": 399,
+      "price": 279,
       "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791265874/hastara_products/sfswtqnun5cn5m7kj3vo.jpg",
       "active": true
     },
@@ -44,7 +44,7 @@
       "id": "mirror-earring",
       "name": "Mirror Earring",
       "sku": "HSR-ME-001",
-      "price": 299,
+      "price": 295,
       "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791266143/hastara_products/b1qu4w45tbciyepevrxm.jpg",
       "active": true
     },
@@ -52,7 +52,7 @@
       "id": "moon-petal",
       "name": "Moon Petal Drops",
       "sku": "HSR-MP-001",
-      "price": 349,
+      "price": 275,
       "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791265825/hastara_products/up9fdihmcepvdb79h2v1.jpg",
       "active": true
     },
@@ -60,7 +60,7 @@
       "id": "pearl-leaf-earrings",
       "name": "Pearl Leaf Earrings",
       "sku": "HSR-PL-001",
-      "price": 499,
+      "price": 319,
       "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791267443/hastara_products/zvd1am5xdknzcq3x50by.jpg",
       "active": true
     },
@@ -68,7 +68,7 @@
       "id": "rose-halo-earrings",
       "name": "Rose Halo Earrings",
       "sku": "HSR-RH-001",
-      "price": 449,
+      "price": 275,
       "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791267513/hastara_products/x4tdvbgnyrjnypvvdxy6.jpg",
       "active": true
     },
@@ -76,7 +76,7 @@
       "id": "tups",
       "name": "Tups",
       "sku": "HSR-TP-001",
-      "price": 249,
+      "price": 295,
       "image": "https://res.cloudinary.com/bhgb6jc8/image/upload/v1791267567/hastara_products/kxgkeq1guuwzemkq6mjo.jpg",
       "active": true
     }
