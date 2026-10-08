@@ -3,15 +3,28 @@
 // GET  /api/store?action=settings -> same as above
 // POST /api/store?action=coupon  -> {ok, code, discount} | {ok:false, error} (coupon quote)
 // POST /api/store?action=track   -> {ok:true} (public visit beacon; no auth)
-//   body {type:'visit'|'pdp'|'bag'|'engage'|'time', product?, seconds?}
+//   body {type:'visit'|'pdp'|'bag'|'engage'|'time', product?, seconds?, ad?}
 //   -> increments stats_daily/{YYYY-MM-DD} (IST). visit=once/session,
 //      pdp=+product id into product_views map, engage=once/session with any
 //      product interaction (for bounce rate), time=session seconds on pagehide.
+//      ad=utm_content tag (image/video/unknown) -> ad_breakdown map for per-ad
+//      visit/tap/engage comparison.
 function istDay(d) {
   const t = d instanceof Date ? d : new Date(d);
   if (isNaN(t.getTime())) return '';
   return new Date(t.getTime() + (330 + t.getTimezoneOffset()) * 60000).toISOString().slice(0, 10);
 }
+
+// Per-ad sub-counter inside a stats_daily doc: doc.ad_breakdown[ad] = {visits, pdp_views, bag_adds, engaged}
+function adObj(doc, rawAd) {
+  const key = String(rawAd || '').slice(0, 40) || 'unknown';
+  const ab = (doc.ad_breakdown && typeof doc.ad_breakdown === 'object') ? doc.ad_breakdown : {};
+  const o = (ab[key] && typeof ab[key] === 'object') ? ab[key] : {};
+  ab[key] = o;
+  doc.ad_breakdown = ab;
+  return o;
+}
+function bump(o, k) { o[k] = (Number(o[k]) || 0) + 1; }
 
 async function handleTrack(req, res) {
   let body = req.body;
@@ -28,8 +41,10 @@ async function handleTrack(req, res) {
     doc.date = day;
     if (type === 'visit') {
       doc.visits = (Number(doc.visits) || 0) + 1;
+      bump(adObj(doc, body.ad), 'visits');
     } else if (type === 'pdp') {
       doc.pdp_views = (Number(doc.pdp_views) || 0) + 1;
+      bump(adObj(doc, body.ad), 'pdp_views');
       const pid = String(body.product || '').slice(0, 60);
       if (pid) {
         const pv = (doc.product_views && typeof doc.product_views === 'object') ? doc.product_views : {};
@@ -38,8 +53,10 @@ async function handleTrack(req, res) {
       }
     } else if (type === 'bag') {
       doc.bag_adds = (Number(doc.bag_adds) || 0) + 1;
+      bump(adObj(doc, body.ad), 'bag_adds');
     } else if (type === 'engage') {
       doc.engaged = (Number(doc.engaged) || 0) + 1;
+      bump(adObj(doc, body.ad), 'engaged');
     } else if (type === 'time') {
       const s = Math.min(7200, Math.max(0, parseInt(body.seconds, 10) || 0));
       if (s >= 3) {

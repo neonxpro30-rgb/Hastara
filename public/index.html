@@ -958,7 +958,7 @@ function addToBag(id, qty, btn) {
   if (st === 0) { toast('Sorry, this just sold out ✦'); return; }
   if (inBag + qty > st) { toast('Only ' + st + ' available — you already have ' + inBag + ' in your bag'); return; }
   cart[id] = Math.min(10, inBag + qty); saveCart(); renderCart();
-  try{track('bag');engage();}catch(e){}
+  try{track('bag',{ad:adTag()});engage();}catch(e){}
   if (btn) {
     const r = btn.getBoundingClientRect(); confettiBurst(r.left + r.width / 2, r.top);
     const old = btn.textContent; btn.textContent = 'ADDED ✓'; btn.classList.add('added');
@@ -1020,7 +1020,7 @@ function renderCart() {
 
 /* ---------- product detail (PDP) ---------- */
 function openPDP(id, keepScroll) {
-  try{track('pdp',{product:id});engage();}catch(e){}
+  try{track('pdp',{product:id,ad:adTag()});engage();}catch(e){}
   const p = PRODUCTS.find((x) => x.id === id); if (!p) return;
   window._pdpId = id;
   const off = offPct(p);
@@ -1328,8 +1328,10 @@ function initEvents() {
 try { initStatic(); } catch (e) {}
 /* lightweight analytics beacon -> POST /api/store?action=track (visit once per session) */
 function track(t,extra){try{fetch('/api/store?action=track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({type:t},extra||{})),keepalive:true});}catch(e){}}
-function engage(){try{if(!sessionStorage.getItem('hs_e')){sessionStorage.setItem('hs_e','1');track('engage');}}catch(e){}}
-try{if(!sessionStorage.getItem('hs_v')){sessionStorage.setItem('hs_v','1');track('visit');}}catch(e){}
+function adTag(){try{return sessionStorage.getItem('hs_ad')||'';}catch(e){return '';}}
+function engage(){try{if(!sessionStorage.getItem('hs_e')){sessionStorage.setItem('hs_e','1');track('engage',{ad:adTag()});}}catch(e){}}
+try{var _uc=new URLSearchParams(location.search).get('utm_content');if(_uc)sessionStorage.setItem('hs_ad',_uc.slice(0,40));}catch(e){}
+try{if(!sessionStorage.getItem('hs_v')){sessionStorage.setItem('hs_v','1');track('visit',{ad:adTag()});}}catch(e){}
 /* session time on page -> beacon on pagehide */
 var _t0=Date.now();
 window.addEventListener('pagehide',function(){try{var s=Math.round((Date.now()-_t0)/1000);if(s>=3)fetch('/api/store?action=track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'time',seconds:s}),keepalive:true});}catch(e){}});

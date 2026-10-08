@@ -121,6 +121,11 @@ select.st{width:auto;min-width:130px;padding:8px}
       <div id="topViewed">Loading…</div>
       <p class="hint">Which products visitors actually opened — bounce = visit with no product tap or bag add.</p>
     </div>
+    <div class="card">
+      <h3 style="color:#e8c766;margin-bottom:10px">Traffic by ad</h3>
+      <div id="adStats">Loading…</div>
+      <p class="hint">Needs ?utm_content=image / ?utm_content=video on each ad's URL in Ads Manager — untagged visits show as "unknown".</p>
+    </div>
   </div>
 
   <div id="paneOrders" class="hidden">
@@ -364,11 +369,16 @@ function renderViewed(tv){
   $('topViewed').innerHTML='<div class="tblwrap"><table><tr><th>Product</th><th>Views</th></tr>'+
     tv.map(t=>'<tr><td>'+esc(t.name)+'</td><td><b>'+t.views+'</b></td></tr>').join('')+'</table></div>';
 }
+function renderAdStats(rows){
+  if(!rows.length){$('adStats').innerHTML='No tagged ad traffic in this range yet.';return;}
+  $('adStats').innerHTML='<div class="tblwrap"><table><tr><th>Ad</th><th>Visits</th><th>Taps</th><th>Bounce</th></tr>'+
+    rows.map(r=>'<tr><td>'+esc(r.ad)+'</td><td>'+r.visits+'</td><td><b>'+r.pdp_views+'</b></td><td>'+r.bounce+'%</td></tr>').join('')+'</table></div>';
+}
 async function loadStats(){
   const t=istToday();
   const from=$('d_from').value||addDays(t,-6),to=$('d_to').value||t;
   $('kpis').textContent='Loading…';$('chRev').textContent='Loading…';
-  $('chTraf').textContent='Loading…';$('topProds').textContent='Loading…';$('topViewed').textContent='Loading…';
+  $('chTraf').textContent='Loading…';$('topProds').textContent='Loading…';$('topViewed').textContent='Loading…';$('adStats').textContent='Loading…';
   try{
     const j=await api('/api/admin/data?resource=stats&from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to));
     if(!j.ok){err('Could not load stats');return;}
@@ -379,6 +389,7 @@ async function loadStats(){
     drawGrouped('chTraf',j.daily);
     renderTop(j.top||[]);
     renderViewed(j.topViewed||[]);
+    renderAdStats(j.adStats||[]);
   }catch(e){if(e.message!=='login')err('Could not load stats');}
 }
 

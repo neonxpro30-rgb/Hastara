@@ -147,7 +147,7 @@ async function handleStatsReset(req, res) {
     try {
       await fsdb.docSet('stats_daily', d, {
         date: d, visits: 0, pdp_views: 0, bag_adds: 0,
-        engaged: 0, time_total: 0, time_n: 0, product_views: {},
+        engaged: 0, time_total: 0, time_n: 0, product_views: {}, ad_breakdown: {},
       });
       reset++;
     } catch (e) { /* keep going */ }
@@ -186,7 +186,7 @@ async function handleStats(req, res) {
   const daily = {};
   days.forEach((d) => { daily[d] = { date: d, revenue: 0, orders: 0, units: 0, visits: 0 }; });
   let visits = 0, pdp_views = 0, bag_adds = 0, engaged = 0, time_total = 0, time_n = 0;
-  const viewMap = {};
+  const viewMap = {}, adAgg = {};
   for (const d of days) {
     try {
       const doc = await fsdb.docGet('stats_daily', d);
@@ -201,6 +201,15 @@ async function handleStats(req, res) {
         const pv = doc.product_views || {};
         for (const pid of Object.keys(pv)) {
           viewMap[pid] = (viewMap[pid] || 0) + (Number(pv[pid]) || 0);
+        }
+        const ab = doc.ad_breakdown || {};
+        for (const ak of Object.keys(ab)) {
+          const s = ab[ak] || {};
+          const t = adAgg[ak] || (adAgg[ak] = { ad: ak, visits: 0, pdp_views: 0, bag_adds: 0, engaged: 0 });
+          t.visits += Number(s.visits) || 0;
+          t.pdp_views += Number(s.pdp_views) || 0;
+          t.bag_adds += Number(s.bag_adds) || 0;
+          t.engaged += Number(s.engaged) || 0;
         }
       }
     } catch (e) { /* missing day = zeros */ }
@@ -240,6 +249,12 @@ async function handleStats(req, res) {
   const topViewed = Object.keys(viewMap)
     .map((pid) => ({ id: pid, name: nameMap[pid] || pid, views: viewMap[pid] }))
     .sort((a, b) => b.views - a.views).slice(0, 10);
+  // Per-ad traffic comparison (ad = utm_content tag on the ad URL).
+  const adStats = Object.values(adAgg)
+    .map((t) => Object.assign({}, t, {
+      bounce: t.visits ? Math.round(((t.visits - t.engaged) / t.visits) * 1000) / 10 : 0,
+    }))
+    .sort((a, b) => b.visits - a.visits);
   const kpi = {
     revenue, orders, units,
     aov: orders ? Math.round(revenue / orders) : 0,
@@ -251,7 +266,7 @@ async function handleStats(req, res) {
   };
   admin.json(res, 200, {
     ok: true, from: days[0] || from, to: days[days.length - 1] || to,
-    kpi, daily: days.map((d) => daily[d]), top, topViewed,
+    kpi, daily: days.map((d) => daily[d]), top, topViewed, adStats,
   });
 }
 
